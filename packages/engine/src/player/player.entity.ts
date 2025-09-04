@@ -3,6 +3,7 @@ import { Entity } from '../entity';
 import type { Game } from '../game/game';
 
 export type SerializedPlayer = {
+  type: 'player';
   id: string;
 };
 
@@ -21,6 +22,7 @@ export class Player
 
   serialize() {
     return {
+      type: 'player' as const,
       id: this.id
     };
   }

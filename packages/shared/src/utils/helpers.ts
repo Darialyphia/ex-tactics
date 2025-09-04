@@ -11,11 +11,13 @@ export const random = (max: number) => Math.random() * max;
 
 export const randomInt = (max: number) => Math.round(random(max));
 
-export const indexToPoint = (length: number, idx: number): Point => ({
-  x: idx % length,
-  y: Math.floor(idx / length)
-});
+export const indexToPoint = (index: number, columns: number, rows: number) => {
+  const x = index % columns;
+  const y = Math.floor(index / columns) % rows;
+  const z = Math.floor(index / (columns * rows));
 
+  return { x, y, z };
+};
 export const pointToIndex = ({ x, y }: Point, width: number) => width * y + x;
 
 type UnionToIntersection<T> = (T extends T ? (p: T) => void : never) extends (

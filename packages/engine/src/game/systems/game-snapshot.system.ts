@@ -1,5 +1,7 @@
+import type { SerializedBoardCell } from '../../board/board-cell.entity';
 import type { Config } from '../../config';
 import type { SerializedPlayer } from '../../player/player.entity';
+import type { SerializedUnit } from '../../unit/unit.entity';
 import { areArraysIdentical } from '../../utils/utils';
 import type { Game } from '../game';
 import {
@@ -17,9 +19,11 @@ export type GameStateSnapshot<T> = {
   events: SerializedStarEvent[];
 };
 
-export type EntityDictionary = Record<string, SerializedPlayer>;
+export type SerializedEntity = SerializedPlayer | SerializedBoardCell | SerializedUnit;
 
-export type EntityDiffDictionary = Record<string, Partial<SerializedPlayer>>;
+export type EntityDictionary = Record<string, SerializedEntity>;
+
+export type EntityDiffDictionary = Record<string, Partial<SerializedEntity>>;
 
 export type SerializedOmniscientState = {
   config: Config;
@@ -101,8 +105,9 @@ export class GameSnapshotSystem {
       GAME_EVENTS.INPUT_START,
       GAME_EVENTS.INPUT_END
     ];
-    this.playerCaches[this.game.playerManager.player1.id] = [];
-    this.playerCaches[this.game.playerManager.player2.id] = [];
+    this.game.playerManager.players.forEach(player => {
+      this.playerCaches[player.id] = [];
+    });
 
     this.game.on('*', event => {
       if (ignoredEvents.includes(event.data.eventName)) return;
@@ -211,16 +216,13 @@ export class GameSnapshotSystem {
     if (!this.isEnabled) return;
     const events = this.eventsSinceLastSnapshot.map(event => event.serialize());
     const id = this.nextId++;
-    this.playerCaches[this.game.playerManager.player1.id].push({
-      id,
-      events: events as any,
-      state: this.serializePlayerState(this.game.playerManager.player1.id)
-    });
 
-    this.playerCaches[this.game.playerManager.player2.id].push({
-      id,
-      events: events as any,
-      state: this.serializePlayerState(this.game.playerManager.player2.id)
+    this.game.playerManager.players.forEach(player => {
+      this.playerCaches[player.id].push({
+        id,
+        events: events as any,
+        state: this.serializePlayerState(player.id)
+      });
     });
 
     this.omniscientCache.push({

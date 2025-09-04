@@ -1,20 +1,20 @@
 <script setup lang="ts">
 import type { Point3D } from '@game/shared';
 import { computed } from 'vue';
-import grass from '@/assets/grass.png';
+import grass from '@/assets/ground.png';
+import dirt from '@/assets/dirt.png';
 import hoveredCell from '@/assets/hovered-cell.png';
 
-const texture = `url(${grass})`;
 const hoveredCellTexture = `url(${hoveredCell})`;
 
-const rows = 10;
-const cols = 5;
+const rows = 8;
+const cols = 8;
 const planes = 2;
 
 const cellSize = {
   x: 64,
   y: 32,
-  z: 32
+  z: 16
 };
 
 const padding = 32;
@@ -34,11 +34,12 @@ type Cell = {
   zIndex: number;
   isOpaque: boolean;
   isHalfTile: boolean;
+  texture: string;
 };
 
 const maxZIndexPerElevation = Math.max(cols * cellSize.x, rows * cellSize.y);
 
-const makePlane = (z: number) =>
+const makePlane = (z: number, texture: string) =>
   Array.from({ length: rows * cols }, (_, i) => {
     const x = i % cols;
     const y = Math.floor(i / cols);
@@ -53,11 +54,14 @@ const makePlane = (z: number) =>
       isoY,
       zIndex: isoY + z * maxZIndexPerElevation,
       isOpaque: true,
-      isHalfTile: false
+      isHalfTile: false,
+      texture: `url(${texture})`
     };
   });
 
-const cells = Array.from({ length: planes }, (_, z) => makePlane(z)).flat();
+const cells = Array.from({ length: planes }, (_, z) =>
+  makePlane(z, z === planes - 1 ? grass : dirt)
+).flat();
 const cellMap = new Map<string, Cell>();
 const getKey = (cell: Point3D) => `${cell.x}-${cell.y}-${cell.z}`;
 cells.forEach(cell => {
@@ -92,6 +96,7 @@ const displayedCells = computed(() => {
             cellSize.x * 0.5 * scale +
             rows * (cellSize.x * 0.5 * scale) +
             padding * 0.5 * scale,
+          '--bg': cell.texture,
           '--y': cell.isoY + planes * (cellSize.z * 0.5 * scale) + padding * 0.5 * scale,
           '--z-index': cell.zIndex
         }"
@@ -114,13 +119,13 @@ main {
   width: calc(1px * v-bind('boardDimensions.x * scale'));
   height: calc(1px * v-bind('boardDimensions.y * scale'));
   /* overflow: hidden; */
-  outline: solid 1px red;
+  outline: solid 1px white;
 }
 
 .iso-cell {
   width: calc(1px * v-bind('cellSize.x') * v-bind('scale'));
   height: calc(1px * (v-bind('cellSize.y') + v-bind('cellSize.z')) * v-bind('scale'));
-  background: v-bind(texture);
+  background: var(--bg);
   background-size: cover;
   position: absolute;
   translate: calc(1px * var(--x)) calc(1px * var(--y));

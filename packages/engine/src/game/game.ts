@@ -1,7 +1,7 @@
-import { defaultConfig, type Config } from '../config';
+import { type Config } from '../config';
 import { InputSystem, type SerializedInput } from '../input/input-system';
 import { RngSystem } from '../rng/rng.system';
-import { type BetterOmit, type Serializable } from '@game/shared';
+import { type Serializable } from '@game/shared';
 import {
   GameSnapshotSystem,
   type GameStateSnapshot,
@@ -9,26 +9,24 @@ import {
 } from './systems/game-snapshot.system';
 import { GAME_EVENTS, GameReadyEvent, type GameEventMap } from './game.events';
 import { modifierIdFactory } from '../modifier/modifier.entity';
-import type { Player, PlayerOptions } from '../player/player.entity';
+import type { PlayerOptions } from '../player/player.entity';
 import { TypedSerializableEventEmitter } from '../utils/typed-emitter';
 import { PlayerManager } from '../player/player.manager';
 import { UnitManager } from '../unit/unit.manager';
 import { TurnSystem } from './systems/turn.system';
+import { Board } from '../board/board';
 
 export type GameOptions = {
   id: string;
   rngSeed: string;
   history?: SerializedInput[];
   players: PlayerOptions[];
-  overrides: Partial<{
-    config: Partial<Config>;
-    winCondition: (game: Game, player: Player) => boolean;
-  }>;
+  config: Config;
   enableSnapshots?: boolean;
 };
 
 export type SerializedGame = {
-  initialState: BetterOmit<GameOptions, 'overrides'>;
+  initialState: GameOptions;
   history: SerializedInput[];
 };
 
@@ -51,15 +49,13 @@ export class Game implements Serializable<SerializedGame> {
 
   readonly turnSystem = new TurnSystem(this);
 
+  readonly board = new Board(this);
+
   readonly modifierIdFactory = modifierIdFactory();
 
   constructor(readonly options: GameOptions) {
     this.id = options.id;
-    this.config = Object.assign({}, defaultConfig, options.overrides.config);
-  }
-
-  get winCondition() {
-    return this.options.overrides.winCondition;
+    this.config = options.config;
   }
 
   initialize() {
@@ -89,10 +85,8 @@ export class Game implements Serializable<SerializedGame> {
   }
 
   serialize() {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { overrides, ...options } = this.options;
     return {
-      initialState: options,
+      initialState: this.options,
       history: this.inputSystem.serialize()
     };
   }
