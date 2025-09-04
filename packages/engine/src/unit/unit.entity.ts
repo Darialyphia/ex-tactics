@@ -30,11 +30,19 @@ export class Unit extends Entity<EmptyObject> implements Serializable<Serialized
     return this._position;
   }
 
+  get initiative() {
+    return 1; // @TODO: implement initiative properly
+  }
+
   serialize() {
     return {
       id: this.id,
       position: this._position.serialize(),
       player: this.player.id
     };
+  }
+
+  startTurn() {
+    console.log('todo unit start turn');
   }
 }

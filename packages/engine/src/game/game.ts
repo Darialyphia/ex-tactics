@@ -13,6 +13,7 @@ import type { Player, PlayerOptions } from '../player/player.entity';
 import { TypedSerializableEventEmitter } from '../utils/typed-emitter';
 import { PlayerManager } from '../player/player.manager';
 import { UnitManager } from '../unit/unit.manager';
+import { TurnSystem } from './systems/turn.system';
 
 export type GameOptions = {
   id: string;
@@ -48,6 +49,8 @@ export class Game implements Serializable<SerializedGame> {
 
   readonly unitManager = new UnitManager(this);
 
+  readonly turnSystem = new TurnSystem(this);
+
   readonly modifierIdFactory = modifierIdFactory();
 
   constructor(readonly options: GameOptions) {
@@ -70,6 +73,8 @@ export class Game implements Serializable<SerializedGame> {
     this.snapshotSystem.initialize({ enabled: this.options.enableSnapshots ?? true });
 
     this.inputSystem.initialize();
+
+    this.turnSystem.initialize();
 
     this.emit(GAME_EVENTS.READY, new GameReadyEvent({}));
 
