@@ -15,12 +15,8 @@ import {
   type GameClientState
 } from './controllers/state-controller';
 import { UiController } from './controllers/ui-controller';
-import { TypedEventEmitter } from '../utils/typed-emitter';
+import { TypedEventEmitter } from '../utils/async-emitter';
 import { GAME_PHASES } from '../game/game.enums';
-import { COMBAT_STEPS } from '../game/phases/combat.phase';
-import { INTERACTION_STATES } from '../game/systems/game-interaction.system';
-import type { Affinity } from '../card/card.enums';
-import type { AbilityViewModel } from './view-models/ability.model';
 
 export const GAME_TYPES = {
   LOCAL: 'local',
@@ -28,11 +24,6 @@ export const GAME_TYPES = {
 } as const;
 
 export type GameType = Values<typeof GAME_TYPES>;
-
-export type GameStateEntities = Record<
-  string,
-  PlayerViewModel | CardViewModel | ModifierViewModel | AbilityViewModel
->;
 
 export type OnSnapshotUpdateCallback = (
   snapshot: GameStateSnapshot<SnapshotDiff>
@@ -157,28 +148,12 @@ export class GameClient {
       return snapshot.effectChain.player;
     }
 
-    if (
-      snapshot.phase.state === GAME_PHASES.ATTACK &&
-      snapshot.phase.ctx.step === COMBAT_STEPS.DECLARE_BLOCKER
-    ) {
-      return snapshot.players.find(id => id !== snapshot.currentPlayer)!;
-    }
-
     return snapshot.interaction.ctx.player;
   }
 
   getActivePlayerId() {
     if (this.stateManager.state.effectChain) {
       return this.stateManager.state.effectChain.player;
-    }
-
-    if (
-      this.stateManager.state.phase.state === GAME_PHASES.ATTACK &&
-      this.stateManager.state.phase.ctx.step === COMBAT_STEPS.DECLARE_BLOCKER
-    ) {
-      return this.stateManager.state.players.find(
-        id => id !== this.stateManager.state.currentPlayer
-      )!;
     }
 
     return this.stateManager.state.interaction.ctx.player;

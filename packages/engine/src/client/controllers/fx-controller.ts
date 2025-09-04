@@ -1,6 +1,6 @@
 import { objectEntries, type Values } from '@game/shared';
 import { type GameEventMap, GAME_EVENTS } from '../../game/game.events';
-import { TypedEventEmitter } from '../../utils/typed-emitter';
+import { TypedEventEmitter } from '../../utils/async-emitter';
 
 export type PreFXEvent<T extends keyof GameEventMap> = `pre_${T}`;
 export type PreFXEventKey<T extends keyof typeof GAME_EVENTS> = `PRE_${T}`;

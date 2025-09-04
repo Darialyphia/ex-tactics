@@ -1,5 +1,4 @@
 import {
-  assert,
   isDefined,
   type AnyFunction,
   type Constructor,
@@ -9,35 +8,15 @@ import {
 } from '@game/shared';
 import { type Game } from '../game/game';
 import type { DefaultSchema, Input } from './input';
-import { System } from '../system';
 import { z } from 'zod';
 import {
   GAME_EVENTS,
   GameErrorEvent,
   GameInputQueueFlushedEvent,
-  GameInputEvent,
-  GameInputRequiredEvent
+  GameInputEvent
 } from '../game/game.events';
-import { GameNotPausedError, InputError } from './input-errors';
-import { DeclareAttackInput } from './inputs/declare-attack.input';
-import { DeclareBlockerInput } from './inputs/declare-blocker.input';
-import { DeclareEndTurnInput } from './inputs/declare-end-turn.input';
-import { PassChainInput } from './inputs/pass-chain.input';
-import { SelectCardOnBoardInput } from './inputs/select-card-on-board.input';
-import { SelectMinionSlotInput } from './inputs/select-minion-slot.input';
-import { CommitMinionSlotSelectionInput } from './inputs/commit-minion-slot-selection.input';
-import { CommitCardSelectionInput } from './inputs/commit-card-selection.input';
-import { ChooseCardsInput } from './inputs/choose-cards.input';
-import { DeclarePlayCardInput } from './inputs/declare-play-card.input';
-import { CancelPlayCardInput } from './inputs/cancel-play-card.input';
-import { CommitPlayCardInput } from './inputs/commit-play-card';
-import { DeclareAttackTargetInput } from './inputs/declare-attack-target.input';
-import { ChooseAffinityInput } from './inputs/choose-affinity.input';
-import { PlayDestinyCardInput } from './inputs/play-destiny-card.input';
-import { SkipDestinyInput } from './inputs/skip-destiny.input';
-import { DeclareUseCardAbilityInput } from './inputs/declare-use-card-ability.input';
-import { CancelUseAbilityInput } from './inputs/cancel-use-ability.input';
-import { CommitUseAbilityInput } from './inputs/commit-use-ability.input';
+import { InputError } from './input-errors';
+import { MoveInput } from './inputs/cancel-play-card.input';
 
 type GenericInputMap = Record<string, Constructor<Input<DefaultSchema>>>;
 
@@ -52,25 +31,7 @@ type ValidatedInputMap<T extends GenericInputMap> = {
 const validateinputMap = <T extends GenericInputMap>(data: ValidatedInputMap<T>) => data;
 
 const inputMap = validateinputMap({
-  declarePlayCard: DeclarePlayCardInput,
-  cancelPlayCard: CancelPlayCardInput,
-  commitPlayCard: CommitPlayCardInput,
-  declareAttack: DeclareAttackInput,
-  declareAttackTarget: DeclareAttackTargetInput,
-  declareBlocker: DeclareBlockerInput,
-  declareEndTurn: DeclareEndTurnInput,
-  passChain: PassChainInput,
-  selectCardOnBoard: SelectCardOnBoardInput,
-  selectMinionSlot: SelectMinionSlotInput,
-  commitMinionSlotSelection: CommitMinionSlotSelectionInput,
-  commitCardSelection: CommitCardSelectionInput,
-  chooseCards: ChooseCardsInput,
-  chooseAffinity: ChooseAffinityInput,
-  skipDestiny: SkipDestinyInput,
-  playDestinyCard: PlayDestinyCardInput,
-  declareUseCardAbility: DeclareUseCardAbilityInput,
-  commitUseAbility: CommitUseAbilityInput,
-  cancelUseAbility: CancelUseAbilityInput
+  move: MoveInput
 });
 
 type InputMap = typeof inputMap;
@@ -91,7 +52,7 @@ export type InputDispatcher = (input: SerializedInput) => void;
 
 export type InputSystemOptions = { game: Game };
 
-export class InputSystem extends System<never> {
+export class InputSystem {
   private history: Input<any>[] = [];
 
   private isRunning = false;
@@ -104,6 +65,8 @@ export class InputSystem extends System<never> {
 
   private nextInputId = 0;
 
+  constructor(private game: Game) {}
+
   get currentAction() {
     return this._currentAction;
   }
@@ -114,9 +77,9 @@ export class InputSystem extends System<never> {
 
   initialize() {}
 
-  async applyHistory(rawHistory: SerializedInput[]) {
+  applyHistory(rawHistory: SerializedInput[]) {
     for (const input of rawHistory) {
-      await this.schedule(() => this.handleInput(input));
+      this.schedule(() => this.handleInput(input));
     }
   }
 
@@ -134,31 +97,14 @@ export class InputSystem extends System<never> {
     this.history.push(input);
   }
 
-  async schedule(fn: AnyFunction) {
+  schedule(fn: AnyFunction) {
     this.queue.push(fn);
     if (!this.isRunning) {
-      await this.flushSchedule();
+      this.flushSchedule();
     }
   }
 
-  pause<T>() {
-    return new Promise<T>(resolve => {
-      this.onUnpause = data => {
-        this.onUnpause = null;
-        resolve(data);
-      };
-
-      void this.askForPlayerInput();
-    });
-  }
-
-  unpause<T>(data: T) {
-    assert(this.isPaused, new GameNotPausedError());
-
-    this.onUnpause?.(data);
-  }
-
-  private async flushSchedule() {
+  private flushSchedule() {
     if (this.isRunning) {
       console.warn('already flushing !');
       return;
@@ -167,17 +113,17 @@ export class InputSystem extends System<never> {
     try {
       while (this.queue.length) {
         const fn = this.queue.shift();
-        await fn!();
+        fn!();
       }
       this.isRunning = false;
       this.game.snapshotSystem.takeSnapshot();
-      await this.game.emit(GAME_EVENTS.FLUSHED, new GameInputQueueFlushedEvent({}));
+      this.game.emit(GAME_EVENTS.FLUSHED, new GameInputQueueFlushedEvent({}));
     } catch (err) {
-      await this.handleError(err);
+      this.handleError(err);
     }
   }
 
-  private async handleError(err: unknown) {
+  private handleError(err: unknown) {
     console.groupCollapsed('%c[INPUT SYSTEM]: ERROR', 'color: #ff0000');
     console.error(err);
     console.log({
@@ -190,7 +136,7 @@ export class InputSystem extends System<never> {
     if (this._currentAction) {
       serialized.history.push(this._currentAction.serialize() as SerializedInput);
     }
-    await this.game.emit(
+    this.game.emit(
       'game.error',
       new GameErrorEvent({ error: err as Error, debugDump: serialized })
     );
@@ -201,18 +147,18 @@ export class InputSystem extends System<never> {
       this.queue = [];
       this._currentAction = null;
       this.game.snapshotSystem.takeSnapshot();
-      await this.game.emit(GAME_EVENTS.FLUSHED, new GameInputQueueFlushedEvent({}));
+      this.game.emit(GAME_EVENTS.FLUSHED, new GameInputQueueFlushedEvent({}));
     }
   }
 
-  async dispatch(input: SerializedInput) {
+  dispatch(input: SerializedInput) {
     console.groupCollapsed(`[InputSystem]: ${input.type}`);
     console.log(input);
     console.groupEnd();
     if (!this.isActionType(input.type)) return;
     if (this.isPaused) {
       // if the game is paused, run the input immediately
-      await this.handleInput(input);
+      this.handleInput(input);
     } else if (this.isRunning) {
       // let the current input fully resolve, then schedule
       // the currentinput could schedule new actions, so we need to wait for the flush
@@ -221,34 +167,29 @@ export class InputSystem extends System<never> {
       });
     } else {
       // if the game is not paused and not running, run the input immediately
-      await this.schedule(() => {
+      this.schedule(() => {
         return this.handleInput(input);
       });
     }
   }
 
-  async handleInput(arg: SerializedInput) {
+  handleInput(arg: SerializedInput) {
     const { type, payload } = arg;
     if (!this.isActionType(type)) return;
     const ctor = inputMap[type];
     const input = new ctor(this.game, this.nextInputId++, payload);
     const prevAction = this._currentAction;
     this._currentAction = input;
-    await this.game.emit(GAME_EVENTS.INPUT_START, new GameInputEvent({ input }));
+    this.game.emit(GAME_EVENTS.INPUT_START, new GameInputEvent({ input }));
 
-    await input.execute();
-    await this.game.emit(GAME_EVENTS.INPUT_END, new GameInputEvent({ input }));
+    input.execute();
+    this.game.emit(GAME_EVENTS.INPUT_END, new GameInputEvent({ input }));
     this.addToHistory(input);
     this._currentAction = prevAction;
   }
 
   getHistory() {
     return [...this.history];
-  }
-
-  async askForPlayerInput() {
-    this.game.snapshotSystem.takeSnapshot();
-    await this.game.emit(GAME_EVENTS.INPUT_REQUIRED, new GameInputRequiredEvent({}));
   }
 
   serialize() {

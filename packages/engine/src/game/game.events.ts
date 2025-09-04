@@ -2,32 +2,14 @@ import type { EmptyObject, Prettify, Values } from '@game/shared';
 import type { Input } from '../input/input';
 import { InputError } from '../input/input-errors';
 import type { SerializedInput } from '../input/input-system';
-import { StarEvent, TypedSerializableEvent } from '../utils/typed-emitter';
 import type { SerializedGame } from './game';
-import { GAME_PHASE_EVENTS } from './game.enums';
-import type { GamePhaseEventMap } from './systems/game-phase.system';
 import {
   MODIFIER_EVENTS,
   type Modifier,
   type ModifierEventMap,
   type SerializedModifier
 } from '../modifier/modifier.entity';
-import { CARD_EVENTS } from '../card/card.enums';
-import type { CardEventMap } from '../card/card.events';
-import { COMBAT_EVENTS, type CombatEventMap } from './phases/combat.phase';
-import { MINION_EVENTS, type MinionCardEventMap } from '../card/entities/minion.entity';
-import { HERO_EVENTS, type HeroCardEventMap } from '../card/entities/hero.entity';
-import {
-  ARTIFACT_EVENTS,
-  type ArtifactCardEventMap
-} from '../card/entities/artifact.entity';
-import { PLAYER_EVENTS } from '../player/player.enums';
-import type { PlayerEventMap } from '../player/player.events';
-import {
-  DESTINY_EVENTS,
-  type DestinyCardEventMap
-} from '../card/entities/destiny.entity';
-import { ABILITY_EVENTS, type AbilityEventMap } from '../card/entities/ability.entity';
+import { StarEvent, TypedSerializableEvent } from '../utils/typed-emitter';
 
 export class GameInputEvent extends TypedSerializableEvent<
   { input: Input<any> },
@@ -119,19 +101,7 @@ type GameEventsBase = {
   'game.new-snapshot': GameNewSnapshotEvent;
 };
 
-export type GameEventMap = Prettify<
-  GameEventsBase &
-    GamePhaseEventMap &
-    ModifierEventMap &
-    CardEventMap &
-    CombatEventMap &
-    MinionCardEventMap &
-    HeroCardEventMap &
-    ArtifactCardEventMap &
-    PlayerEventMap &
-    DestinyCardEventMap &
-    AbilityEventMap
->;
+export type GameEventMap = Prettify<GameEventsBase & ModifierEventMap>;
 export type GameEventName = keyof GameEventMap;
 
 export type GameStarEvent = StarEvent<GameEventMap>;
@@ -141,16 +111,6 @@ export const GAME_EVENTS = {
   FLUSHED: 'game.input-queue-flushed',
   INPUT_START: 'game.input-start',
   INPUT_END: 'game.input-end',
-  INPUT_REQUIRED: 'game.input-required',
   NEW_SNAPSHOT: 'game.new-snapshot',
-  ...GAME_PHASE_EVENTS,
-  ...MODIFIER_EVENTS,
-  ...CARD_EVENTS,
-  ...COMBAT_EVENTS,
-  ...MINION_EVENTS,
-  ...HERO_EVENTS,
-  ...ARTIFACT_EVENTS,
-  ...PLAYER_EVENTS,
-  ...DESTINY_EVENTS,
-  ...ABILITY_EVENTS
+  ...MODIFIER_EVENTS
 } as const satisfies Record<string, GameEventName>;

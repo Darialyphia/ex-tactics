@@ -1,5 +1,7 @@
-import { System } from '../../system';
 import type { Config } from '../../config';
+import type { SerializedPlayer } from '../../player/player.entity';
+import { areArraysIdentical } from '../../utils/utils';
+import type { Game } from '../game';
 import {
   GAME_EVENTS,
   GameNewSnapshotEvent,
@@ -7,21 +9,7 @@ import {
   type GameStarEvent,
   type SerializedStarEvent
 } from '../game.events';
-import type { SerializedModifier } from '../../modifier/modifier.entity';
-import type { SerializedPlayer } from '../../player/player.entity';
-import type { SerializedMinionCard } from '../../card/entities/minion.entity';
-import type { SerializedHeroCard } from '../../card/entities/hero.entity';
-import type { SerializedSpellCard } from '../../card/entities/spell.entity';
-import type { SerializedArtifactCard } from '../../card/entities/artifact.entity';
-import type { SerializedGamePhaseContext } from './game-phase.system';
-import type { SerializedInteractionContext } from './game-interaction.system';
-import type { SerializedBoard } from '../../board/board-side.entity';
-import type { CardBeforePlayEvent, CardDiscardEvent } from '../../card/card.events';
-import type { SerializedEffectChain } from '../effect-chain';
 import type { AnyObject } from '@game/shared';
-import { areArraysIdentical } from '../../utils/utils';
-import type { SerializedAbility } from '../../card/card-blueprint';
-import type { Ability, AbilityOwner } from '../../card/entities/ability.entity';
 
 export type GameStateSnapshot<T> = {
   id: number;
@@ -29,37 +17,13 @@ export type GameStateSnapshot<T> = {
   events: SerializedStarEvent[];
 };
 
-export type EntityDictionary = Record<
-  string,
-  | SerializedMinionCard
-  | SerializedHeroCard
-  | SerializedSpellCard
-  | SerializedArtifactCard
-  | SerializedPlayer
-  | SerializedModifier
-  | SerializedAbility
->;
+export type EntityDictionary = Record<string, SerializedPlayer>;
 
-export type EntityDiffDictionary = Record<
-  string,
-  | Partial<SerializedMinionCard>
-  | Partial<SerializedSpellCard>
-  | Partial<SerializedArtifactCard>
-  | Partial<SerializedPlayer>
-  | Partial<SerializedModifier>
-  | Partial<SerializedAbility>
->;
+export type EntityDiffDictionary = Record<string, Partial<SerializedPlayer>>;
 
 export type SerializedOmniscientState = {
   config: Config;
   entities: EntityDictionary;
-  phase: SerializedGamePhaseContext;
-  interaction: SerializedInteractionContext;
-  players: string[];
-  board: SerializedBoard;
-  currentPlayer: string;
-  turnCount: number;
-  effectChain: SerializedEffectChain | null;
 };
 
 export type SnapshotDiff = {
@@ -67,18 +31,11 @@ export type SnapshotDiff = {
   entities: EntityDiffDictionary;
   addedEntities: string[];
   removedEntities: string[];
-  phase: SerializedGamePhaseContext;
-  interaction: SerializedInteractionContext;
-  board: SerializedBoard;
-  turnCount: number;
-  currentPlayer: string;
-  players: string[];
-  effectChain: SerializedEffectChain | null;
 };
 
 export type SerializedPlayerState = SerializedOmniscientState;
 
-export class GameSnapshotSystem extends System<{ enabled: boolean }> {
+export class GameSnapshotSystem {
   private isEnabled = true;
 
   private playerCaches: Record<string, GameStateSnapshot<SerializedPlayerState>[]> = {
@@ -89,6 +46,8 @@ export class GameSnapshotSystem extends System<{ enabled: boolean }> {
   private eventsSinceLastSnapshot: GameStarEvent[] = [];
 
   private nextId = 0;
+
+  constructor(private game: Game) {}
 
   private getObjectDiff<T extends AnyObject>(obj: T, prevObj: T | undefined): Partial<T> {
     if (!prevObj) return { ...obj };
@@ -129,14 +88,7 @@ export class GameSnapshotSystem extends System<{ enabled: boolean }> {
       ),
       addedEntities: Object.keys(state.entities).filter(
         key => !(key in prevState.entities)
-      ),
-      phase: state.phase,
-      interaction: state.interaction,
-      board: state.board,
-      turnCount: state.turnCount - prevState.turnCount,
-      currentPlayer: state.currentPlayer,
-      players: state.players,
-      effectChain: state.effectChain
+      )
     };
   }
 
@@ -149,8 +101,8 @@ export class GameSnapshotSystem extends System<{ enabled: boolean }> {
       GAME_EVENTS.INPUT_START,
       GAME_EVENTS.INPUT_END
     ];
-    this.playerCaches[this.game.playerSystem.player1.id] = [];
-    this.playerCaches[this.game.playerSystem.player2.id] = [];
+    this.playerCaches[this.game.playerManager.player1.id] = [];
+    this.playerCaches[this.game.playerManager.player2.id] = [];
 
     this.game.on('*', event => {
       if (ignoredEvents.includes(event.data.eventName)) return;
@@ -232,76 +184,25 @@ export class GameSnapshotSystem extends System<{ enabled: boolean }> {
 
   private buildEntityDictionary(): EntityDictionary {
     const entities: EntityDictionary = {};
-    this.game.cardSystem.cards.forEach(card => {
-      entities[card.id] = card.serialize();
-      card.modifiers.list.forEach(modifier => {
-        entities[modifier.id] = modifier.serialize();
-      });
-      if ('abilities' in card) {
-        (card.abilities as Ability<AbilityOwner>[]).forEach(ability => {
-          entities[ability.id] = ability.serialize();
-        });
-      }
-    });
-    this.game.playerSystem.players.forEach(player => {
+
+    this.game.playerManager.players.forEach(player => {
       entities[player.id] = player.serialize();
-      player.modifiers.list.forEach(modifier => {
-        entities[modifier.id] = modifier.serialize();
-      });
     });
+
     return entities;
   }
 
   serializeOmniscientState(): SerializedOmniscientState {
     return {
       config: this.game.config,
-      entities: this.buildEntityDictionary(),
-      phase: this.game.gamePhaseSystem.serialize(),
-      interaction: this.game.interaction.serialize(),
-      board: this.game.boardSystem.serialize(),
-      players: this.game.playerSystem.players.map(player => player.id),
-      currentPlayer: this.game.gamePhaseSystem.currentPlayer.id,
-      turnCount: this.game.gamePhaseSystem.elapsedTurns,
-      effectChain: this.game.effectChainSystem.serialize()
+      entities: this.buildEntityDictionary()
     };
   }
 
   serializePlayerState(playerId: string): SerializedPlayerState {
     const state = this.serializeOmniscientState();
 
-    // Remove entities that the player shouldn't have access to in order to prevent cheating
-    const opponent = this.game.playerSystem.getPlayerById(playerId)!.opponent;
-
-    const hasBeenPlayed = (cardId: string) => {
-      return this.eventsSinceLastSnapshot.some(e => {
-        const event = e.data.event;
-        if (
-          e.data.eventName === GAME_EVENTS.CARD_BEFORE_PLAY &&
-          (event as CardBeforePlayEvent).data.card.id === cardId
-        ) {
-          return true;
-        }
-        if (
-          e.data.eventName === GAME_EVENTS.CARD_DISCARD &&
-          (event as CardDiscardEvent).data.card.id === cardId
-        ) {
-          return true;
-        }
-
-        return false;
-      });
-    };
-    opponent.cardManager.mainDeck.cards.forEach(card => {
-      if (hasBeenPlayed(card.id)) return;
-
-      delete state.entities[card.id];
-    });
-
-    opponent.cardManager.hand.forEach(card => {
-      if (hasBeenPlayed(card.id)) return;
-
-      delete state.entities[card.id];
-    });
+    // @TODO Remove entities that the player shouldn't have access to in order to prevent cheating
 
     return state;
   }
@@ -310,16 +211,16 @@ export class GameSnapshotSystem extends System<{ enabled: boolean }> {
     if (!this.isEnabled) return;
     const events = this.eventsSinceLastSnapshot.map(event => event.serialize());
     const id = this.nextId++;
-    this.playerCaches[this.game.playerSystem.player1.id].push({
+    this.playerCaches[this.game.playerManager.player1.id].push({
       id,
       events: events as any,
-      state: this.serializePlayerState(this.game.playerSystem.player1.id)
+      state: this.serializePlayerState(this.game.playerManager.player1.id)
     });
 
-    this.playerCaches[this.game.playerSystem.player2.id].push({
+    this.playerCaches[this.game.playerManager.player2.id].push({
       id,
       events: events as any,
-      state: this.serializePlayerState(this.game.playerSystem.player2.id)
+      state: this.serializePlayerState(this.game.playerManager.player2.id)
     });
 
     this.omniscientCache.push({

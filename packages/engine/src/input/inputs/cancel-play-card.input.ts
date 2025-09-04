@@ -1,20 +1,18 @@
+import z from 'zod';
 import { defaultInputSchema, Input } from '../input';
-import { GAME_PHASES } from '../../game/game.enums';
-import { type InteractionStateDict } from '../../game/systems/game-interaction.system';
 
-const schema = defaultInputSchema;
+const schema = defaultInputSchema.extend({
+  x: z.number(),
+  y: z.number(),
+  z: z.number()
+});
 
-export class CancelPlayCardInput extends Input<typeof schema> {
-  readonly name = 'cancelPlayCard';
-
-  readonly allowedPhases = [GAME_PHASES.MAIN, GAME_PHASES.ATTACK, GAME_PHASES.END];
+export class MoveInput extends Input<typeof schema> {
+  readonly name = 'move';
 
   protected payloadSchema = schema;
 
-  async impl() {
-    const interactionContext =
-      this.game.interaction.getContext<InteractionStateDict['PLAYING_CARD']>();
-
-    await interactionContext.ctx.cancel(this.player);
+  impl() {
+    console.log('TODO implement move');
   }
 }

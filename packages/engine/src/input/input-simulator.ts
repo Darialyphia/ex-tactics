@@ -9,8 +9,7 @@ export class InputSimulator {
     this.game = new Game({
       ...game.options,
       id: `simulation_${id}`,
-      history: game.inputSystem.serialize(),
-      isSimulation: true
+      history: game.inputSystem.serialize()
     });
     this.inputs = inputs;
   }

@@ -1,14 +1,13 @@
 import type { MaybePromise } from '@game/shared';
-import type { AnyCard } from '../../card/entities/card.entity';
 import type { Game } from '../../game/game';
 import type { GameEventMap } from '../../game/game.events';
-import type { EventMapWithStarEvent } from '../../utils/typed-emitter';
+import type { EventMapWithStarEvent } from '../../utils/async-emitter';
 import { ModifierMixin } from '../modifier-mixin';
 import type { Modifier, ModifierTarget } from '../modifier.entity';
 
 export class GameEventModifierMixin<
   TEvent extends keyof EventMapWithStarEvent<GameEventMap>
-> extends ModifierMixin<AnyCard> {
+> extends ModifierMixin<ModifierTarget> {
   constructor(
     game: Game,
     private options: {

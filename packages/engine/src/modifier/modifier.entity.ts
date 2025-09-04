@@ -1,11 +1,10 @@
 import { type EmptyObject, type Serializable, type Values } from '@game/shared';
 import type { ModifierMixin } from './modifier-mixin';
-import { Entity } from '../entity';
+import { Entity, type AnyEntity } from '../entity';
 import type { Game } from '../game/game';
-import { TypedSerializableEvent } from '../utils/typed-emitter';
 import type { ModifierManager } from './modifier-manager.component';
-import type { AnyCard } from '../card/entities/card.entity';
 import { Interceptable } from '../utils/interceptable';
+import { TypedSerializableEvent } from '../utils/typed-emitter';
 
 export type ModifierInfos<TCustomEvents extends Record<string, any>> =
   TCustomEvents extends EmptyObject
@@ -94,7 +93,7 @@ export class Modifier<
 
   protected game: Game;
 
-  readonly source: AnyCard;
+  readonly source: AnyEntity;
 
   protected _target!: T;
 
@@ -113,7 +112,7 @@ export class Modifier<
   constructor(
     modifierType: string,
     game: Game,
-    source: AnyCard,
+    source: AnyEntity,
     options: ModifierOptions<
       T,
       Record<Exclude<keyof TEventsMap, keyof ModifierEventMap>, boolean>
@@ -187,11 +186,8 @@ export class Modifier<
     return this._target;
   }
 
-  async applyTo(target: T) {
-    await this.game.emit(
-      MODIFIER_EVENTS.BEFORE_APPLIED,
-      new ModifierLifecycleEvent(this)
-    );
+  applyTo(target: T) {
+    this.game.emit(MODIFIER_EVENTS.BEFORE_APPLIED, new ModifierLifecycleEvent(this));
     this._target = target;
     if (this.isEnabled) {
       this.mixins.forEach(mixin => {
@@ -199,14 +195,11 @@ export class Modifier<
       });
     }
     this._isApplied = true;
-    await this.game.emit(MODIFIER_EVENTS.AFTER_APPLIED, new ModifierLifecycleEvent(this));
+    this.game.emit(MODIFIER_EVENTS.AFTER_APPLIED, new ModifierLifecycleEvent(this));
   }
 
-  async reapplyTo(target: T, stacks = 1) {
-    await this.game.emit(
-      MODIFIER_EVENTS.BEFORE_REAPPLIED,
-      new ModifierLifecycleEvent(this)
-    );
+  reapplyTo(target: T, stacks = 1) {
+    this.game.emit(MODIFIER_EVENTS.BEFORE_REAPPLIED, new ModifierLifecycleEvent(this));
     this._stacks += stacks;
     console.log('added stacks:', stacks, 'new total:', this._stacks);
     if (this.isEnabled) {
@@ -215,22 +208,16 @@ export class Modifier<
       });
     }
 
-    await this.game.emit(
-      MODIFIER_EVENTS.AFTER_REAPPLIED,
-      new ModifierLifecycleEvent(this)
-    );
+    this.game.emit(MODIFIER_EVENTS.AFTER_REAPPLIED, new ModifierLifecycleEvent(this));
   }
 
-  async remove() {
-    await this.game.emit(
-      MODIFIER_EVENTS.BEFORE_REMOVED,
-      new ModifierLifecycleEvent(this)
-    );
+  remove() {
+    this.game.emit(MODIFIER_EVENTS.BEFORE_REMOVED, new ModifierLifecycleEvent(this));
     this._isApplied = false;
     this.mixins.forEach(mixin => {
       mixin.onRemoved(this._target, this);
     });
-    await this.game.emit(MODIFIER_EVENTS.AFTER_REMOVED, new ModifierLifecycleEvent(this));
+    this.game.emit(MODIFIER_EVENTS.AFTER_REMOVED, new ModifierLifecycleEvent(this));
   }
 
   addStacks(count: number) {

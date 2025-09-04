@@ -1,13 +1,6 @@
-import {
-  type AnyObject,
-  type JSONObject,
-  type MaybePromise,
-  type Serializable
-} from '@game/shared';
+import { type AnyObject, type JSONObject, type Serializable } from '@game/shared';
 
 type GenericEventMap = Record<Exclude<string, '*'>, AnyObject>;
-
-type EmitterMode = 'sequential' | 'parallel';
 
 export type EventMapWithStarEvent<TEvents extends GenericEventMap> = TEvents & {
   '*': StarEvent<TEvents>;
@@ -16,59 +9,30 @@ export type EventMapWithStarEvent<TEvents extends GenericEventMap> = TEvents & {
 export class TypedEventEmitter<TEvents extends GenericEventMap> {
   private _listeners: Partial<{
     [Event in keyof EventMapWithStarEvent<TEvents>]: Set<
-      (eventArg: EventMapWithStarEvent<TEvents>[Event]) => MaybePromise<void>
+      (eventArg: EventMapWithStarEvent<TEvents>[Event]) => void
     >;
   }> = {};
 
-  constructor(private mode: EmitterMode = 'sequential') {}
+  constructor() {}
 
-  private async emitSequential<TEventName extends keyof TEvents & string>(
+  emit<TEventName extends keyof TEvents & string>(
     eventName: TEventName,
     eventArg: TEvents[TEventName]
   ) {
-    const listeners = Array.from(this._listeners[eventName] ?? []);
-
-    for (const listener of listeners) {
-      // @ts-expect-error
-      await listener(eventArg);
-    }
-    const starListeners = Array.from(this._listeners['*'] ?? []);
-    for (const listener of starListeners) {
-      await listener(new StarEvent({ eventName, event: eventArg }) as any);
-    }
-  }
-
-  private async emitParallel<TEventName extends keyof TEvents & string>(
-    eventName: TEventName,
-    eventArg: TEvents[TEventName]
-  ) {
-    const listeners = Array.from(this._listeners[eventName] ?? []).map(listener =>
+    Array.from(this._listeners[eventName] ?? []).forEach(listener =>
       // @ts-expect-error
       listener(eventArg)
     );
 
-    await Promise.all(listeners);
-
-    const starListeners = Array.from(this._listeners['*'] ?? []).map(listener =>
-      listener(new StarEvent({ eventName, event: eventArg }) as any)
+    Array.from(this._listeners['*'] ?? []).forEach(listener =>
+      // @ts-expect-error
+      listener(new StarEvent({ eventName, event: eventArg }))
     );
-    await Promise.all(starListeners);
-  }
-
-  async emit<TEventName extends keyof TEvents & string>(
-    eventName: TEventName,
-    eventArg: TEvents[TEventName]
-  ) {
-    if (this.mode === 'sequential') {
-      await this.emitSequential(eventName, eventArg);
-    } else if (this.mode === 'parallel') {
-      await this.emitParallel(eventName, eventArg);
-    }
   }
 
   on<TEventName extends keyof EventMapWithStarEvent<TEvents> & string>(
     eventName: TEventName,
-    handler: (eventArg: EventMapWithStarEvent<TEvents>[TEventName]) => MaybePromise<void>
+    handler: (eventArg: EventMapWithStarEvent<TEvents>[TEventName]) => void
   ) {
     if (!this._listeners[eventName]) {
       this._listeners[eventName] = new Set();
@@ -80,16 +44,12 @@ export class TypedEventEmitter<TEvents extends GenericEventMap> {
 
   once<TEventName extends keyof EventMapWithStarEvent<TEvents> & string>(
     eventName: TEventName,
-    handler: (eventArg: EventMapWithStarEvent<TEvents>[TEventName]) => MaybePromise<void>
+    handler: (eventArg: EventMapWithStarEvent<TEvents>[TEventName]) => void
   ) {
     if (!this._listeners[eventName]) {
       this._listeners[eventName] = new Set();
     }
-    let handled = false;
     const onceHandler = (eventArg: EventMapWithStarEvent<TEvents>[TEventName]) => {
-      // makes sure the handler is only called once as some async weirdness might make the handler run twice before it gets cleaned up
-      if (handled) return;
-      handled = true;
       this.off(eventName, onceHandler as any);
       return handler(eventArg);
     };
@@ -100,7 +60,7 @@ export class TypedEventEmitter<TEvents extends GenericEventMap> {
 
   off<TEventName extends keyof EventMapWithStarEvent<TEvents> & string>(
     eventName: TEventName,
-    handler: (eventArg: EventMapWithStarEvent<TEvents>[TEventName]) => MaybePromise<void>
+    handler: (eventArg: EventMapWithStarEvent<TEvents>[TEventName]) => void
   ) {
     const listeners = this._listeners[eventName];
     if (!listeners) return;

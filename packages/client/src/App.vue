@@ -8,7 +8,7 @@ const texture = `url(${grass})`;
 const hoveredCellTexture = `url(${hoveredCell})`;
 
 const rows = 10;
-const cols = 15;
+const cols = 10;
 const planes = 3;
 
 const cellSize = {
@@ -36,6 +36,8 @@ type Cell = {
   isHalfTile: boolean;
 };
 
+const maxZIndexPerElevation = Math.max(cols * cellSize.x, rows * cellSize.y);
+
 const makePlane = (z: number) =>
   Array.from({ length: rows * cols }, (_, i) => {
     const x = i % cols;
@@ -49,7 +51,7 @@ const makePlane = (z: number) =>
       z,
       isoX,
       isoY,
-      zIndex: isoY * z,
+      zIndex: isoY + z * maxZIndexPerElevation,
       isOpaque: true,
       isHalfTile: false
     };
@@ -68,10 +70,10 @@ const displayedCells = computed(() => {
   cells.forEach(cell => {
     cellMap.set(getKey(cell), cell);
   });
-
   return cells.filter(cell => {
     const inFront = cellMap.get(getKey({ x: cell.x + 1, y: cell.y + 1, z: cell.z + 1 }));
     if (!inFront) return true;
+
     return !inFront.isOpaque && !inFront.isHalfTile;
   });
 });
@@ -80,18 +82,16 @@ const displayedCells = computed(() => {
 <template>
   <main>
     <div class="iso-board">
-      <template v-for="row in rows" :key="row">
-        <div
-          v-for="cell in displayedCells"
-          :key="`${cell.x}-${cell.y}`"
-          class="iso-cell"
-          :style="{
-            '--x': cell.isoX + (rows * cellSize.x) / 2 - cellSize.x / 2,
-            '--y': cell.isoY + (planes * cellSize.z) / 2 + cellSize.z * 0.5 + padding / 2,
-            '--z-index': cell.zIndex
-          }"
-        />
-      </template>
+      <div
+        v-for="cell in displayedCells"
+        :key="`${cell.x}-${cell.y}`"
+        class="iso-cell"
+        :style="{
+          '--x': cell.isoX + (rows * cellSize.x) / 2 - cellSize.x / 2,
+          '--y': cell.isoY + (planes * cellSize.z) / 2 + cellSize.z * 0.5 + padding / 2,
+          '--z-index': cell.zIndex
+        }"
+      />
     </div>
   </main>
 </template>
@@ -110,6 +110,7 @@ main {
   width: calc(1px * v-bind('boardDimensions.x'));
   height: calc(1px * v-bind('boardDimensions.y'));
   /* overflow: hidden; */
+  outline: solid 1px red;
 }
 
 .iso-cell {
@@ -130,6 +131,7 @@ main {
     50% calc(100% + var(--clip-fix)),
     calc(-1 * var(--clip-fix)) 75%
   );
+
   &:hover::after {
     content: '';
     position: absolute;

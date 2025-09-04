@@ -1,36 +1,27 @@
 import { defaultConfig, type Config } from '../config';
 import { InputSystem, type SerializedInput } from '../input/input-system';
-import type { Player, PlayerOptions } from '../player/player.entity';
 import { RngSystem } from '../rng/rng.system';
-import { TypedSerializableEventEmitter } from '../utils/typed-emitter';
-import { type BetterOmit, type IndexedRecord, type Serializable } from '@game/shared';
+import { type BetterOmit, type Serializable } from '@game/shared';
 import {
   GameSnapshotSystem,
   type GameStateSnapshot,
   type SnapshotDiff
 } from './systems/game-snapshot.system';
-import { PlayerSystem } from '../player/player.system';
 import { GAME_EVENTS, GameReadyEvent, type GameEventMap } from './game.events';
-import { GamePhaseSystem } from './systems/game-phase.system';
 import { modifierIdFactory } from '../modifier/modifier.entity';
-import { CardSystem } from '../card/card.system';
-import type { CardBlueprint } from '../card/card-blueprint';
-import { GameInteractionSystem } from './systems/game-interaction.system';
-import { BoardSystem } from '../board/board.system';
-import { EffectChainSystem } from './systems/effect-chain.system';
-import { GAME_PHASES } from './game.enums';
+import type { Player, PlayerOptions } from '../player/player.entity';
+import { TypedSerializableEventEmitter } from '../utils/typed-emitter';
+import { PlayerManager } from '../player/player.manager';
 
 export type GameOptions = {
   id: string;
   rngSeed: string;
   history?: SerializedInput[];
+  players: PlayerOptions[];
   overrides: Partial<{
-    cardPool: IndexedRecord<CardBlueprint, 'id'>;
     config: Partial<Config>;
     winCondition: (game: Game, player: Player) => boolean;
   }>;
-  isSimulation?: boolean;
-  players: [PlayerOptions, PlayerOptions];
   enableSnapshots?: boolean;
 };
 
@@ -46,103 +37,41 @@ export class Game implements Serializable<SerializedGame> {
 
   readonly config: Config;
 
-  readonly rngSystem = new RngSystem(this);
+  readonly rngSystem = new RngSystem();
 
   readonly inputSystem = new InputSystem(this);
 
   readonly snapshotSystem = new GameSnapshotSystem(this);
 
-  readonly playerSystem = new PlayerSystem(this);
-
-  readonly gamePhaseSystem = new GamePhaseSystem(this);
-
-  readonly cardSystem = new CardSystem(this);
-
-  readonly boardSystem = new BoardSystem(this);
-
-  readonly effectChainSystem = new EffectChainSystem(this);
-
-  // readonly unitSystem = new UnitSystem(this);
-
-  // readonly interactableSystem = new InteractableSystem(this);
-
-  readonly interaction = new GameInteractionSystem(this);
-
-  readonly isSimulation: boolean;
+  readonly playerManager = new PlayerManager(this);
 
   readonly modifierIdFactory = modifierIdFactory();
-
-  readonly cardPool: IndexedRecord<CardBlueprint, 'id'>;
 
   constructor(readonly options: GameOptions) {
     this.id = options.id;
     this.config = Object.assign({}, defaultConfig, options.overrides.config);
-    this.isSimulation = options.isSimulation ?? false;
-    this.cardPool = options.overrides.cardPool ?? {};
   }
 
   get winCondition() {
-    return (
-      this.options.overrides.winCondition ??
-      ((game, player) => !player.opponent.hero.isAlive)
-    );
+    return this.options.overrides.winCondition;
   }
 
-  async initialize() {
+  initialize() {
     const start = performance.now();
     // const now = start;
 
     this.rngSystem.initialize({ seed: this.options.rngSeed });
-    // console.log(`RNG initialized in ${(performance.now() - now).toFixed(0)}ms`);
-    // now = performance.now();
 
-    this.cardSystem.initialize({ cardPool: this.cardPool });
-    // console.log(`Card system initialized in ${(performance.now() - now).toFixed(0)}ms`);
-    // now = performance.now();
-
-    await this.playerSystem.initialize({
-      players: this.options.players
-    });
-    // console.log(`Player system initialized in ${(performance.now() - now).toFixed(0)}ms`);
-    // now = performance.now();
+    this.playerManager.initialize({ players: this.options.players });
 
     this.snapshotSystem.initialize({ enabled: this.options.enableSnapshots ?? true });
-    // console.log(
-    //   `Snapshot system initialized in ${(performance.now() - now).toFixed(0)}ms`
-    // );
-    // now = performance.now();
-
-    this.boardSystem.initialize();
-    // console.log(`Board system initialized in ${(performance.now() - now).toFixed(0)}ms`);
-    // now = performance.now();
-
-    this.interaction.initialize();
-    // console.log(
-    //   `Interaction system initialized in ${(performance.now() - now).toFixed(0)}ms`
-    // );
-    // now = performance.now();
-
-    this.effectChainSystem.initialize();
-    // console.log(
-    //   `Effect chain system initialized in ${(performance.now() - now).toFixed(0)}ms`
-    // );
-    // now = performance.now();
-
-    await this.gamePhaseSystem.initialize();
-    // console.log(
-    //   `Game phase system initialized in ${(performance.now() - now).toFixed(0)}ms`
-    // );
-    // now = performance.now();
 
     this.inputSystem.initialize();
-    // console.log(`Input system initialized in ${(performance.now() - now).toFixed(0)}ms`);
-    // now = performance.now();
 
-    await this.emit(GAME_EVENTS.READY, new GameReadyEvent({}));
-    await this.gamePhaseSystem.startGame();
+    this.emit(GAME_EVENTS.READY, new GameReadyEvent({}));
 
     if (this.options.history) {
-      await this.inputSystem.applyHistory(this.options.history);
+      this.inputSystem.applyHistory(this.options.history);
     }
     this.snapshotSystem.takeSnapshot();
     console.log(
@@ -187,15 +116,14 @@ export class Game implements Serializable<SerializedGame> {
     );
   }
 
-  async emit<TEventName extends keyof GameEventMap & string>(
+  emit<TEventName extends keyof GameEventMap & string>(
     eventName: TEventName,
     eventArg: GameEventMap[TEventName]
   ) {
-    await this.emitter.emit(eventName, eventArg);
+    this.emitter.emit(eventName, eventArg);
   }
 
   dispatch(input: SerializedInput) {
-    if (this.gamePhaseSystem.getState() === GAME_PHASES.GAME_END) return;
     return this.inputSystem.dispatch(input);
   }
 

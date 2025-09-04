@@ -1,8 +1,7 @@
-import { System } from '../system';
 import randoomSeed from 'seedrandom';
 
 export type RngSystemOptions = { seed: string };
-export class RngSystem extends System<RngSystemOptions> {
+export class RngSystem {
   private rng!: randoomSeed.PRNG;
 
   private seed!: string;
