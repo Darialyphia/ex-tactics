@@ -4,11 +4,9 @@
     "src/**/*.ts",
     "__test__/**/*.ts",
     "tsup.config.ts",
-    "src/player/components/cards-tracker.componentts"
   ],
   "exclude": [".git", "node_modules"],
   "compilerOptions": {
-    "moduleResolution": "Node",
     "types": ["vitest/importMeta"],
     "lib": ["dom", "dom.iterable", "esnext"]
   }

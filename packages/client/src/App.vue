@@ -8,8 +8,8 @@ const texture = `url(${grass})`;
 const hoveredCellTexture = `url(${hoveredCell})`;
 
 const rows = 10;
-const cols = 10;
-const planes = 3;
+const cols = 5;
+const planes = 2;
 
 const cellSize = {
   x: 64,
@@ -17,8 +17,8 @@ const cellSize = {
   z: 32
 };
 
-const padding = 0;
-const scale = 1;
+const padding = 32;
+const scale = 2;
 
 const boardDimensions = {
   x: (cols + rows) * (cellSize.x * 0.5) + padding,
@@ -87,8 +87,12 @@ const displayedCells = computed(() => {
         :key="`${cell.x}-${cell.y}`"
         class="iso-cell"
         :style="{
-          '--x': cell.isoX + (rows * cellSize.x) / 2 - cellSize.x / 2,
-          '--y': cell.isoY + (planes * cellSize.z) / 2 + cellSize.z * 0.5 + padding / 2,
+          '--x':
+            cell.isoX -
+            cellSize.x * 0.5 * scale +
+            rows * (cellSize.x * 0.5 * scale) +
+            padding * 0.5 * scale,
+          '--y': cell.isoY + planes * (cellSize.z * 0.5 * scale) + padding * 0.5 * scale,
           '--z-index': cell.zIndex
         }"
       />
@@ -107,8 +111,8 @@ main {
 .iso-board {
   image-rendering: pixelated;
   position: relative;
-  width: calc(1px * v-bind('boardDimensions.x'));
-  height: calc(1px * v-bind('boardDimensions.y'));
+  width: calc(1px * v-bind('boardDimensions.x * scale'));
+  height: calc(1px * v-bind('boardDimensions.y * scale'));
   /* overflow: hidden; */
   outline: solid 1px red;
 }
