@@ -8,6 +8,7 @@
   "exclude": [".git", "node_modules"],
   "compilerOptions": {
     "types": ["vitest/importMeta"],
-    "lib": ["dom", "dom.iterable", "esnext"]
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "ignoreDeprecations": "6.0"
   }
 }

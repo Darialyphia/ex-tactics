@@ -12,6 +12,7 @@ import { modifierIdFactory } from '../modifier/modifier.entity';
 import type { Player, PlayerOptions } from '../player/player.entity';
 import { TypedSerializableEventEmitter } from '../utils/typed-emitter';
 import { PlayerManager } from '../player/player.manager';
+import { UnitManager } from '../unit/unit.manager';
 
 export type GameOptions = {
   id: string;
@@ -44,6 +45,8 @@ export class Game implements Serializable<SerializedGame> {
   readonly snapshotSystem = new GameSnapshotSystem(this);
 
   readonly playerManager = new PlayerManager(this);
+
+  readonly unitManager = new UnitManager(this);
 
   readonly modifierIdFactory = modifierIdFactory();
 
