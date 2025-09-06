@@ -44,7 +44,7 @@ export class LineAOEShape implements AOEShape<SerializedLine> {
     };
   }
 
-  getAffectedPoints(): Point3D[] {
+  getArea(): Point3D[] {
     // Normalize the direction vector and compute end point
     const magnitude = Math.sqrt(
       this.direction.x * this.direction.x +

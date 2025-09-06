@@ -36,6 +36,11 @@ export class Ability
       manaCost: new Interceptable(),
       cooldown: new Interceptable()
     });
+    this.game.on(UNIT_EVENTS.UNIT_TURN_START, event => {
+      if (event.data.unit.equals(this.unit) && this.remainingCooldown > 0) {
+        this.remainingCooldown--;
+      }
+    });
   }
 
   serialize() {

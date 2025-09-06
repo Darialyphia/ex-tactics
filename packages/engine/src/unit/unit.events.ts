@@ -6,9 +6,14 @@ import type { Position } from '../utils/position';
 import type { Damage, DamageType } from './damage';
 import type { Ability } from './ability/ability.entity';
 
-export class UnitTurnEvent extends TypedSerializableEvent<EmptyObject, EmptyObject> {
+export class UnitTurnEvent extends TypedSerializableEvent<
+  { unit: Unit },
+  { unit: string }
+> {
   serialize() {
-    return {};
+    return {
+      unit: this.data.unit.id
+    };
   }
 }
 

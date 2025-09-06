@@ -43,7 +43,7 @@ export class DiagonalCrossAOEShape implements AOEShape<SerializedDiagonalCross> 
     };
   }
 
-  getAffectedPoints(): Point3D[] {
+  getArea(): Point3D[] {
     const affectedPoints: Point3D[] = [this.center];
 
     for (let d = 1; d <= this.horizontalSize; d++) {

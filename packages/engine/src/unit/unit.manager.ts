@@ -2,6 +2,8 @@ import type { Point3D } from '@game/shared';
 import type { Game } from '../game/game';
 import { Unit } from './unit.entity';
 import type { Player } from '../player/player.entity';
+import { UNITS_DICTIONARY } from './units';
+import type { Direction } from '../board/board.utils';
 
 export class UnitManager {
   private unitMap = new Map<string, Unit>();
@@ -32,12 +34,25 @@ export class UnitManager {
     );
   }
 
-  addUnit(player: Player, position: Point3D) {
+  addUnit(options: {
+    player: Player;
+    position: Point3D;
+    blueprintId: string;
+    selectedTalents: string[];
+    orientation: Direction;
+  }) {
+    const blueprint = UNITS_DICTIONARY[options.blueprintId];
+    if (!blueprint) {
+      throw new Error(`Unknown unit blueprint ID: ${options.blueprintId}`);
+    }
     const id = ++this.nextUnitId;
     const unit = new Unit(this.game, {
       id,
-      player,
-      position
+      blueprint,
+      player: options.player,
+      position: options.position,
+      selectedTalents: options.selectedTalents,
+      orientation: options.orientation
     });
     this.unitMap.set(unit.id, unit);
 

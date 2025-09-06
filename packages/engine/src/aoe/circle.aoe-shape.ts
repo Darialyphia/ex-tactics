@@ -43,7 +43,7 @@ export class CircleAOEShape implements AOEShape<SerializedCircle> {
     };
   }
 
-  getAffectedPoints(): Point3D[] {
+  getArea(): Point3D[] {
     const affectedPoints: Point3D[] = [];
     for (let x = -this.horizontalRadius; x <= this.horizontalRadius; x++) {
       for (let y = -this.horizontalRadius; y <= this.horizontalRadius; y++) {

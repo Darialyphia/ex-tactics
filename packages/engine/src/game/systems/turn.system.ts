@@ -5,11 +5,11 @@ import type { Unit } from '../../unit/unit.entity';
 import type { Game } from '../game';
 
 export const TURN_EVENTS = {
-  TURN_START: 'turn_start',
-  TURN_END: 'turn_end'
+  ROUND_START: 'round_start',
+  ROUND_END: 'round_end'
 } as const;
 
-export class GameTurnEvent extends TypedSerializableEvent<
+export class RoundEvent extends TypedSerializableEvent<
   { turnCount: number },
   { turnCount: number }
 > {
@@ -22,8 +22,8 @@ export class GameTurnEvent extends TypedSerializableEvent<
 export type TurnEvent = Values<typeof TURN_EVENTS>;
 
 export type TurnEventMap = {
-  [TURN_EVENTS.TURN_START]: GameTurnEvent;
-  [TURN_EVENTS.TURN_END]: GameTurnEvent;
+  [TURN_EVENTS.ROUND_START]: RoundEvent;
+  [TURN_EVENTS.ROUND_END]: RoundEvent;
 };
 
 export type SerializedTurnOrder = string[];
@@ -68,15 +68,15 @@ export class TurnSystem implements Serializable<SerializedTurnOrder> {
       .forEach(unit => this.queue.push(unit));
   }
 
-  startGameTurn() {
+  startRound() {
     this._turnCount++;
     this.queue = [];
     this._processedUnits.clear();
 
     this.buildQueue();
     this.game.emit(
-      TURN_EVENTS.TURN_START,
-      new GameTurnEvent({ turnCount: this.turnCount })
+      TURN_EVENTS.ROUND_START,
+      new RoundEvent({ turnCount: this.turnCount })
     );
 
     this.activeUnit?.startTurn();
@@ -94,11 +94,8 @@ export class TurnSystem implements Serializable<SerializedTurnOrder> {
     this.queue.splice(idx, 0, unit);
   }
 
-  endGameTurn() {
-    this.game.emit(
-      TURN_EVENTS.TURN_END,
-      new GameTurnEvent({ turnCount: this.turnCount })
-    );
+  endRound() {
+    this.game.emit(TURN_EVENTS.ROUND_END, new RoundEvent({ turnCount: this.turnCount }));
   }
 
   onUnitTurnEnd() {
@@ -107,8 +104,8 @@ export class TurnSystem implements Serializable<SerializedTurnOrder> {
     );
 
     if (!this.activeUnit) {
-      this.endGameTurn();
-      this.startGameTurn();
+      this.endRound();
+      this.startRound();
       return;
     } else {
       this.activeUnit.startTurn();

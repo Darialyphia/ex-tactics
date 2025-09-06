@@ -43,7 +43,7 @@ export class CrossAOEShape implements AOEShape<SerializedCross> {
     };
   }
 
-  getAffectedPoints(): Point3D[] {
+  getArea(): Point3D[] {
     const affectedPoints: Point3D[] = [];
 
     for (let x = -this.horizontalSize; x <= this.horizontalSize; x++) {

@@ -14,6 +14,7 @@ import { SolidBodyPathfindingStrategy } from './pathfinding/strategies/solid-bod
 import { CombatComponent } from './components/combat.component';
 import { UNIT_EVENTS } from './unit.constants';
 import { UnitReceiveHealEvent } from './unit.events';
+import { getDirectionFromDiff, type Direction } from '../board/board.utils';
 
 export type SerializedUnit = {
   type: 'unit';
@@ -34,6 +35,7 @@ export type SerializedUnit = {
 export type UnitOptions = {
   id: number;
   position: Point3D;
+  orientation: Direction;
   player: Player;
   blueprint: UnitBlueprint;
   selectedTalents: string[];
@@ -59,6 +61,8 @@ export class Unit
 
   private actionsTakenThisTurn = 0;
 
+  orientation: Direction;
+
   currentHp: number;
   currentMp: number;
   currentAp: number;
@@ -75,10 +79,11 @@ export class Unit
         new SolidBodyPathfindingStrategy(this.game, this)
       )
     });
+    this.orientation = options.orientation;
     this.combat = new CombatComponent(this.game, this);
     this.currentHp = this.maxHp;
     this.currentMp = this.game.config.STARTING_MANA;
-    this.currentAp = this.game.config.DEFAULT_AP_PER_TURN;
+    this.currentAp = this.game.config.STARTING_AP;
     this.player = options.player;
     this.blueprint = options.blueprint;
     this.abilities = [
@@ -146,6 +151,20 @@ export class Unit
 
   get initiative() {
     return this.interceptors.initiative.getValue(this.blueprint.baseStats.initiative, {});
+  }
+
+  get apRegenPerTurn() {
+    return this.interceptors.apRegenPerTurn.getValue(
+      this.game.config.DEFAULT_AP_REGEN_PER_TURN,
+      {}
+    );
+  }
+
+  get mpRegenPerTurn() {
+    return this.interceptors.mpRegenPerTurn.getValue(
+      this.game.config.DEFAULT_MANA_REGEN_PER_TURN ?? 0,
+      {}
+    );
   }
 
   get movementRange() {
@@ -283,6 +302,7 @@ export class Unit
   attack(target: Vec3) {
     this.currentAp -= this.apCostPerAttack;
     this.actionsTakenThisTurn += 1;
+    this.orientation = getDirectionFromDiff(this.position, target)!;
     this.combat.attack(target);
   }
 
@@ -291,7 +311,7 @@ export class Unit
     if (!ability) throw new Error(`Ability ${abilityId} not found on unit ${this.id}`);
     this.currentAp -= this.apCostPerAbility;
     this.actionsTakenThisTurn += 1;
-
+    this.orientation = getDirectionFromDiff(this.position, target)!;
     ability.use(target);
   }
 
@@ -320,7 +340,13 @@ export class Unit
   }
 
   startTurn() {
-    console.log('todo unit start turn');
+    this.currentMp = Math.min(
+      this.currentMp + this.mpRegenPerTurn,
+      this.game.config.DEFAULT_MAX_MANA
+    );
+    this.currentAp = this.currentAp + this.apRegenPerTurn;
+    this.movementsMadeThisTurn = 0;
+    this.actionsTakenThisTurn = 0;
   }
 
   isAlly(unit: Unit) {
@@ -340,6 +366,8 @@ export class Unit
     const path = this.movement.move(to);
     if (path) {
       this.movementsMadeThisTurn += path.distance;
+      const [last, previous] = path.path.slice(-2);
+      this.orientation = getDirectionFromDiff(last, previous)!;
     }
   }
 

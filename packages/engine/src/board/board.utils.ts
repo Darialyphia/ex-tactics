@@ -15,6 +15,25 @@ export const DIRECTIONS_TO_DIFF = {
   [DIRECTION.EAST]: { x: 1, y: 0 }
 } as const satisfies Record<Direction, Point>;
 
+export const getDirectionFromDiff = (a: Point, b: Point) => {
+  const diffX = b.x - a.x;
+  const diffY = b.y - a.y;
+
+  if (diffX === 0 && diffY === -1) {
+    return DIRECTION.NORTH;
+  }
+  if (diffX === 0 && diffY === 1) {
+    return DIRECTION.SOUTH;
+  }
+  if (diffX === -1 && diffY === 0) {
+    return DIRECTION.WEST;
+  }
+  if (diffX === 1 && diffY === 0) {
+    return DIRECTION.EAST;
+  }
+
+  return null;
+};
 export type Direction = Values<typeof DIRECTION>;
 
 export const pointToCellId = (point: Point3D): SerializedCoords =>

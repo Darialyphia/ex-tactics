@@ -32,7 +32,7 @@ export class PointAOEShape implements AOEShape<SerializedPoint> {
     };
   }
 
-  getAffectedPoints(): Point3D[] {
+  getArea(): Point3D[] {
     return [this.point];
   }
 }

@@ -1,4 +1,4 @@
-import type { AOEShape, GenericAOEShape } from '../aoe/aoe-shape';
+import type { GenericAOEShape } from '../aoe/aoe-shape';
 import type { Modifier } from '../modifier/modifier.entity';
 import { Interceptable } from '../utils/interceptable';
 import type { Ability } from './ability/ability.entity';
@@ -46,6 +46,9 @@ export type UnitInterceptors = {
 
   apCostPerAttack: Interceptable<number>;
   apCostPerAbility: Interceptable<number>;
+
+  apRegenPerTurn: Interceptable<number>;
+  mpRegenPerTurn: Interceptable<number>;
 };
 
 export const makeUnitInterceptors = (): UnitInterceptors => {
@@ -90,6 +93,9 @@ export const makeUnitInterceptors = (): UnitInterceptors => {
     attackAOEShape: new Interceptable(),
 
     apCostPerAttack: new Interceptable(),
-    apCostPerAbility: new Interceptable()
+    apCostPerAbility: new Interceptable(),
+
+    apRegenPerTurn: new Interceptable(),
+    mpRegenPerTurn: new Interceptable()
   };
 };
