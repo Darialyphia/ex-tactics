@@ -27,6 +27,10 @@ export class Player
     };
   }
 
+  get units() {
+    return this.game.unitManager.units.filter(u => u.player.equals(this));
+  }
+
   get opponent() {
     return this.game.playerManager.players.find(p => !p.equals(this))!;
   }

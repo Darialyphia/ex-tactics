@@ -1,11 +1,10 @@
 import { type EmptyObject, type Point3D, type Serializable } from '@game/shared';
 import { EntityWithModifiers } from '../entity';
 import type { Game } from '../game/game';
-import { type Terrain } from './map-blueprint';
 import { Position } from '../utils/position';
 import type { Tile } from './tile';
 
-export type SerializedCoords = `${string}:${string}`;
+export type SerializedCoords = `${string}:${string}:${string}`;
 
 export type CellOptions = {
   id: string;
