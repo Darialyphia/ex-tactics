@@ -1,8 +1,13 @@
-import { Vec3, type Point3D } from '@game/shared';
+import { isDefined, Vec3, type Point3D } from '@game/shared';
 import type { Game } from '../../game/game';
 import type { Unit } from '../unit.entity';
 import { UNIT_EVENTS } from '../unit.constants';
-import { UnitAttackEvent } from '../unit.events';
+import {
+  UnitAttackEvent,
+  UnitDealDamageEvent,
+  UnitTakeDamageEvent
+} from '../unit.events';
+import { Damage, PhysicalDamage } from '../damage';
 
 export class CombatComponent {
   private _attacksCount = 0;
@@ -34,74 +39,72 @@ export class CombatComponent {
         unit: this.unit
       })
     );
-    const targets = this.unit.attackAOEShape.getUnits([target]);
-    const damage = new CombatDamage({
+    const targets = this.unit.attackAOEShape
+      .getAffectedPoints()
+      .map(point => this.game.unitManager.getUnitAt(point)!)
+      .filter(isDefined);
+
+    const damage = new PhysicalDamage(this.game, {
       baseAmount: 0,
-      source: this.unit.card
+      pAtkRatio: 1,
+      source: this.unit
     });
 
     this.dealDamage(targets, damage);
     this._attacksCount++;
 
-    const unit = this.game.unitSystem.getUnitAt(target)!;
+    const unit = this.game.unitManager.getUnitAt(target)!;
     if (!unit) return; // means unit died from attack
-    // we check counterattack before emitting AFTER_ATTACK event to enable effects that would prevent counter attack for one attack only
-    // ex: Fearsome
-    const counterAttackParticipants = this.unit
-      .getCounterattackParticipants(unit)
-      .filter(unit => {
-        return (
-          unit.canCounterAttackAt(this.unit.position) &&
-          this.unit.canBeCounterattackedBy(unit)
-        );
-      });
 
-    this.emitter.emit(
-      COMBAT_EVENTS.AFTER_ATTACK,
-      new AttackEvent({
-        target: Vec2.fromPoint(target)
+    this.game.emit(
+      UNIT_EVENTS.UNIT_AFTER_ATTACK,
+      new UnitAttackEvent({
+        unit: this.unit,
+        target: Vec3.fromPoint3D(target)
       })
     );
-
-    counterAttackParticipants.forEach(unit => {
-      unit.counterAttack(this.unit);
-    });
   }
 
-  dealDamage(targets: Unit[], damage: Damage<AnyCard>) {
-    this.emitter.emit(
-      COMBAT_EVENTS.BEFORE_DEAL_DAMAGE,
-      new DealDamageEvent({ targets, damage })
+  dealDamage(targets: Unit[], damage: Damage<any>) {
+    this.game.emit(
+      UNIT_EVENTS.UNIT_BEFORE_DEAL_DAMAGE,
+      new UnitDealDamageEvent({
+        unit: this.unit,
+        targets,
+        damage
+      })
     );
     targets.forEach(target => {
-      target.takeDamage(this.unit.card, damage);
+      target.combat.takeDamage(this.unit, damage);
     });
-    this.emitter.emit(
-      COMBAT_EVENTS.AFTER_DEAL_DAMAGE,
-      new DealDamageEvent({ targets, damage })
+    this.game.emit(
+      UNIT_EVENTS.UNIT_AFTER_DEAL_DAMAGE,
+      new UnitDealDamageEvent({ unit: this.unit, targets, damage })
     );
   }
 
-  takeDamage(from: AnyCard, damage: Damage<AnyCard>) {
-    this.emitter.emit(
-      COMBAT_EVENTS.BEFORE_RECEIVE_DAMAGE,
-      new ReceiveDamageEvent({
+  takeDamage(from: Unit, damage: Damage<any>) {
+    this.game.emit(
+      UNIT_EVENTS.UNIT_BEFORE_RECEIVE_DAMAGE,
+      new UnitTakeDamageEvent({
+        unit: this.unit,
         from,
         damage
       })
     );
 
-    this.unit.hp.remove(damage.getFinalAmount(this.unit));
-    this.emitter.emit(
-      COMBAT_EVENTS.AFTER_RECEIVE_DAMAGE,
-      new ReceiveDamageEvent({
+    this.unit.currentHp = Math.max(
+      this.unit.currentHp - damage.getFinalAmount(this.unit),
+      0
+    );
+
+    this.game.emit(
+      UNIT_EVENTS.UNIT_AFTER_RECEIVE_DAMAGE,
+      new UnitTakeDamageEvent({
+        unit: this.unit,
         from,
         damage
       })
     );
-  }
-
-  shutdown() {
-    this.emitter.removeAllListeners();
   }
 }

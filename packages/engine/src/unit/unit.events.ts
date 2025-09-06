@@ -1,7 +1,7 @@
-import type { EmptyObject, Point, Point3D, Vec3 } from '@game/shared';
+import type { EmptyObject, Point3D, Vec3 } from '@game/shared';
 import { TypedSerializableEvent } from '../utils/typed-emitter';
 import type { UNIT_EVENTS } from './unit.constants';
-import type { SerializedUnit, Unit } from './unit.entity';
+import type { Unit } from './unit.entity';
 import type { Position } from '../utils/position';
 import type { Damage, DamageType } from './damage';
 
@@ -89,7 +89,7 @@ export class UnitDealDamageEvent extends TypedSerializableEvent<
   }
 }
 
-export class ReceiveDamageEvent extends TypedSerializableEvent<
+export class UnitTakeDamageEvent extends TypedSerializableEvent<
   { unit: Unit; from: Unit; damage: Damage<Unit> },
   {
     from: string;
@@ -123,6 +123,6 @@ export type UnitEventMap = {
   [UNIT_EVENTS.UNIT_AFTER_ATTACK]: UnitAttackEvent;
   [UNIT_EVENTS.UNIT_BEFORE_DEAL_DAMAGE]: UnitDealDamageEvent;
   [UNIT_EVENTS.UNIT_AFTER_DEAL_DAMAGE]: UnitDealDamageEvent;
-  [UNIT_EVENTS.UNIT_BEFORE_RECEIVE_DAMAGE]: ReceiveDamageEvent;
-  [UNIT_EVENTS.UNIT_AFTER_RECEIVE_DAMAGE]: ReceiveDamageEvent;
+  [UNIT_EVENTS.UNIT_BEFORE_RECEIVE_DAMAGE]: UnitTakeDamageEvent;
+  [UNIT_EVENTS.UNIT_AFTER_RECEIVE_DAMAGE]: UnitTakeDamageEvent;
 };

@@ -11,6 +11,7 @@ import { makeUnitInterceptors, type UnitInterceptors } from './unit-interceptors
 import { MovementComponent } from './components/movement.component';
 import { PathfinderComponent } from './pathfinding/pathfinder.component';
 import { SolidBodyPathfindingStrategy } from './pathfinding/strategies/solid-body.strategy';
+import { CombatComponent } from './components/combat.component';
 
 export type SerializedUnit = {
   type: 'unit';
@@ -42,6 +43,8 @@ export class Unit
 {
   readonly movement: MovementComponent;
 
+  readonly combat: CombatComponent;
+
   readonly player: Player;
 
   readonly abilities: Ability[];
@@ -54,11 +57,9 @@ export class Unit
 
   private actionsTakenThisTurn = 0;
 
-  private currentHp: number;
-
-  private currentMp: number;
-
-  private currentAp: number;
+  currentHp: number;
+  currentMp: number;
+  currentAp: number;
 
   constructor(
     private game: Game,
@@ -72,6 +73,7 @@ export class Unit
         new SolidBodyPathfindingStrategy(this.game, this)
       )
     });
+    this.combat = new CombatComponent(this.game, this);
     this.currentHp = this.maxHp;
     this.currentMp = this.game.config.STARTING_MANA;
     this.currentAp = this.game.config.DEFAULT_AP_PER_TURN;
@@ -129,13 +131,6 @@ export class Unit
   get movementRange() {
     return this.interceptors.movementRange.getValue(
       this.blueprint.baseStats.movementRange,
-      {}
-    );
-  }
-
-  get attackRange() {
-    return this.interceptors.attackRange.getValue(
-      this.blueprint.baseStats.attackRange,
       {}
     );
   }
@@ -214,6 +209,20 @@ export class Unit
 
   get remainingMovement() {
     return this.movementRange - this.movementsMadeThisTurn;
+  }
+
+  get attackTargetingShape() {
+    return this.interceptors.attackTargetingShape.getValue(
+      this.blueprint.getAttackTargetingShape(this.game, this),
+      {}
+    );
+  }
+
+  get attackAOEShape() {
+    return this.interceptors.attackAOEShape.getValue(
+      this.blueprint.getAttackAOEShape(this.game, this),
+      {}
+    );
   }
 
   canAttack(unit: Unit): boolean {

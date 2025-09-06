@@ -1,3 +1,4 @@
+import type { AOEShape } from '../aoe/aoe-shape';
 import type { Modifier } from '../modifier/modifier.entity';
 import { Interceptable } from '../utils/interceptable';
 import type { Ability } from './ability/ability.entity';
@@ -23,7 +24,6 @@ export type UnitInterceptors = {
   mDef: Interceptable<number>;
   initiative: Interceptable<number>;
   movementRange: Interceptable<number>;
-  attackRange: Interceptable<number>;
 
   flatPhysicalDamageIncrease: Interceptable<number>;
   percentPhysicalDamageIncrease: Interceptable<number>;
@@ -40,6 +40,9 @@ export type UnitInterceptors = {
   percentMagicalDamageMitigation: Interceptable<number>;
 
   maxMovementsPerTurn: Interceptable<number>;
+
+  attackTargetingShape: Interceptable<AOEShape<any>>;
+  attackAOEShape: Interceptable<AOEShape<any>>;
 };
 
 export const makeUnitInterceptors = (): UnitInterceptors => {
@@ -63,7 +66,6 @@ export const makeUnitInterceptors = (): UnitInterceptors => {
     mDef: new Interceptable(),
     initiative: new Interceptable(),
     movementRange: new Interceptable(),
-    attackRange: new Interceptable(),
 
     flatPhysicalDamageIncrease: new Interceptable(),
     percentPhysicalDamageIncrease: new Interceptable(),
@@ -79,6 +81,9 @@ export const makeUnitInterceptors = (): UnitInterceptors => {
     flatMagicalDamageMitigation: new Interceptable(),
     percentMagicalDamageMitigation: new Interceptable(),
 
-    maxMovementsPerTurn: new Interceptable()
+    maxMovementsPerTurn: new Interceptable(),
+
+    attackTargetingShape: new Interceptable(),
+    attackAOEShape: new Interceptable()
   };
 };
