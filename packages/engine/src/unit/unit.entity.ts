@@ -1,4 +1,4 @@
-import type { Point3D, Serializable } from '@game/shared';
+import type { Point3D, Serializable, Vec3 } from '@game/shared';
 import { EntityWithModifiers } from '../entity';
 import type { Game } from '../game/game';
 import type { Player } from '../player/player.entity';
@@ -12,6 +12,8 @@ import { MovementComponent } from './components/movement.component';
 import { PathfinderComponent } from './pathfinding/pathfinder.component';
 import { SolidBodyPathfindingStrategy } from './pathfinding/strategies/solid-body.strategy';
 import { CombatComponent } from './components/combat.component';
+import { UNIT_EVENTS } from './unit.constants';
+import { UnitReceiveHealEvent } from './unit.events';
 
 export type SerializedUnit = {
   type: 'unit';
@@ -98,6 +100,24 @@ export class Unit
           ) as PassiveBlueprint
       )
     ].map(passiveBlueprint => new Passive(game, this, passiveBlueprint));
+  }
+
+  serialize() {
+    return {
+      type: 'unit' as const,
+      id: this.id,
+      position: this.position.serialize(),
+      player: this.player.id,
+      pAtk: this.pAtk,
+      mAtk: this.mAtk,
+      pDef: this.pDef,
+      mDef: this.mDef,
+      maxHp: this.maxHp,
+      currentHp: this.maxHp, // TODO: currentHp
+      initiative: this.initiative,
+      abilities: this.abilities.map(a => a.id),
+      passives: this.passives.map(p => p.id)
+    };
   }
 
   get position() {
@@ -225,12 +245,30 @@ export class Unit
     );
   }
 
+  get apCostPerAttack() {
+    return this.interceptors.apCostPerAttack.getValue(
+      this.game.config.DEFAULT_ATTACK_AP_COST,
+      {}
+    );
+  }
+
+  get apCostPerAbility() {
+    return this.interceptors.apCostPerAbility.getValue(
+      this.game.config.DEFAULT_ABILITY_AP_COST,
+      {}
+    );
+  }
+
   canAttack(unit: Unit): boolean {
-    return this.interceptors.canAttack.getValue(
-      this.currentAp > this.game.config.DEFAULT_ATTACK_AP_COST,
-      {
-        unit
-      }
+    return this.interceptors.canAttack.getValue(this.currentAp > this.apCostPerAttack, {
+      unit
+    });
+  }
+
+  canUseAbility(ability: Ability): boolean {
+    return this.interceptors.canUseAbility.getValue(
+      ability.canUse && this.currentAp > this.apCostPerAbility,
+      { ability }
     );
   }
 
@@ -242,22 +280,43 @@ export class Unit
     return this.interceptors.canBeAttackTarget.getValue(true, { attacker: unit });
   }
 
-  serialize() {
-    return {
-      type: 'unit' as const,
-      id: this.id,
-      position: this.position.serialize(),
-      player: this.player.id,
-      pAtk: this.pAtk,
-      mAtk: this.mAtk,
-      pDef: this.pDef,
-      mDef: this.mDef,
-      maxHp: this.maxHp,
-      currentHp: this.maxHp, // TODO: currentHp
-      initiative: this.initiative,
-      abilities: this.abilities.map(a => a.id),
-      passives: this.passives.map(p => p.id)
-    };
+  attack(target: Vec3) {
+    this.currentAp -= this.apCostPerAttack;
+    this.actionsTakenThisTurn += 1;
+    this.combat.attack(target);
+  }
+
+  useAbility(abilityId: string, target: Vec3) {
+    const ability = this.abilities.find(a => a.id === abilityId);
+    if (!ability) throw new Error(`Ability ${abilityId} not found on unit ${this.id}`);
+    this.currentAp -= this.apCostPerAbility;
+    this.actionsTakenThisTurn += 1;
+
+    ability.use(target);
+  }
+
+  get takeDamage() {
+    return this.combat.takeDamage.bind(this.combat);
+  }
+
+  heal(from: Unit, amount: number) {
+    this.game.emit(
+      UNIT_EVENTS.UNIT_BEFORE_RECEIVE_HEAL,
+      new UnitReceiveHealEvent({
+        unit: this,
+        from,
+        amount
+      })
+    );
+    this.currentHp = Math.min(this.currentHp + amount, this.maxHp);
+    this.game.emit(
+      UNIT_EVENTS.UNIT_AFTER_RECEIVE_HEAL,
+      new UnitReceiveHealEvent({
+        unit: this,
+        from,
+        amount
+      })
+    );
   }
 
   startTurn() {

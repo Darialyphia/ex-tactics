@@ -12,7 +12,11 @@ export const UNIT_EVENTS = {
   UNIT_BEFORE_DEAL_DAMAGE: 'unit_before_deal_damage',
   UNIT_AFTER_DEAL_DAMAGE: 'unit_after_deal_damage',
   UNIT_BEFORE_RECEIVE_DAMAGE: 'unit_before_receive_damage',
-  UNIT_AFTER_RECEIVE_DAMAGE: 'unit_after_receive_damage'
+  UNIT_AFTER_RECEIVE_DAMAGE: 'unit_after_receive_damage',
+  UNIT_BEFORE_USE_ABILITY: 'unit_before_use_ability',
+  UNIT_AFTER_USE_ABILITY: 'unit_after_use_ability',
+  UNIT_BEFORE_RECEIVE_HEAL: 'unit_before_receive_heal',
+  UNIT_AFTER_RECEIVE_HEAL: 'unit_after_receive_heal'
 } as const;
 
 export type UnitEvent = Values<typeof UNIT_EVENTS>;

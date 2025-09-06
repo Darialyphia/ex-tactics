@@ -1,14 +1,17 @@
+import type { Vec3 } from '@game/shared';
+import type { AOEShape, GenericAOEShape } from '../../aoe/aoe-shape';
 import type { Game } from '../../game/game';
 import type { Unit } from '../unit.entity';
+import type { Ability } from './ability.entity';
 
 export type AbilityBlueprint = {
   id: string;
   description: string;
-  detailledDescription: (game: Game, unit: Unit) => string;
+  iconId: string;
+  detailledDescription: (game: Game, ability: Ability) => string;
   manaCost: number;
   cooldown: number;
-  getAttackTargetingShape(game: Game, unitId: string): string;
-  getAttackAOEShape(game: Game, unitId: string): string;
-  canUse(game: Game, unit: Unit): boolean;
-  onResolve(game: Game, unit: Unit): void;
+  getAttackTargetingShape(game: Game, ability: Ability): GenericAOEShape;
+  getAttackAOEShape(game: Game, ability: Ability, target: Vec3): GenericAOEShape;
+  onUse(game: Game, unit: Unit, target: Vec3): void;
 };

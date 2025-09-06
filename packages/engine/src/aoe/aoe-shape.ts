@@ -10,5 +10,7 @@ export type SerializedAOE = {
 export type AOEShape<T extends SerializedAOE> = {
   type: string;
   targetingType: TargetingType;
-  getAffectedPoints(): Point3D[];
+  getArea(): Point3D[];
 } & Serializable<T>;
+
+export type GenericAOEShape = AOEShape<SerializedAOE>;

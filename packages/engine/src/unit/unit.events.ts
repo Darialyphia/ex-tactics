@@ -4,6 +4,7 @@ import type { UNIT_EVENTS } from './unit.constants';
 import type { Unit } from './unit.entity';
 import type { Position } from '../utils/position';
 import type { Damage, DamageType } from './damage';
+import type { Ability } from './ability/ability.entity';
 
 export class UnitTurnEvent extends TypedSerializableEvent<EmptyObject, EmptyObject> {
   serialize() {
@@ -112,6 +113,32 @@ export class UnitTakeDamageEvent extends TypedSerializableEvent<
   }
 }
 
+export class UnitUseAbilityEvent extends TypedSerializableEvent<
+  { unit: Unit; ability: Ability; target: Vec3 },
+  { unit: string; ability: string; target: Point3D }
+> {
+  serialize() {
+    return {
+      unit: this.data.unit.id,
+      ability: this.data.ability.id,
+      target: this.data.target.serialize()
+    };
+  }
+}
+
+export class UnitReceiveHealEvent extends TypedSerializableEvent<
+  { unit: Unit; from: Unit; amount: number },
+  { unit: string; from: string; amount: number }
+> {
+  serialize() {
+    return {
+      unit: this.data.unit.id,
+      from: this.data.from.id,
+      amount: this.data.amount
+    };
+  }
+}
+
 export type UnitEventMap = {
   [UNIT_EVENTS.UNIT_TURN_START]: UnitTurnEvent;
   [UNIT_EVENTS.UNIT_TURN_END]: UnitTurnEvent;
@@ -125,4 +152,8 @@ export type UnitEventMap = {
   [UNIT_EVENTS.UNIT_AFTER_DEAL_DAMAGE]: UnitDealDamageEvent;
   [UNIT_EVENTS.UNIT_BEFORE_RECEIVE_DAMAGE]: UnitTakeDamageEvent;
   [UNIT_EVENTS.UNIT_AFTER_RECEIVE_DAMAGE]: UnitTakeDamageEvent;
+  [UNIT_EVENTS.UNIT_BEFORE_USE_ABILITY]: UnitUseAbilityEvent;
+  [UNIT_EVENTS.UNIT_AFTER_USE_ABILITY]: UnitUseAbilityEvent;
+  [UNIT_EVENTS.UNIT_BEFORE_RECEIVE_HEAL]: UnitReceiveHealEvent;
+  [UNIT_EVENTS.UNIT_AFTER_RECEIVE_HEAL]: UnitReceiveHealEvent;
 };

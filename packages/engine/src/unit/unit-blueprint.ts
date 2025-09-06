@@ -1,4 +1,4 @@
-import type { AOEShape } from '../aoe/aoe-shape';
+import type { AOEShape, GenericAOEShape } from '../aoe/aoe-shape';
 import type { Game } from '../game/game';
 import type { AbilityBlueprint } from './ability/ability-blueprint';
 import type { PassiveBlueprint } from './passive/passive-blueprint';
@@ -17,8 +17,8 @@ export type UnitBlueprint = {
     initiative: number;
     movementRange: number;
   };
-  getAttackTargetingShape(game: Game, unit: Unit): AOEShape<any>;
-  getAttackAOEShape(game: Game, unit: Unit): AOEShape<any>;
+  getAttackTargetingShape(game: Game, unit: Unit): GenericAOEShape;
+  getAttackAOEShape(game: Game, unit: Unit): GenericAOEShape;
   sprite: {
     id: string;
     defaultParts: Record<string, string>;
