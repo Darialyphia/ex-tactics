@@ -29,7 +29,7 @@ export abstract class Input<TSchema extends DefaultSchema>
   ) {}
 
   get player() {
-    return this.game.playerManager.getPlayerById(this.payload.playerId);
+    return this.game.playerManager.getPlayerById(this.payload.playerId)!;
   }
 
   protected abstract impl(): void;

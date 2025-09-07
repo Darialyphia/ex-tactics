@@ -37,6 +37,7 @@ export type EntityDiffDictionary = Record<string, Partial<SerializedEntity>>;
 export type SerializedOmniscientState = {
   config: Config;
   entities: EntityDictionary;
+  activeUnitId: string;
 };
 
 export type SnapshotDiff = {
@@ -222,7 +223,8 @@ export class GameSnapshotSystem {
   serializeOmniscientState(): SerializedOmniscientState {
     return {
       config: this.game.config,
-      entities: this.buildEntityDictionary()
+      entities: this.buildEntityDictionary(),
+      activeUnitId: this.game.turnSystem.activeUnit!.id
     };
   }
 

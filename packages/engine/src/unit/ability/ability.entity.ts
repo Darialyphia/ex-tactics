@@ -95,6 +95,11 @@ export class Ability
     return true;
   }
 
+  canUseAt(target: Vec3) {
+    if (!this.canUse) return false;
+    return this.potentialTargets.some(p => target.equals(p));
+  }
+
   use(target: Vec3) {
     this.remainingCooldown = this.cooldown;
     this.unit.currentMp -= this.manaCost;

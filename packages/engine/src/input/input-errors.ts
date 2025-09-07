@@ -7,31 +7,7 @@ export class InputError extends GameError {
   }
 }
 
-export class GameNotPausedError extends InputError {
-  constructor() {
-    super('Game is not paused');
-  }
-}
-
-export class InvalidInteractionStateError extends InputError {
-  constructor() {
-    super('Invalid interaction state');
-  }
-}
-
-export class AlreadyMulliganedError extends InputError {
-  constructor() {
-    super('Player has already mulliganed.');
-  }
-}
-
-export class TooManyMulliganedCardsError extends InputError {
-  constructor() {
-    super('Too many cards mulliganed.');
-  }
-}
-
-export class NotCurrentPlayerError extends InputError {
+export class NotActivePlayerError extends InputError {
   constructor() {
     super('You are not the active player.');
   }
@@ -136,18 +112,6 @@ export class IllegalTargetError extends InputError {
 export class InvalidDeploymentError extends InputError {
   constructor() {
     super('Invalid deployment');
-  }
-}
-
-export class CannotLevelUpError extends InputError {
-  constructor() {
-    super('Cannot level up');
-  }
-}
-
-export class IllegalCardPlayedError extends InputError {
-  constructor() {
-    super('Cannot play this card');
   }
 }
 

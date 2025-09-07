@@ -1,4 +1,4 @@
-import type { Point3D, Serializable, Vec3 } from '@game/shared';
+import { Vec3, type Point3D, type Serializable } from '@game/shared';
 import { EntityWithModifiers } from '../entity';
 import type { Game } from '../game/game';
 import type { Player } from '../player/player.entity';
@@ -306,6 +306,22 @@ export class Unit
 
   canBeAttackedBy(unit: Unit): boolean {
     return this.interceptors.canBeAttackTarget.getValue(true, { attacker: unit });
+  }
+
+  canAttackAt(point: Point3D) {
+    if (this.position.equals(point)) {
+      return false;
+    }
+    const target = this.game.unitManager.getUnitAt(point);
+    if (!target) return false;
+
+    if (!this.canAttack(target) || !target.canBeAttackedBy(this)) {
+      return false;
+    }
+
+    const area = this.attackTargetingShape.getArea(this.position);
+
+    return area.some(p => Vec3.fromPoint3D(p).equals(point));
   }
 
   attack(target: Vec3) {

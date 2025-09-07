@@ -12,6 +12,7 @@ export type AbilityBlueprint = {
   dynamicDescription: (game: Game, ability: Ability) => string;
   manaCost: number;
   cooldown: number;
+  targetType: 'unit' | 'cell';
   getAttackTargetingShape(game: Game, ability: Ability): GenericAOEShape;
   getAttackAOEShape(game: Game, ability: Ability, target: Vec3): GenericAOEShape;
   onUse(game: Game, unit: Unit, target: Vec3): void;

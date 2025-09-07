@@ -16,7 +16,10 @@ import {
   GameInputEvent
 } from '../game/game.events';
 import { InputError } from './input-errors';
-import { MoveInput } from './inputs/cancel-play-card.input';
+import { EndTurnInput } from './inputs/end-turn';
+import { MoveInput } from './inputs/move.input';
+import { AttackInput } from './inputs/attack.input';
+import { UseAbilityInput } from './inputs/use-ability';
 
 type GenericInputMap = Record<string, Constructor<Input<DefaultSchema>>>;
 
@@ -31,7 +34,10 @@ type ValidatedInputMap<T extends GenericInputMap> = {
 const validateinputMap = <T extends GenericInputMap>(data: ValidatedInputMap<T>) => data;
 
 const inputMap = validateinputMap({
-  move: MoveInput
+  endTurn: EndTurnInput,
+  move: MoveInput,
+  attack: AttackInput,
+  useAbility: UseAbilityInput
 });
 
 type InputMap = typeof inputMap;

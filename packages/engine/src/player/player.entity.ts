@@ -68,6 +68,10 @@ export class Player
     return this.game.playerManager.players.find(p => !p.equals(this))!;
   }
 
+  get isActive() {
+    return this.game.turnSystem.activeUnit.player.equals(this) ?? false;
+  }
+
   private onRoundEnd() {
     this.heroes.forEach(h => {
       if (h.status === 'reserve' && h.cooldown > 0) {
