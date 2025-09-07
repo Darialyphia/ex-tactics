@@ -1,4 +1,5 @@
-import type { Point, Values } from '@game/shared';
+import type { Point3D, Values } from '@game/shared';
+import type { Game } from '../game/game';
 
 export type MapBlueprint = {
   id: string;
@@ -7,6 +8,10 @@ export type MapBlueprint = {
   cells: Array<{
     tile: string;
     obstacles: string[];
+  }>;
+  onInit(game: Game): void;
+  players: Array<{
+    shrines: Point3D[];
   }>;
 };
 

@@ -6,7 +6,6 @@ type SerializedCross = {
   type: 'cross';
   targetingType: TargetingType;
   params: {
-    center: Point3D;
     horizontalSize: number;
     verticalSize: number;
   };
@@ -16,7 +15,6 @@ export class CrossAOEShape implements AOEShape<SerializedCross> {
   static fromJSON(json: SerializedCross): CrossAOEShape {
     return new CrossAOEShape(
       json.targetingType,
-      json.params.center,
       json.params.horizontalSize,
       json.params.verticalSize
     );
@@ -26,7 +24,6 @@ export class CrossAOEShape implements AOEShape<SerializedCross> {
 
   constructor(
     readonly targetingType: TargetingType,
-    private center: Point3D,
     private horizontalSize: number,
     private verticalSize: number
   ) {}
@@ -36,22 +33,21 @@ export class CrossAOEShape implements AOEShape<SerializedCross> {
       type: this.type,
       targetingType: this.targetingType,
       params: {
-        center: this.center,
         horizontalSize: this.horizontalSize,
         verticalSize: this.verticalSize
       }
     };
   }
 
-  getArea(): Point3D[] {
+  getArea(center: Point3D): Point3D[] {
     const affectedPoints: Point3D[] = [];
 
     for (let x = -this.horizontalSize; x <= this.horizontalSize; x++) {
       for (let z = -this.verticalSize; z <= this.verticalSize; z++) {
         const point = {
-          x: this.center.x + x,
-          y: this.center.y,
-          z: this.center.z + z
+          x: center.x + x,
+          y: center.y,
+          z: center.z + z
         };
         if (point.x < 0 || point.y < 0 || point.z < 0) continue;
         affectedPoints.push(point);
@@ -62,9 +58,9 @@ export class CrossAOEShape implements AOEShape<SerializedCross> {
       for (let z = -this.verticalSize; z <= this.verticalSize; z++) {
         if (y === 0) continue; // center already added in x-axis branch
         const point = {
-          x: this.center.x,
-          y: this.center.y + y,
-          z: this.center.z + z
+          x: center.x,
+          y: center.y + y,
+          z: center.z + z
         };
         if (point.x < 0 || point.y < 0 || point.z < 0) continue;
         affectedPoints.push(point);

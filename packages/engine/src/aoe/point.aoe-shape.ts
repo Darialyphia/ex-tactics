@@ -1,13 +1,11 @@
-import type { Point3D } from '@game/shared';
+import type { EmptyObject, Point3D } from '@game/shared';
 import type { AOEShape } from './aoe-shape';
 import type { TargetingType } from './aoe.constants';
 
 type SerializedPoint = {
   type: 'point';
   targetingType: TargetingType;
-  params: {
-    point: Point3D;
-  };
+  params: EmptyObject;
 };
 
 export class PointAOEShape implements AOEShape<SerializedPoint> {
@@ -26,13 +24,11 @@ export class PointAOEShape implements AOEShape<SerializedPoint> {
     return {
       type: this.type,
       targetingType: this.targetingType,
-      params: {
-        point: this.point
-      }
+      params: {}
     };
   }
 
-  getArea(): Point3D[] {
-    return [this.point];
+  getArea(point: Point3D): Point3D[] {
+    return [point];
   }
 }

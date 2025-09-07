@@ -6,7 +6,6 @@ type SerializedDiagonalCross = {
   type: 'diagonalCross';
   targetingType: TargetingType;
   params: {
-    center: Point3D;
     horizontalSize: number;
     verticalSize: number;
   };
@@ -16,7 +15,7 @@ export class DiagonalCrossAOEShape implements AOEShape<SerializedDiagonalCross> 
   static fromJSON(json: SerializedDiagonalCross): DiagonalCrossAOEShape {
     return new DiagonalCrossAOEShape(
       json.targetingType,
-      json.params.center,
+
       json.params.horizontalSize,
       json.params.verticalSize
     );
@@ -26,7 +25,7 @@ export class DiagonalCrossAOEShape implements AOEShape<SerializedDiagonalCross> 
 
   constructor(
     readonly targetingType: TargetingType,
-    private center: Point3D,
+
     private horizontalSize: number,
     private verticalSize: number
   ) {}
@@ -36,23 +35,22 @@ export class DiagonalCrossAOEShape implements AOEShape<SerializedDiagonalCross> 
       type: this.type,
       targetingType: this.targetingType,
       params: {
-        center: this.center,
         horizontalSize: this.horizontalSize,
         verticalSize: this.verticalSize
       }
     };
   }
 
-  getArea(): Point3D[] {
-    const affectedPoints: Point3D[] = [this.center];
+  getArea(center: Point3D): Point3D[] {
+    const affectedPoints: Point3D[] = [center];
 
     for (let d = 1; d <= this.horizontalSize; d++) {
       for (let z = -this.verticalSize; z <= this.verticalSize; z++) {
         const candidates = [
-          { x: this.center.x + d, y: this.center.y + d, z: this.center.z + z },
-          { x: this.center.x - d, y: this.center.y + d, z: this.center.z + z },
-          { x: this.center.x + d, y: this.center.y - d, z: this.center.z + z },
-          { x: this.center.x - d, y: this.center.y - d, z: this.center.z + z }
+          { x: center.x + d, y: center.y + d, z: center.z + z },
+          { x: center.x - d, y: center.y + d, z: center.z + z },
+          { x: center.x + d, y: center.y - d, z: center.z + z },
+          { x: center.x - d, y: center.y - d, z: center.z + z }
         ];
         for (const point of candidates) {
           if (point.x < 0 || point.y < 0 || point.z < 0) continue;
