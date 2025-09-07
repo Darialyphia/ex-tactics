@@ -61,6 +61,12 @@ export class MissingPayloadError extends InputError {
   }
 }
 
+export class WrongRoundPhaseError extends InputError {
+  constructor() {
+    super('You cannot do this action in the current round phase.');
+  }
+}
+
 export class UnknownPlayerError extends InputError {
   constructor(playerId: string) {
     super(`Unknown player id: ${playerId}`);

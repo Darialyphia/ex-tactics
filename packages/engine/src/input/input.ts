@@ -1,7 +1,8 @@
 import { z } from 'zod';
 import { assert, type JSONValue, type Serializable } from '@game/shared';
 import type { Game } from '../game/game';
-import { MissingPayloadError } from './input-errors';
+import { MissingPayloadError, WrongRoundPhaseError } from './input-errors';
+import type { TurnPhase } from '../game/systems/turn.system';
 
 export const defaultInputSchema = z.object({
   playerId: z.string()
@@ -19,11 +20,17 @@ export abstract class Input<TSchema extends DefaultSchema>
 
   protected payload!: z.infer<TSchema>;
 
+  protected abstract allowedPhases: TurnPhase[];
+
   constructor(
     protected game: Game,
     readonly id: number,
     protected rawPayload: JSONValue
   ) {}
+
+  get player() {
+    return this.game.playerManager.getPlayerById(this.payload.playerId);
+  }
 
   protected abstract impl(): void;
 
@@ -38,6 +45,10 @@ export abstract class Input<TSchema extends DefaultSchema>
     this.parsePayload();
 
     assert(this.payload, new MissingPayloadError());
+    assert(
+      this.allowedPhases.includes(this.game.turnSystem.phase),
+      new WrongRoundPhaseError()
+    );
 
     this.impl();
   }

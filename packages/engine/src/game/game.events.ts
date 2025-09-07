@@ -13,6 +13,8 @@ import { StarEvent, TypedSerializableEvent } from '../utils/typed-emitter';
 import { UNIT_EVENTS } from '../unit/unit.constants';
 import type { UnitEventMap } from '../unit/unit.events';
 import { TURN_EVENTS, type TurnEventMap } from './systems/turn.system';
+import type { PlayerEventMap } from '../player/player.events';
+import { PLAYER_EVENTS } from '../player/player.constants';
 
 export class GameInputEvent extends TypedSerializableEvent<
   { input: Input<any> },
@@ -105,7 +107,7 @@ type GameEventsBase = {
 };
 
 export type GameEventMap = Prettify<
-  GameEventsBase & TurnEventMap & ModifierEventMap & UnitEventMap
+  GameEventsBase & TurnEventMap & ModifierEventMap & UnitEventMap & PlayerEventMap
 >;
 export type GameEventName = keyof GameEventMap;
 
@@ -119,5 +121,6 @@ export const GAME_EVENTS = {
   NEW_SNAPSHOT: 'game.new-snapshot',
   ...MODIFIER_EVENTS,
   ...UNIT_EVENTS,
-  ...TURN_EVENTS
+  ...TURN_EVENTS,
+  ...PLAYER_EVENTS
 } as const satisfies Record<string, GameEventName>;

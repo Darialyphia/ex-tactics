@@ -11,7 +11,6 @@ export type UnitInterceptors = {
   canAttack: Interceptable<boolean, { unit: Unit }>;
   canBeAttackTarget: Interceptable<boolean, { attacker: Unit }>;
   canBeAbilityTarget: Interceptable<boolean, { ability: Ability }>;
-  canBeDestroyed: Interceptable<boolean>;
   canReceiveModifier: Interceptable<boolean, { modifier: Modifier<Unit> }>;
   canUseAbility: Interceptable<boolean, { ability: Ability }>;
 
@@ -59,7 +58,6 @@ export const makeUnitInterceptors = (): UnitInterceptors => {
     canAttack: new Interceptable(),
     canBeAttackTarget: new Interceptable(),
     canBeAbilityTarget: new Interceptable(),
-    canBeDestroyed: new Interceptable(),
     canReceiveModifier: new Interceptable(),
     canUseAbility: new Interceptable(),
 

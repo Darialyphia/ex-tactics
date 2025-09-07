@@ -13,6 +13,8 @@ export type Config = {
   DEFAULT_MAX_MOVEMENTS_PER_TURN: number;
 
   WIN_VP_THRESHOLD: number;
+
+  RESPAWN_COOLDOWN: number;
 };
 
 export const defaultConfig: Config = {
@@ -25,5 +27,6 @@ export const defaultConfig: Config = {
   STARTING_MANA: 2,
   STARTING_AP: 1,
   HALF_DAMAGE_MITIGATION_THRESHOLD: 50,
-  WIN_VP_THRESHOLD: 10
+  WIN_VP_THRESHOLD: 10,
+  RESPAWN_COOLDOWN: 2
 };

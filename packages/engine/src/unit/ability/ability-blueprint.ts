@@ -7,6 +7,7 @@ import type { Ability } from './ability.entity';
 export type AbilityBlueprint = {
   id: string;
   iconId: string;
+  name: string;
   description: string;
   dynamicDescription: (game: Game, ability: Ability) => string;
   manaCost: number;

@@ -13,7 +13,12 @@ import { PathfinderComponent } from './pathfinding/pathfinder.component';
 import { SolidBodyPathfindingStrategy } from './pathfinding/strategies/solid-body.strategy';
 import { CombatComponent } from './components/combat.component';
 import { UNIT_EVENTS } from './unit.constants';
-import { UnitReceiveHealEvent } from './unit.events';
+import {
+  UnitAfterDestroyEvent,
+  UnitBeforeDestroyEvent,
+  UnitReceiveHealEvent,
+  UnitTurnEvent
+} from './unit.events';
 import { getDirectionFromDiff, type Direction } from '../board/board.utils';
 
 export type SerializedUnit = {
@@ -69,7 +74,7 @@ export class Unit
 
   constructor(
     private game: Game,
-    options: UnitOptions
+    private options: UnitOptions
   ) {
     super(`unit-${options.id}`, makeUnitInterceptors());
     this.movement = new MovementComponent(this.game, this, {
@@ -123,6 +128,14 @@ export class Unit
       abilities: this.abilities.map(a => a.id),
       passives: this.passives.map(p => p.id)
     };
+  }
+
+  get blueprintId() {
+    return this.options.blueprint.id;
+  }
+
+  get selectedTalents() {
+    return this.options.selectedTalents;
   }
 
   get position() {
@@ -220,10 +233,6 @@ export class Unit
 
   get percentMagicalDefShred() {
     return this.interceptors.percentMagicalDefShred.getValue(0, {});
-  }
-
-  get canBeDestroyed(): boolean {
-    return this.interceptors.canBeDestroyed.getValue(true, {});
   }
 
   get maxMovementsPerTurn() {
@@ -347,6 +356,22 @@ export class Unit
     this.currentAp = this.currentAp + this.apRegenPerTurn;
     this.movementsMadeThisTurn = 0;
     this.actionsTakenThisTurn = 0;
+
+    this.game.emit(
+      UNIT_EVENTS.UNIT_TURN_START,
+      new UnitTurnEvent({
+        unit: this
+      })
+    );
+  }
+
+  endTurn() {
+    this.game.emit(
+      UNIT_EVENTS.UNIT_TURN_END,
+      new UnitTurnEvent({
+        unit: this
+      })
+    );
   }
 
   isAlly(unit: Unit) {
@@ -380,5 +405,27 @@ export class Unit
   getPossibleMoves() {
     if (!this.canMove) return [];
     return this.movement.getAllPossibleMoves(this.remainingMovement);
+  }
+
+  destroy(source: Unit) {
+    this.game.emit(
+      UNIT_EVENTS.UNIT_BEFORE_DESTROY,
+      new UnitBeforeDestroyEvent({
+        unit: this,
+        source
+      })
+    );
+
+    const position = this.position.clone();
+    this.game.unitManager.removeUnit(this);
+
+    this.game.emit(
+      UNIT_EVENTS.UNIT_AFTER_DESTROY,
+      new UnitAfterDestroyEvent({
+        unit: this,
+        source,
+        destroyedAt: position
+      })
+    );
   }
 }

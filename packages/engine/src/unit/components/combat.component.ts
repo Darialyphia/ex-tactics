@@ -40,7 +40,7 @@ export class CombatComponent {
       })
     );
     const targets = this.unit.attackAOEShape
-      .getArea()
+      .getArea(this.unit.position)
       .map(point => this.game.unitManager.getUnitAt(point)!)
       .filter(isDefined);
 

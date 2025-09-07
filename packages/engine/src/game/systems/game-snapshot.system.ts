@@ -1,6 +1,9 @@
 import type { SerializedBoardCell } from '../../board/board-cell.entity';
 import type { Config } from '../../config';
+import type { SerializedModifier } from '../../modifier/modifier.entity';
 import type { SerializedPlayer } from '../../player/player.entity';
+import type { SerializedAbility } from '../../unit/ability/ability.entity';
+import type { SerializedPassive } from '../../unit/passive/passive.entity';
 import type { SerializedUnit } from '../../unit/unit.entity';
 import { areArraysIdentical } from '../../utils/utils';
 import type { Game } from '../game';
@@ -19,7 +22,13 @@ export type GameStateSnapshot<T> = {
   events: SerializedStarEvent[];
 };
 
-export type SerializedEntity = SerializedPlayer | SerializedBoardCell | SerializedUnit;
+export type SerializedEntity =
+  | SerializedPlayer
+  | SerializedBoardCell
+  | SerializedUnit
+  | SerializedAbility
+  | SerializedPassive
+  | SerializedModifier;
 
 export type EntityDictionary = Record<string, SerializedEntity>;
 
@@ -192,6 +201,19 @@ export class GameSnapshotSystem {
 
     this.game.playerManager.players.forEach(player => {
       entities[player.id] = player.serialize();
+    });
+
+    this.game.unitManager.units.forEach(unit => {
+      entities[unit.id] = unit.serialize();
+      unit.abilities.forEach(ability => {
+        entities[ability.id] = ability.serialize();
+      });
+      unit.passives.forEach(passive => {
+        entities[passive.id] = passive.serialize();
+      });
+      unit.modifiers.list.forEach(modifier => {
+        entities[modifier.id] = modifier.serialize();
+      });
     });
 
     return entities;

@@ -15,6 +15,9 @@ export type AbilityInterceptors = {
 export type SerializedAbility = {
   type: 'ability';
   id: string;
+  name: string;
+  description: string;
+  dynamicDescription: string;
   cooldown: number;
   remainingCooldown: number;
   manaCost: number;
@@ -47,6 +50,9 @@ export class Ability
     return {
       type: 'ability' as const,
       id: this.id,
+      name: this.blueprint.name,
+      description: this.blueprint.description,
+      dynamicDescription: this.blueprint.dynamicDescription(this.game, this),
       iconId: this.blueprint.iconId,
       cooldown: this.cooldown,
       remainingCooldown: this.remainingCooldown,
@@ -64,13 +70,13 @@ export class Ability
 
   get potentialTargets() {
     const targetingShape = this.blueprint.getAttackTargetingShape(this.game, this);
-    return targetingShape.getArea();
+    return targetingShape.getArea(this.unit.position);
   }
 
   getCellsInAoe(target: Vec3) {
     return this.blueprint
       .getAttackAOEShape(this.game, this, target)
-      .getArea()
+      .getArea(target)
       .map(p => this.game.board.getCellAt(p))
       .filter(isDefined);
   }

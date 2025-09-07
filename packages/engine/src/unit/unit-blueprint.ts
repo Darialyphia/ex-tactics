@@ -4,6 +4,7 @@ import type { AbilityBlueprint } from './ability/ability-blueprint';
 import type { PassiveBlueprint } from './passive/passive-blueprint';
 import type { Unit } from './unit.entity';
 
+export type TalentBlueprint = AbilityBlueprint | PassiveBlueprint;
 export type UnitBlueprint = {
   id: string;
   name: string;
@@ -28,5 +29,5 @@ export type UnitBlueprint = {
   };
   defaultAbilities: AbilityBlueprint[];
   defaultPassives: PassiveBlueprint[];
-  talentTree: (AbilityBlueprint | PassiveBlueprint)[][];
+  talentTree: TalentBlueprint[][];
 };

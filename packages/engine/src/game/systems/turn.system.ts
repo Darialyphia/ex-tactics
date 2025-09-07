@@ -3,6 +3,7 @@ import { TypedSerializableEvent } from '../../utils/typed-emitter';
 import { GAME_EVENTS } from '../game.events';
 import type { Unit } from '../../unit/unit.entity';
 import type { Game } from '../game';
+import { PLAYER_EVENTS } from '../../player/player.constants';
 
 export const TURN_EVENTS = {
   ROUND_START: 'round_start',
@@ -26,6 +27,12 @@ export type TurnEventMap = {
   [TURN_EVENTS.ROUND_END]: RoundEvent;
 };
 
+export const TURN_PHASES = {
+  DEPLOY: 'deploy',
+  BATTLE: 'battle'
+} as const;
+export type TurnPhase = Values<typeof TURN_PHASES>;
+
 export type SerializedTurnOrder = string[];
 
 export class TurnSystem implements Serializable<SerializedTurnOrder> {
@@ -35,14 +42,23 @@ export class TurnSystem implements Serializable<SerializedTurnOrder> {
 
   queue: Unit[] = [];
 
+  private _phase: TurnPhase = TURN_PHASES.DEPLOY;
+
   constructor(private game: Game) {}
+
+  get phase() {
+    return this._phase;
+  }
 
   initialize() {
     this.game.on(GAME_EVENTS.UNIT_TURN_END, this.onUnitTurnEnd.bind(this));
     this.game.on(GAME_EVENTS.UNIT_AFTER_DESTROY, e => {
       this.removeFromCurrentQueue(e.data.unit);
     });
-
+    this.game.on(
+      PLAYER_EVENTS.PLAYER_DEPLOYED_FOR_TURN,
+      this.onPlayerDeployedForTurn.bind(this)
+    );
     this.buildQueue();
   }
 
@@ -68,7 +84,18 @@ export class TurnSystem implements Serializable<SerializedTurnOrder> {
       .forEach(unit => this.queue.push(unit));
   }
 
+  private onPlayerDeployedForTurn() {
+    if (this.phase !== TURN_PHASES.DEPLOY) return;
+    const hasUnitToDeploy = this.game.playerManager.players.some(p => p.hasHeroToDeploy);
+    if (hasUnitToDeploy) return;
+
+    this._phase = TURN_PHASES.BATTLE;
+  }
+
   startRound() {
+    const hasUnitToDeploy = this.game.playerManager.players.some(p => p.hasHeroToDeploy);
+    this._phase = hasUnitToDeploy ? TURN_PHASES.DEPLOY : TURN_PHASES.BATTLE;
+
     this._turnCount++;
     this.queue = [];
     this._processedUnits.clear();
