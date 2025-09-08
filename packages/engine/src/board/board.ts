@@ -39,6 +39,26 @@ export class Board implements Serializable<SerializedBoard> {
         tile: TILES[cell.tile]
       });
       this.cellsMap.set(instance.id, instance);
+
+      if (cell.obstacle) {
+        this.game.obstacleManager.addObstacle({
+          blueprintId: cell.obstacle.blueprintId,
+          position: { x, y, z },
+          orientation: cell.obstacle.orientation,
+          player: null
+        });
+      }
+    });
+
+    this.map.players.forEach((player, index) => {
+      player.obstacles.forEach(obstacle => {
+        this.game.obstacleManager.addObstacle({
+          blueprintId: obstacle.blueprintId,
+          position: obstacle.position,
+          orientation: obstacle.orientation,
+          player: this.game.playerManager.players[index]
+        });
+      });
     });
   }
 

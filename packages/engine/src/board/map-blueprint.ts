@@ -1,5 +1,6 @@
 import type { Point3D, Values } from '@game/shared';
 import type { Game } from '../game/game';
+import type { Direction } from './board.utils';
 
 export type MapBlueprint = {
   id: string;
@@ -7,11 +8,18 @@ export type MapBlueprint = {
   cols: number;
   cells: Array<{
     tile: string;
-    obstacles: string[];
+    obstacle?: {
+      blueprintId: string;
+      orientation: Direction;
+    };
   }>;
   onInit(game: Game): void;
   players: Array<{
-    shrines: Point3D[];
+    obstacles: Array<{
+      position: Point3D;
+      blueprintId: string;
+      orientation: Direction;
+    }>;
   }>;
 };
 

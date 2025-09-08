@@ -15,6 +15,8 @@ import { PlayerManager } from '../player/player.manager';
 import { UnitManager } from '../unit/unit.manager';
 import { TurnSystem } from './systems/turn.system';
 import { Board } from '../board/board';
+import { ObstacleManager } from '../obstacle/obstacle.manager';
+import { MAP_DICTIONARY } from '../board/maps';
 
 export type GameOptions = {
   id: string;
@@ -23,6 +25,7 @@ export type GameOptions = {
   players: PlayerOptions[];
   config: Config;
   enableSnapshots?: boolean;
+  mapId: string;
 };
 
 export type SerializedGame = {
@@ -49,6 +52,8 @@ export class Game implements Serializable<SerializedGame> {
 
   readonly turnSystem = new TurnSystem(this);
 
+  readonly obstacleManager = new ObstacleManager(this);
+
   readonly board = new Board(this);
 
   readonly modifierIdFactory = modifierIdFactory();
@@ -59,29 +64,23 @@ export class Game implements Serializable<SerializedGame> {
   }
 
   initialize() {
-    const start = performance.now();
-    // const now = start;
-
     this.rngSystem.initialize({ seed: this.options.rngSeed });
-
     this.playerManager.initialize({ players: this.options.players });
-
     this.snapshotSystem.initialize({ enabled: this.options.enableSnapshots ?? true });
-
     this.inputSystem.initialize();
-
     this.turnSystem.initialize();
-
+    const mapBlueprint = MAP_DICTIONARY[this.options.mapId];
+    if (!mapBlueprint) {
+      throw new Error(`Map with id "${this.options.mapId}" not found`);
+    }
+    this.board.initialize({
+      map: mapBlueprint
+    });
     this.emit(GAME_EVENTS.READY, new GameReadyEvent({}));
-
     if (this.options.history) {
       this.inputSystem.applyHistory(this.options.history);
     }
     this.snapshotSystem.takeSnapshot();
-    console.log(
-      `%cGame ${this.id} initialized in ${(performance.now() - start).toFixed(0)}ms`,
-      'color: blue; font-weight: bold;'
-    );
   }
 
   serialize() {

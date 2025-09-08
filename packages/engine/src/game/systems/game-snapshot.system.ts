@@ -1,6 +1,7 @@
 import type { SerializedBoardCell } from '../../board/board-cell.entity';
 import type { Config } from '../../config';
 import type { SerializedModifier } from '../../modifier/modifier.entity';
+import type { SerializedObstacle } from '../../obstacle/obstacle.entity';
 import type { SerializedPlayer } from '../../player/player.entity';
 import type { SerializedAbility } from '../../unit/ability/ability.entity';
 import type { SerializedPassive } from '../../unit/passive/passive.entity';
@@ -28,6 +29,7 @@ export type SerializedEntity =
   | SerializedUnit
   | SerializedAbility
   | SerializedPassive
+  | SerializedObstacle
   | SerializedModifier;
 
 export type EntityDictionary = Record<string, SerializedEntity>;
@@ -217,6 +219,20 @@ export class GameSnapshotSystem {
       });
     });
 
+    this.game.obstacleManager.obstacles.forEach(obstacle => {
+      entities[obstacle.id] = obstacle.serialize();
+      obstacle.modifiers.list.forEach(modifier => {
+        entities[modifier.id] = modifier.serialize();
+      });
+    });
+
+    this.game.board.cells.forEach(cell => {
+      entities[cell.id] = cell.serialize();
+      cell.modifiers.list.forEach(modifier => {
+        entities[modifier.id] = modifier.serialize();
+      });
+    });
+
     return entities;
   }
 
@@ -256,6 +272,6 @@ export class GameSnapshotSystem {
     });
 
     this.eventsSinceLastSnapshot = [];
-    void this.game.emit(GAME_EVENTS.NEW_SNAPSHOT, new GameNewSnapshotEvent({}));
+    this.game.emit(GAME_EVENTS.NEW_SNAPSHOT, new GameNewSnapshotEvent({}));
   }
 }

@@ -7,6 +7,7 @@ import { UNIT_EVENTS } from '../unit/unit.constants';
 import { TURN_EVENTS } from '../game/systems/turn.system';
 import { PlayerDeployedForTurnEvent } from './player.events';
 import { PLAYER_EVENTS } from './player.constants';
+import { shrine } from '../obstacle/obstacles/shrine';
 
 export type SerializedPlayer = {
   type: 'player';
@@ -64,12 +65,22 @@ export class Player
     return this.game.unitManager.units.filter(u => u.player.equals(this));
   }
 
+  get obstacles() {
+    return this.game.obstacleManager.obstacles.filter(o => o.player?.equals(this));
+  }
+
   get opponent() {
     return this.game.playerManager.players.find(p => !p.equals(this))!;
   }
 
   get isActive() {
     return this.game.turnSystem.activeUnit.player.equals(this) ?? false;
+  }
+
+  get deployZone() {
+    return this.obstacles
+      .filter(o => o.blueprintId === shrine.id)
+      .flatMap(obstacle => this.game.board.getNeighbors(obstacle.position));
   }
 
   private onRoundEnd() {

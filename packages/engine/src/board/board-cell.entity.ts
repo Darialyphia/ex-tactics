@@ -60,8 +60,16 @@ export class BoardCell
     return this.position.isNearby(point);
   }
 
+  get above(): BoardCell | null {
+    return this.game.board.getCellAt({
+      x: this.position.x,
+      y: this.position.y,
+      z: this.position.z + 1
+    });
+  }
+
   get isWalkable() {
-    return this.tile.isWalkable && !this.unit;
+    return !this.above && this.tile.isWalkable && !this.unit;
   }
 
   get unit() {
