@@ -40,6 +40,7 @@ export type SerializedOmniscientState = {
   config: Config;
   entities: EntityDictionary;
   activeUnitId: string;
+  turnOrder: string[];
 };
 
 export type SnapshotDiff = {
@@ -47,6 +48,8 @@ export type SnapshotDiff = {
   entities: EntityDiffDictionary;
   addedEntities: string[];
   removedEntities: string[];
+  activeUnitId: string;
+  turnOrder: string[];
 };
 
 export type SerializedPlayerState = SerializedOmniscientState;
@@ -98,6 +101,8 @@ export class GameSnapshotSystem {
     }
     return {
       config: this.getObjectDiff(state.config, prevState.config),
+      activeUnitId: state.activeUnitId,
+      turnOrder: state.turnOrder,
       entities,
       removedEntities: Object.keys(prevState.entities).filter(
         key => !(key in state.entities)
@@ -240,7 +245,8 @@ export class GameSnapshotSystem {
     return {
       config: this.game.config,
       entities: this.buildEntityDictionary(),
-      activeUnitId: this.game.turnSystem.activeUnit!.id
+      activeUnitId: this.game.turnSystem.activeUnit!.id,
+      turnOrder: this.game.turnSystem.serialize()
     };
   }
 

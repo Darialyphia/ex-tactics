@@ -119,14 +119,14 @@ export class UnitTakeDamageEvent extends TypedSerializableEvent<
 }
 
 export class UnitUseAbilityEvent extends TypedSerializableEvent<
-  { unit: Unit; ability: Ability; target: Vec3 },
-  { unit: string; ability: string; target: Point3D }
+  { unit: Unit; ability: Ability; targets: Vec3[] },
+  { unit: string; ability: string; targets: Point3D[] }
 > {
   serialize() {
     return {
       unit: this.data.unit.id,
       ability: this.data.ability.id,
-      target: this.data.target.serialize()
+      targets: this.data.targets.map(target => target.serialize())
     };
   }
 }

@@ -15,7 +15,7 @@ export type ObstacleOptions = {
 };
 
 export type SerializedObstacle = {
-  type: 'obstacle';
+  entityType: 'obstacle';
   id: string;
   name: string;
   description: string;
@@ -54,7 +54,7 @@ export class Obstacle
 
   serialize() {
     return {
-      type: 'obstacle' as const,
+      entityType: 'obstacle' as const,
       id: this.id,
       name: this.blueprint.name,
       description: this.blueprint.description,

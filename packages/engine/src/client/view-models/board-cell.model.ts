@@ -1,14 +1,14 @@
+import type { SerializedBoardCell } from '../../board/board-cell.entity';
 import type { SerializedModifier } from '../../modifier/modifier.entity';
-import type { SerializedAbility } from '../../unit/ability/ability.entity';
 import type { GameClient, GameStateEntities } from '../client';
 
-export class AbilityViewModel {
+export class BoardCellViewModel {
   private getEntities: () => GameStateEntities;
 
   private getClient: () => GameClient;
 
   constructor(
-    private data: SerializedAbility,
+    private data: SerializedBoardCell,
     entityDictionary: GameStateEntities,
     client: GameClient
   ) {
@@ -16,7 +16,7 @@ export class AbilityViewModel {
     this.getClient = () => client;
   }
 
-  equals(unit: AbilityViewModel | SerializedAbility) {
+  equals(unit: BoardCellViewModel | SerializedBoardCell) {
     return this.id === unit.id;
   }
 
@@ -26,7 +26,7 @@ export class AbilityViewModel {
   }
 
   clone() {
-    return new AbilityViewModel(this.data, this.getEntities(), this.getClient());
+    return new BoardCellViewModel(this.data, this.getEntities(), this.getClient());
   }
 
   get id() {

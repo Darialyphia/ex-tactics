@@ -97,6 +97,12 @@ export class IllegalMovementError extends InputError {
   }
 }
 
+export class IllegalDeploymentError extends InputError {
+  constructor() {
+    super('Cannot deploy at this position');
+  }
+}
+
 export class TooManyTargetsError extends InputError {
   constructor() {
     super('You cannot add more targets');

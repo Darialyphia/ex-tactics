@@ -10,7 +10,7 @@ import { PLAYER_EVENTS } from './player.constants';
 import { shrine } from '../obstacle/obstacles/shrine';
 
 export type SerializedPlayer = {
-  type: 'player';
+  entityType: 'player';
   id: string;
 };
 
@@ -56,7 +56,7 @@ export class Player
 
   serialize() {
     return {
-      type: 'player' as const,
+      entityType: 'player' as const,
       id: this.id
     };
   }
@@ -112,6 +112,10 @@ export class Player
 
   get hasHeroToDeploy() {
     return this.heroes.some(h => h.status === 'reserve' && h.cooldown === 0);
+  }
+
+  canDeployHeroAt(position: Point3D) {
+    return this.deployZone.some(p => p.position.equals(position));
   }
 
   deployHero(blueprintId: string, position: Point3D, orientation: Direction) {

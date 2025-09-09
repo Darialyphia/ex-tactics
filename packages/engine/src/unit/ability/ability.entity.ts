@@ -1,4 +1,4 @@
-import { isDefined, type EmptyObject, type Serializable, type Vec3 } from '@game/shared';
+import { isDefined, type Point3D, type Serializable, type Vec3 } from '@game/shared';
 import { Entity } from '../../entity';
 import type { Unit } from '../unit.entity';
 import type { AbilityBlueprint } from './ability-blueprint';
@@ -6,6 +6,7 @@ import { Interceptable } from '../../utils/interceptable';
 import type { Game } from '../../game/game';
 import { UNIT_EVENTS } from '../unit.constants';
 import { UnitUseAbilityEvent } from '../unit.events';
+import type { SerializedAOE } from '../../aoe/aoe-shape';
 
 export type AbilityInterceptors = {
   manaCost: Interceptable<number>;
@@ -13,7 +14,7 @@ export type AbilityInterceptors = {
 };
 
 export type SerializedAbility = {
-  type: 'ability';
+  entityType: 'ability';
   id: string;
   name: string;
   description: string;
@@ -22,6 +23,11 @@ export type SerializedAbility = {
   remainingCooldown: number;
   manaCost: number;
   iconId: string;
+  targetingShapes: Array<{ shape: SerializedAOE; origin: number | null }>;
+  aoeShape: {
+    shape: SerializedAOE | null;
+    origin: number | null;
+  };
 };
 
 export class Ability
@@ -47,8 +53,10 @@ export class Ability
   }
 
   serialize() {
+    const targetingShapes = this.blueprint.getAttackTargetingShapes(this.game, this);
+    const aoe = this.blueprint.getAttackAOEShape(this.game, this);
     return {
-      type: 'ability' as const,
+      entityType: 'ability' as const,
       id: this.id,
       name: this.blueprint.name,
       description: this.blueprint.description,
@@ -56,7 +64,15 @@ export class Ability
       iconId: this.blueprint.iconId,
       cooldown: this.cooldown,
       remainingCooldown: this.remainingCooldown,
-      manaCost: this.manaCost
+      manaCost: this.manaCost,
+      targetingShapes: targetingShapes.map(t => ({
+        shape: t.shape.serialize(),
+        origin: t.origin
+      })),
+      aoeShape: {
+        shape: aoe?.shape.serialize() ?? null,
+        origin: aoe?.origin ?? null
+      }
     };
   }
 
@@ -68,21 +84,32 @@ export class Ability
     return this.interceptors.manaCost.getValue(0, {});
   }
 
-  get potentialTargets() {
-    const targetingShape = this.blueprint.getAttackTargetingShape(this.game, this);
-    return targetingShape.getArea(this.unit.position);
+  get shouldAlterOrientation() {
+    return this.blueprint.shouldAlterOrientation;
   }
 
-  getCellsInAoe(target: Vec3) {
-    return this.blueprint
-      .getAttackAOEShape(this.game, this, target)
-      .getArea(target)
-      .map(p => this.game.board.getCellAt(p))
-      .filter(isDefined);
+  getPotentialTargets(targets: Point3D[]) {
+    const targetingShapes = this.blueprint.getAttackTargetingShapes(this.game, this);
+    const target = targetingShapes[targets.length];
+
+    if (!target) return [];
+    return target.shape.getArea(
+      isDefined(target.origin) ? targets[target.origin] : this.unit.position
+    );
   }
 
-  getUnitsInAoe(target: Vec3) {
-    return this.getCellsInAoe(target)
+  getCellsInAoe(targets: Vec3[]) {
+    const aoe = this.blueprint.getAttackAOEShape(this.game, this);
+    return (
+      aoe?.shape
+        .getArea(targets[aoe.origin])
+        .map(p => this.game.board.getCellAt(p))
+        .filter(isDefined) ?? []
+    );
+  }
+
+  getUnitsInAoe(targets: Vec3[]) {
+    return this.getCellsInAoe(targets)
       .map(cell => cell.unit)
       .filter(isDefined);
   }
@@ -90,17 +117,18 @@ export class Ability
   get canUse() {
     if (this.remainingCooldown > 0) return false;
     if (this.manaCost > this.unit.currentMp) return false;
-    if (this.potentialTargets.length === 0) return false;
 
     return true;
   }
 
-  canUseAt(target: Vec3) {
+  canUseAt(targets: Vec3[]) {
     if (!this.canUse) return false;
-    return this.potentialTargets.some(p => target.equals(p));
+    return targets.every((t, index) =>
+      this.getPotentialTargets(targets.slice(0, index + 1)).some(p => t.equals(p))
+    );
   }
 
-  use(target: Vec3) {
+  use(targets: Vec3[]) {
     this.remainingCooldown = this.cooldown;
     this.unit.currentMp -= this.manaCost;
 
@@ -109,18 +137,18 @@ export class Ability
       new UnitUseAbilityEvent({
         unit: this.unit,
         ability: this,
-        target
+        targets
       })
     );
 
-    this.blueprint.onUse(this.game, this.unit, target);
+    this.blueprint.onUse(this.game, this, targets);
 
     this.game.emit(
       UNIT_EVENTS.UNIT_AFTER_USE_ABILITY,
       new UnitUseAbilityEvent({
         unit: this.unit,
         ability: this,
-        target
+        targets
       })
     );
   }

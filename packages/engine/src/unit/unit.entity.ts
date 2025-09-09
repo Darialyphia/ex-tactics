@@ -22,7 +22,7 @@ import {
 import { getDirectionFromDiff, type Direction } from '../board/board.utils';
 
 export type SerializedUnit = {
-  type: 'unit';
+  entityType: 'unit';
   id: string;
   position: Point3D;
   player: string;
@@ -114,7 +114,7 @@ export class Unit
 
   serialize() {
     return {
-      type: 'unit' as const,
+      entityType: 'unit' as const,
       id: this.id,
       position: this.position.serialize(),
       player: this.player.id,
@@ -331,13 +331,16 @@ export class Unit
     this.combat.attack(target);
   }
 
-  useAbility(abilityId: string, target: Vec3) {
+  useAbility(abilityId: string, targets: Vec3[]) {
     const ability = this.abilities.find(a => a.id === abilityId);
     if (!ability) throw new Error(`Ability ${abilityId} not found on unit ${this.id}`);
     this.currentAp -= this.apCostPerAbility;
     this.actionsTakenThisTurn += 1;
-    this.orientation = getDirectionFromDiff(this.position, target)!;
-    ability.use(target);
+    if (ability.shouldAlterOrientation && targets.length) {
+      this.orientation = getDirectionFromDiff(this.position, targets[0])!;
+    }
+
+    ability.use(targets);
   }
 
   get takeDamage() {

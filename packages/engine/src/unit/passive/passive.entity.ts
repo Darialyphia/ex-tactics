@@ -5,7 +5,7 @@ import type { PassiveBlueprint } from './passive-blueprint';
 import type { Game } from '../../game/game';
 
 export type SerializedPassive = {
-  type: 'passive';
+  entityType: 'passive';
   id: string;
   iconId: string;
   description: string;
@@ -26,7 +26,7 @@ export class Passive
 
   serialize() {
     return {
-      type: 'passive' as const,
+      entityType: 'passive' as const,
       id: this.id,
       iconId: this.blueprint.iconId,
       description: this.blueprint.description,

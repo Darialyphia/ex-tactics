@@ -6,17 +6,20 @@ import type {
   SerializedPlayerState,
   SnapshotDiff
 } from '../game/systems/game-snapshot.system';
-import { ModifierViewModel } from './view-models/modifier.model';
-import { CardViewModel } from './view-models/card.model';
-import { PlayerViewModel } from './view-models/player.model';
 import { FxController } from './controllers/fx-controller';
 import {
   ClientStateController,
   type GameClientState
 } from './controllers/state-controller';
 import { UiController } from './controllers/ui-controller';
-import { TypedEventEmitter } from '../utils/async-emitter';
-import { GAME_PHASES } from '../game/game.enums';
+import { AsyncTypedEventEmitter } from '../utils/async-emitter';
+import type { AbilityViewModel } from './view-models/ability.model';
+import type { ModifierViewModel } from './view-models/modifier.model';
+import type { ObstacleViewModel } from './view-models/obstacle.model';
+import type { PassiveViewModel } from './view-models/passive.model';
+import type { PlayerViewModel } from './view-models/player.model';
+import type { UnitViewModel } from './view-models/unit.model';
+import type { BoardCellViewModel } from './view-models/board-cell.model';
 
 export const GAME_TYPES = {
   LOCAL: 'local',
@@ -35,25 +38,22 @@ export type NetworkAdapter = {
   sync: (lastSnapshotId: number) => Promise<Array<GameStateSnapshot<SnapshotDiff>>>;
 };
 
-export type FxAdapter = {
-  onDeclarePlayCard: (card: CardViewModel, client: GameClient) => MaybePromise<void>;
-  onCancelPlayCard: (card: CardViewModel, client: GameClient) => MaybePromise<void>;
-  onSelectCardForManaCost: (
-    card: CardViewModel,
-    client: GameClient
-  ) => MaybePromise<void>;
-  onUnselectCardForManaCost: (
-    card: CardViewModel,
-    client: GameClient
-  ) => MaybePromise<void>;
-};
-
 export type GameClientOptions = {
   networkAdapter: NetworkAdapter;
-  fxAdapter: FxAdapter;
   gameType: GameType;
   playerId: string;
 };
+
+export type GameStateEntities = Record<
+  string,
+  | AbilityViewModel
+  | PlayerViewModel
+  | UnitViewModel
+  | ModifierViewModel
+  | PassiveViewModel
+  | ObstacleViewModel
+  | BoardCellViewModel
+>;
 
 export class GameClient {
   readonly fx = new FxController();
@@ -63,8 +63,6 @@ export class GameClient {
   readonly ui: UiController;
 
   readonly networkAdapter: NetworkAdapter;
-
-  readonly fxAdapter: FxAdapter;
 
   readonly gameType: GameType;
 
@@ -84,14 +82,13 @@ export class GameClient {
 
   private queue: Array<GameStateSnapshot<SnapshotDiff>> = [];
 
-  private emitter = new TypedEventEmitter<{
+  private emitter = new AsyncTypedEventEmitter<{
     update: EmptyObject;
     updateCompleted: GameStateSnapshot<SnapshotDiff>;
   }>('sequential');
 
   constructor(options: GameClientOptions) {
     this.networkAdapter = options.networkAdapter;
-    this.fxAdapter = options.fxAdapter;
     this.stateManager = new ClientStateController(this);
     this.ui = new UiController(this);
     this.gameType = options.gameType;
@@ -106,9 +103,6 @@ export class GameClient {
       if (this._processingUpdate) return;
       await this.processQueue();
     });
-
-    this.cancelPlayCard = this.cancelPlayCard.bind(this);
-    this.commitPlayCard = this.commitPlayCard.bind(this);
   }
 
   get nextSnapshotId() {
@@ -143,20 +137,11 @@ export class GameClient {
     this._processingUpdate = false;
   }
 
-  getActivePlayerIdFromSnapshotState(snapshot: SnapshotDiff) {
-    if (snapshot.effectChain) {
-      return snapshot.effectChain.player;
-    }
-
-    return snapshot.interaction.ctx.player;
-  }
-
   getActivePlayerId() {
-    if (this.stateManager.state.effectChain) {
-      return this.stateManager.state.effectChain.player;
-    }
-
-    return this.stateManager.state.interaction.ctx.player;
+    const activeUnit = this.stateManager.state.entities[
+      this.stateManager.state.activeUnitId
+    ]! as UnitViewModel;
+    return activeUnit.player.id;
   }
 
   initialize(
@@ -202,9 +187,6 @@ export class GameClient {
       this._isPlayingFx = true;
       this.stateManager.preupdate(snapshot.state);
       for (const event of snapshot.events) {
-        if (this.gameType === GAME_TYPES.LOCAL) {
-          this.playerId = this.getActivePlayerIdFromSnapshotState(snapshot.state);
-        }
         await this.stateManager.onEvent(event, async () => {
           await this.emitter.emit('update', {});
         });
@@ -254,123 +236,5 @@ export class GameClient {
   private async sync() {
     const snapshots = await this.networkAdapter.sync(this.lastSnapshotId);
     this.queue.push(...snapshots);
-  }
-
-  cancelPlayCard() {
-    if (this.state.interaction.state !== INTERACTION_STATES.PLAYING_CARD) return;
-
-    this.networkAdapter.dispatch({
-      type: 'cancelPlayCard',
-      payload: { playerId: this.state.currentPlayer }
-    });
-    const playedCard = this.state.entities[
-      this.state.interaction.ctx.card
-    ] as CardViewModel;
-
-    void this.fxAdapter.onCancelPlayCard(playedCard, this);
-  }
-
-  commitPlayCard() {
-    this.networkAdapter.dispatch({
-      type: 'commitPlayCard',
-      payload: {
-        playerId: this.playerId,
-        manaCostIndices: this.ui.selectedManaCostIndices
-      }
-    });
-  }
-
-  commitUseAbility() {
-    this.networkAdapter.dispatch({
-      type: 'commitUseAbility',
-      payload: {
-        playerId: this.playerId,
-        manaCostIndices: this.ui.selectedManaCostIndices
-      }
-    });
-  }
-
-  cancelUseAbility() {
-    if (this.state.interaction.state !== INTERACTION_STATES.USING_ABILITY) return;
-
-    this.networkAdapter.dispatch({
-      type: 'cancelUseAbility',
-      payload: { playerId: this.state.currentPlayer }
-    });
-  }
-
-  commitMinionSlotSelection() {
-    this.networkAdapter.dispatch({
-      type: 'commitMinionSlotSelection',
-      payload: {
-        playerId: this.playerId
-      }
-    });
-  }
-
-  commitCardSelection() {
-    this.networkAdapter.dispatch({
-      type: 'commitCardSelection',
-      payload: {
-        playerId: this.playerId
-      }
-    });
-  }
-
-  skipBlock() {
-    this.networkAdapter.dispatch({
-      type: 'declareBlocker',
-      payload: {
-        blockerId: null,
-        playerId: this.playerId
-      }
-    });
-  }
-
-  endTurn() {
-    this.networkAdapter.dispatch({
-      type: 'declareEndTurn',
-      payload: {
-        playerId: this.playerId
-      }
-    });
-  }
-
-  passChain() {
-    this.networkAdapter.dispatch({
-      type: 'passChain',
-      payload: {
-        playerId: this.playerId
-      }
-    });
-  }
-
-  chooseAffinity(affinity: Affinity) {
-    this.networkAdapter.dispatch({
-      type: 'chooseAffinity',
-      payload: {
-        playerId: this.playerId,
-        affinity
-      }
-    });
-  }
-
-  chooseCards(indices: number[]) {
-    this.networkAdapter.dispatch({
-      type: 'chooseCards',
-      payload: {
-        playerId: this.playerId,
-        indices
-      }
-    });
-  }
-
-  skipDestiny() {
-    this.networkAdapter.dispatch({
-      type: 'skipDestiny',
-      payload: {
-        playerId: this.playerId
-      }
-    });
   }
 }

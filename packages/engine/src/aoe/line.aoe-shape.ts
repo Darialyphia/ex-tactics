@@ -1,4 +1,4 @@
-import type { Point3D } from '@game/shared';
+import { Vec3, type Point3D } from '@game/shared';
 import type { AOEShape } from './aoe-shape';
 import { bresenham3D } from '../utils/bresenham';
 import type { TargetingType } from './aoe.constants';
@@ -42,26 +42,16 @@ export class LineAOEShape implements AOEShape<SerializedLine> {
   }
 
   getArea(origin: Point3D): Point3D[] {
-    // Normalize the direction vector and compute end point
-    const magnitude = Math.sqrt(
-      this.direction.x * this.direction.x +
-        this.direction.y * this.direction.y +
-        this.direction.z * this.direction.z
-    );
+    const vec = Vec3.fromPoint3D(origin);
 
-    if (magnitude === 0) {
-      // If direction is zero vector, return only origin if valid
+    if (vec.magnitude === 0) {
       if (origin.x >= 0 && origin.y >= 0 && origin.z >= 0) {
         return [origin];
       }
       return [];
     }
 
-    const normalizedDirection = {
-      x: this.direction.x / magnitude,
-      y: this.direction.y / magnitude,
-      z: this.direction.z / magnitude
-    };
+    const normalizedDirection = vec.normalize();
 
     const end: Point3D = {
       x: origin.x + normalizedDirection.x * this.length,
@@ -69,10 +59,8 @@ export class LineAOEShape implements AOEShape<SerializedLine> {
       z: origin.z + normalizedDirection.z * this.length
     };
 
-    // Use bresenham to get all points along the line
-    const linePoints = bresenham3D(origin, end);
-
-    // Filter out points with negative coordinates
-    return linePoints.filter(point => point.x >= 0 && point.y >= 0 && point.z >= 0);
+    return bresenham3D(origin, end).filter(
+      point => point.x >= 0 && point.y >= 0 && point.z >= 0
+    );
   }
 }

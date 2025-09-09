@@ -75,4 +75,8 @@ export class BoardCell
   get unit() {
     return this.game.unitManager.getUnitAt(this.position);
   }
+
+  get obstacle() {
+    return this.game.obstacleManager.getObstacleAt(this.position);
+  }
 }

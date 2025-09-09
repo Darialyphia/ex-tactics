@@ -1,14 +1,13 @@
-import type { SerializedModifier } from '../../modifier/modifier.entity';
-import type { SerializedAbility } from '../../unit/ability/ability.entity';
+import type { SerializedObstacle } from '../../obstacle/obstacle.entity';
 import type { GameClient, GameStateEntities } from '../client';
 
-export class AbilityViewModel {
+export class ObstacleViewModel {
   private getEntities: () => GameStateEntities;
 
   private getClient: () => GameClient;
 
   constructor(
-    private data: SerializedAbility,
+    private data: SerializedObstacle,
     entityDictionary: GameStateEntities,
     client: GameClient
   ) {
@@ -16,17 +15,17 @@ export class AbilityViewModel {
     this.getClient = () => client;
   }
 
-  equals(unit: AbilityViewModel | SerializedAbility) {
-    return this.id === unit.id;
+  equals(Obstacle: ObstacleViewModel | SerializedObstacle) {
+    return this.id === Obstacle.id;
   }
 
-  update(data: Partial<SerializedModifier>) {
+  update(data: Partial<SerializedObstacle>) {
     this.data = Object.assign({}, this.data, data);
     return this;
   }
 
   clone() {
-    return new AbilityViewModel(this.data, this.getEntities(), this.getClient());
+    return new ObstacleViewModel(this.data, this.getEntities(), this.getClient());
   }
 
   get id() {

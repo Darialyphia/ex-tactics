@@ -1,29 +1,21 @@
 import type { Override } from '@game/shared';
 import type {
   EntityDictionary,
+  SerializedEntity,
   SerializedOmniscientState,
   SerializedPlayerState,
   SnapshotDiff
 } from '../../game/systems/game-snapshot.system';
-import { CardViewModel } from '../view-models/card.model';
 import { ModifierViewModel } from '../view-models/modifier.model';
 import { PlayerViewModel } from '../view-models/player.model';
 import { match } from 'ts-pattern';
-import type { GameClient } from '../client';
-import type { SerializedArtifactCard } from '../../card/entities/artifact.entity';
-import type { SerializedHeroCard } from '../../card/entities/hero.entity';
-import type { SerializedMinionCard } from '../../card/entities/minion.entity';
-import type { SerializedSpellCard } from '../../card/entities/spell.entity';
-import type { SerializedModifier } from '../../modifier/modifier.entity';
-import type { SerializedPlayer } from '../../player/player.entity';
+import type { GameClient, GameStateEntities } from '../client';
 import { GAME_EVENTS, type SerializedStarEvent } from '../../game/game.events';
-import type { SerializedAbility } from '../../card/card-blueprint';
 import { AbilityViewModel } from '../view-models/ability.model';
-
-export type GameStateEntities = Record<
-  string,
-  PlayerViewModel | CardViewModel | ModifierViewModel | AbilityViewModel
->;
+import { PassiveViewModel } from '../view-models/passive.model';
+import { UnitViewModel } from '../view-models/unit.model';
+import { ObstacleViewModel } from '../view-models/obstacle.model';
+import { BoardCellViewModel } from '../view-models/board-cell.model';
 
 export type GameClientState = Override<
   SerializedOmniscientState | SerializedPlayerState,
@@ -31,15 +23,6 @@ export type GameClientState = Override<
     entities: GameStateEntities;
   }
 >;
-
-export type SerializedEntity =
-  | SerializedMinionCard
-  | SerializedHeroCard
-  | SerializedSpellCard
-  | SerializedArtifactCard
-  | SerializedPlayer
-  | SerializedModifier
-  | SerializedAbility;
 
 export class ClientStateController {
   state!: GameClientState;
@@ -63,16 +46,26 @@ export class ClientStateController {
         entity => new PlayerViewModel(entity, dict, this.client)
       )
       .with(
-        { entityType: 'card' },
-        entity => new CardViewModel(entity, dict, this.client)
-      )
-      .with(
         { entityType: 'modifier' },
         entity => new ModifierViewModel(entity, dict, this.client)
       )
       .with(
+        { entityType: 'unit' },
+        entity => new UnitViewModel(entity, dict, this.client)
+      )
+      .with({ entityType: 'obstacle' }, entity => {
+        return new ObstacleViewModel(entity, dict, this.client);
+      })
+      .with({ entityType: 'passive' }, entity => {
+        return new PassiveViewModel(entity, dict, this.client);
+      })
+      .with(
         { entityType: 'ability' },
         entity => new AbilityViewModel(entity, dict, this.client)
+      )
+      .with(
+        { entityType: 'board_cell' },
+        entity => new BoardCellViewModel(entity, dict, this.client)
       )
       .exhaustive();
   }
@@ -118,10 +111,5 @@ export class ClientStateController {
     };
   }
 
-  async onEvent(event: SerializedStarEvent, flush: () => Promise<void>) {
-    if (event.eventName === GAME_EVENTS.PLAYER_START_TURN) {
-      this.state.currentPlayer = event.event.player.id;
-      await flush();
-    }
-  }
+  async onEvent(event: SerializedStarEvent, flush: () => Promise<void>) {}
 }

@@ -1,6 +1,5 @@
 import type { SerializedModifier } from '../../modifier/modifier.entity';
 import type { GameClient, GameStateEntities } from '../client';
-import type { CardViewModel } from './card.model';
 
 export class ModifierViewModel {
   private getEntities: () => GameStateEntities;
@@ -51,9 +50,5 @@ export class ModifierViewModel {
 
   get stacks() {
     return this.data.stacks;
-  }
-
-  get targetAsCard() {
-    return this.getEntities()[this.data.target] as CardViewModel;
   }
 }

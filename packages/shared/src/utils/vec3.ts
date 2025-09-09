@@ -14,8 +14,8 @@ export class Vec3 implements Serializable {
     return Vec3.fromPoint3D(vec1).sub(vec2);
   }
 
-  static mul(vec1: Point3D, vec2: Point3D) {
-    return Vec3.fromPoint3D(vec1).mul(vec2);
+  static scale(vec1: Point3D, vec2: Point3D) {
+    return Vec3.fromPoint3D(vec1).scale(vec2);
   }
 
   static div(vec1: Point3D, vec2: Point3D) {
@@ -64,7 +64,7 @@ export class Vec3 implements Serializable {
     return this;
   }
 
-  mul({ x, y, z }: Point3D) {
+  scale({ x, y, z }: Point3D) {
     this.x *= x;
     this.y *= y;
     this.z *= z;
@@ -88,5 +88,24 @@ export class Vec3 implements Serializable {
     };
 
     return Math.sqrt(diff.x ** 2 + diff.y ** 2 + diff.z ** 2);
+  }
+
+  get magnitude() {
+    return Math.sqrt(this.x ** 2 + this.y ** 2 + this.z ** 2);
+  }
+
+  set magnitude(mag: number) {
+    this.normalize().scale({ x: mag, y: mag, z: mag });
+  }
+
+  normalize() {
+    const mag = this.magnitude;
+    if (mag === 0) return this;
+
+    this.x /= mag;
+    this.y /= mag;
+    this.z /= mag;
+
+    return this;
   }
 }
