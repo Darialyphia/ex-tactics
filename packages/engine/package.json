@@ -8,8 +8,7 @@
     "@types/deep-equal": "^1.0.4",
     "@types/lodash-es": "^4.17.12",
     "@types/seedrandom": "^3.0.8",
-    "eslint-config-daria": "*",
-    "vitest": "^2.1.9"
+    "eslint-config-daria": "*"
   },
   "dependencies": {
     "@game/shared": "*",
@@ -24,6 +23,7 @@
     "seedrandom": "^3.0.5",
     "ts-pattern": "^5.0.8",
     "typescript-fsm": "^1.4.5",
+    "vitest": "^3.2.4",
     "zod": "^3.24.3"
   },
   "scripts": {

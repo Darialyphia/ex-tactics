@@ -1,0 +1,81 @@
+{
+  "bundles": [
+    {
+      "name": "default",
+      "assets": [
+        {
+          "alias": [
+            "undefinedcharacter.png"
+          ],
+          "src": [
+            "/assets/character.png"
+          ]
+        },
+        {
+          "alias": [
+            "undefineddirt.gif"
+          ],
+          "src": [
+            "/assets/dirt.gif"
+          ]
+        },
+        {
+          "alias": [
+            "undefineddirt.png"
+          ],
+          "src": [
+            "/assets/dirt.png"
+          ]
+        },
+        {
+          "alias": [
+            "undefinedgrass.png"
+          ],
+          "src": [
+            "/assets/grass.png"
+          ]
+        },
+        {
+          "alias": [
+            "undefinedground.png"
+          ],
+          "src": [
+            "/assets/ground.png"
+          ]
+        },
+        {
+          "alias": [
+            "undefinedhovered-cell.gif"
+          ],
+          "src": [
+            "/assets/hovered-cell.gif"
+          ]
+        },
+        {
+          "alias": [
+            "undefinedhovered-cell.png"
+          ],
+          "src": [
+            "/assets/hovered-cell.png"
+          ]
+        },
+        {
+          "alias": [
+            "undefinedshrine.png"
+          ],
+          "src": [
+            "/assets/shrine.png"
+          ]
+        },
+        {
+          "alias": [
+            "undefinedSprite-0002.gif"
+          ],
+          "src": [
+            "/assets/Sprite-0002.gif"
+          ]
+        }
+      ]
+    }
+  ]
+}
