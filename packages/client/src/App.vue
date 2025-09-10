@@ -13,6 +13,7 @@ const root = window;
   <div v-if="!loaded">Loading...</div>
   <Application v-else :resize-to="root">
     <RouterView name="scene" />
+
     <External :root="uiRoot!" id="ui-root">
       <TooltipProvider :delay-duration="400">
         <RouterView name="ui" />

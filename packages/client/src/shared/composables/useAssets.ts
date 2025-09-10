@@ -12,7 +12,8 @@ import type { Nullable } from '@game/shared';
 import { useSafeInject } from './useSafeInject';
 import { asepriteSpriteSheetParser, type ParsedAsepriteSheet } from '@/utils/aseprite-parser';
 
-TexturePool.textureOptions.scaleMode = 'nearest';
+console.log(TexturePool);
+TexturePool.textureStyle.scaleMode = 'nearest';
 
 export type SpritesheetWithAnimations = Spritesheet & {
   animations: Record<string, Texture[]>;
@@ -37,7 +38,8 @@ export type AssetsContext = {
   // getSpritesheet(key: string): SpritesheetWithAnimations;
   // getTexture(key: string): Texture;
   // getHitbox(key: string): any;
-  load: () => Promise<void>;
+  preload: () => Promise<void>;
+  load: (bundleId: string) => Promise<void>;
 };
 
 export const ASSETS_INJECTION_KEY = Symbol('assets') as InjectionKey<AssetsContext>;
@@ -78,7 +80,8 @@ export const useAssetsProvider = (app: App) => {
     // splitBundle(manifest, 'normals');
     splitBundle(manifest, 'fx');
     splitBundle(manifest, 'obstacles');
-    Assets.init({ manifest });
+
+    await Assets.init({ manifest });
   };
 
   // const loadNonCriticalResources = async () => {
@@ -97,10 +100,10 @@ export const useAssetsProvider = (app: App) => {
   //   fullyLoaded.value = true;
   // };
 
-  const load = async () => {
+  const preload = async () => {
     if (loaded.value) return;
     await init();
-    await Promise.all(['ui'].map(id => Assets.loadBundle(id)));
+    // await Promise.all(['ui'].map(id => Assets.loadBundle(id)));
     loaded.value = true;
 
     // loadNonCriticalResources();
@@ -114,7 +117,16 @@ export const useAssetsProvider = (app: App) => {
     },
     loaded,
     fullyLoaded,
-    load,
+    preload,
+    async load(bundleId: string) {
+      const asset = await Assets.loadBundle(bundleId);
+
+      Object.values(asset).forEach(asset => {
+        if (asset instanceof Texture) {
+          asset.source.scaleMode = 'nearest';
+        }
+      });
+    },
     async loadSpritesheet<
       TGroups extends string = string,
       TBaseLayers extends string = string,

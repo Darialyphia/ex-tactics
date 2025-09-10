@@ -1,0 +1,76 @@
+import { GameClient, type GameClientOptions } from '@game/engine/src/client/client';
+import type { FXEvent, FXEventMap } from '@game/engine/src/client/controllers/fx-controller';
+import { isDefined, type Nullable } from '@game/shared';
+import { gameStateRef } from './gameStateRef';
+import { defineStore } from 'pinia';
+
+export const useGameClientStore = defineStore('battle', () => {
+  const client = ref<GameClient | null>(null);
+
+  return {
+    client,
+    init(options: GameClientOptions) {
+      client.value = new GameClient(options);
+    }
+  };
+});
+
+export const useGameClient = () => {
+  const { client } = useGameClientStore();
+
+  return client!;
+};
+
+export const useGameState = () => {
+  const client = useGameClient();
+
+  return computed(() => client.stateManager.state);
+};
+
+export const useGameUi = () => {
+  const client = useGameClient();
+
+  return computed(() => client.ui);
+};
+
+export const useEntity = <T>(entityId: MaybeRef<string>) => {
+  return gameStateRef(state => {
+    return state.entities[unref(entityId)] as T;
+  });
+};
+
+export const useMaybeEntity = <T>(entityId: MaybeRef<Nullable<string>>) => {
+  return gameStateRef(state => {
+    const id = unref(entityId);
+    if (!isDefined(id)) return null;
+
+    return state.entities[id] as T;
+  });
+};
+
+export const useEntities = <T>(entityIds: MaybeRef<string[]>) => {
+  const state = useGameState();
+  return computed(() => {
+    const ids = unref(entityIds);
+    return ids.map(id => {
+      const entity = state.value.entities[id];
+      if (!entity) {
+        throw new Error(`Entity with ID ${id} not found in the game state.`);
+      }
+      return entity as unknown as T;
+    });
+  });
+};
+
+export const useFxEvent = <T extends FXEvent>(
+  name: T,
+  handler: (eventArg: FXEventMap[T]) => Promise<void>
+) => {
+  const client = useGameClient();
+
+  const unsub = client.fx.on(name, handler);
+
+  onUnmounted(unsub);
+
+  return unsub;
+};

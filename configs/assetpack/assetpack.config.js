@@ -32,7 +32,7 @@ const prefixByAssetType = {
   skills: "",
   units: "",
   icons: "icon-",
-  tiles: "",
+  tiles: "tile-",
   ui: "",
   obstacles: "",
   fx: "fx-",
@@ -54,7 +54,8 @@ function manifestEntryParser(tree, processor) {
 
     const assetName = name.split("/").at(-1);
     const prefix = prefixByAssetType[assetType];
-    const stripExtension = name.endsWith(".json") || assetType === "icons";
+    // const stripExtension = name.endsWith(".json") || assetType === "icons";
+    const stripExtension = true;
     const needsCustomParser = name.endsWith(".json");
 
     const res = {
