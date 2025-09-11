@@ -10,11 +10,13 @@ import {
 
 const schema = defaultInputSchema.extend({
   abilityId: z.string(),
-  target: z.object({
-    x: z.number(),
-    y: z.number(),
-    z: z.number()
-  })
+  targets: z
+    .object({
+      x: z.number(),
+      y: z.number(),
+      z: z.number()
+    })
+    .array()
 });
 
 export class UseAbilityInput extends Input<typeof schema> {
@@ -30,21 +32,19 @@ export class UseAbilityInput extends Input<typeof schema> {
     );
   }
 
+  get targets() {
+    return this.payload.targets.map(Vec3.fromPoint3D);
+  }
+
   impl() {
     assert(this.player.isActive, new NotActivePlayerError());
     assert(isDefined(this.ability), new IllegalAbilityError());
-    assert(
-      this.ability.canUseAt(Vec3.fromPoint3D(this.payload.target)),
-      new IllegalAttackTargetError()
-    );
+    assert(this.ability.canUseAt(this.targets), new IllegalAttackTargetError());
     assert(
       this.game.turnSystem.activeUnit.canUseAbility(this.ability),
       new IllegalAbilityError()
     );
 
-    this.game.turnSystem.activeUnit.useAbility(
-      this.ability.id,
-      Vec3.fromPoint3D(this.payload.target)
-    );
+    this.game.turnSystem.activeUnit.useAbility(this.ability.id, this.targets);
   }
 }

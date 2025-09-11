@@ -5,6 +5,40 @@
       "assets": []
     },
     {
+      "name": "obstacles",
+      "assets": [
+        {
+          "alias": [
+            "obstacle-shrine"
+          ],
+          "src": [
+            "/assets/obstacles/shrine.json"
+          ],
+          "parser": "aseprite_loader",
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "obstacle-shrine.png"
+          ],
+          "src": [
+            "/assets/obstacles/shrine.png"
+          ],
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        }
+      ]
+    },
+    {
       "name": "portraits",
       "assets": [
         {
@@ -89,6 +123,20 @@
     {
       "name": "ui",
       "assets": [
+        {
+          "alias": [
+            "hovered-cell.gif"
+          ],
+          "src": [
+            "/assets/ui/hovered-cell.gif"
+          ],
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        },
         {
           "alias": [
             "hovered-cell"

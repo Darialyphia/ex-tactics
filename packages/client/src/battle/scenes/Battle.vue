@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { config } from '@/utils/config';
-import { useBoard, useGameUi } from '../composables/useGameClient';
+import { useBoard, useGameUi, useObstacles } from '../composables/useGameClient';
 import type { IsoCameraContext } from '@/iso/composables/useIsoCamera';
 import { until } from '@vueuse/core';
 import IsoWorld from '@/iso/scenes/IsoWorld.vue';
 import IsoCamera from '@/iso/scenes/IsoCamera.vue';
 import Board from './board/Board.vue';
+import Obstacle from './obstacle/Obstacle.vue';
 
 const board = useBoard();
 
@@ -15,12 +16,9 @@ const planes = computed(() => {
 
 const ui = useGameUi();
 const world = ref<{ camera: IsoCameraContext } | null>(null);
+const obstacles = useObstacles();
 
-until(
-  computed(() => {
-    return world.value?.camera;
-  })
-)
+until(() => world.value?.camera)
   .toBeTruthy()
   .then(camera => {
     ui.value.camera = {
@@ -41,6 +39,8 @@ until(
   >
     <IsoCamera>
       <Board />
+
+      <Obstacle v-for="obstacle in obstacles" :key="obstacle.id" :obstacle="obstacle" />
     </IsoCamera>
   </IsoWorld>
 </template>

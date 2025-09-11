@@ -118,6 +118,8 @@ type LayerData = Override<
     meta: Override<
       SpritesheetData['meta'],
       {
+        blendMode?: string;
+        opacity?: number;
         layers: Array<{
           name: string;
           group?: string;
@@ -149,14 +151,18 @@ export type ParsedAsepriteSheet<
   meta: AsepriteMeta;
 };
 
-const initSpritesheetData = (meta: AsepriteMeta) => ({
-  frames: {},
-  animations: {},
-  meta: {
-    ...meta,
-    scale: '1'
-  }
-});
+const initSpritesheetData = (meta: AsepriteMeta, group: string | undefined, layer: string) => {
+  return {
+    frames: {},
+    animations: {},
+    meta: {
+      ...meta,
+      blendMode: meta.layers.find(l => l.name === layer && l.group === group)?.blendMode,
+      opacity: meta.layers.find(l => l.name === layer && l.group === group)?.opacity ?? 255,
+      scale: '1'
+    }
+  };
+};
 
 const loadAsepritesheet = ({ frames, meta }: AsepriteJson) => {
   const groups: LoadedAsepriteSheet['groups'] = {};
@@ -167,8 +173,7 @@ const loadAsepritesheet = ({ frames, meta }: AsepriteJson) => {
     groups[group] ??= Object.fromEntries(
       meta.layers
         .filter(l => (group === BASE_LAYER_GROUP ? !l.group : l.group === group))
-        .map(l => l.name)
-        .map(name => [name, initSpritesheetData(meta)])
+        .map(l => [l.name, initSpritesheetData(meta, l.group, l.name)])
     );
 
     groups[group][layer].animations![tag] ??= [];
@@ -189,7 +194,7 @@ const parseAsepriteSheet = async (
     sheets: {},
     meta: asset.meta
   };
-
+  console.log(asset);
   const basePath = src.split('/').slice(0, -1).join('/');
   const imagePath = `${basePath}/${asset.imagePath}`;
 
@@ -221,6 +226,7 @@ const parseAsepriteSheet = async (
     );
     result.sheets[groupName] = Object.fromEntries(resources);
   }
+
   return result;
 };
 

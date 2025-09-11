@@ -5,7 +5,10 @@ export type ObstacleBlueprintBase = {
   id: string;
   name: string;
   description: string;
-  spriteId: string;
+  sprite: {
+    id: string;
+    defaultParts: Record<string, string>;
+  };
   isAttackable: boolean;
   isWalkable: boolean;
   onInit: (game: Game, obstacle: Obstacle) => void;

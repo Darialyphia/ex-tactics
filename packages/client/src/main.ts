@@ -3,6 +3,7 @@ import 'open-props/postcss/style';
 import 'open-props/colors-hsl';
 
 import './utils/pixi-elements';
+import 'pixi.js/advanced-blend-modes';
 
 import { createApp } from 'vue';
 import { routes, handleHotUpdate } from 'vue-router/auto-routes';

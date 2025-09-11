@@ -9,6 +9,7 @@ import type {
   SerializedPlayerState
 } from '@game/engine/src/game/systems/game-snapshot.system';
 import type { BoardCellViewModel } from '@game/engine/src/client/view-models/board-cell.model';
+import type { ObstacleViewModel } from '@game/engine/src/client/view-models/obstacle.model';
 
 export const useGameClientStore = defineStore('battle', () => {
   const client = ref<GameClient | null>(null);
@@ -95,4 +96,14 @@ export const useBoard = () => {
       return client.state.entities[cellId] as BoardCellViewModel;
     })
   }));
+};
+
+export const useObstacles = () => {
+  const client = useGameClient();
+
+  return computed(() => {
+    return client.state.obstacles.map(obstacleId => {
+      return client.state.entities[obstacleId] as ObstacleViewModel;
+    });
+  });
 };

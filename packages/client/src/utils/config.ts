@@ -26,9 +26,9 @@ export const config = {
 
   CAMERA: {
     MIN_ZOOM: 2,
-    MAX_ZOOM: 2,
+    MAX_ZOOM: 4,
     INITIAL_ZOOM: 2,
-    PADDING: 25
+    PADDING: 64
   },
 
   ISO_TILES_ROTATION_SPEED: 0.5

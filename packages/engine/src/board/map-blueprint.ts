@@ -11,6 +11,7 @@ export type MapBlueprint = {
     obstacle?: {
       blueprintId: string;
       orientation: Direction;
+      parts: Record<string, string>;
     };
   } | null>;
   onInit(game: Game): void;
@@ -19,6 +20,7 @@ export type MapBlueprint = {
       position: Point3D;
       blueprintId: string;
       orientation: Direction;
+      parts: Record<string, string>;
     }>;
   }>;
 };

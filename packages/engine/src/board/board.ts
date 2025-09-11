@@ -45,7 +45,8 @@ export class Board implements Serializable<SerializedBoard> {
           blueprintId: cell.obstacle.blueprintId,
           position: { x, y, z },
           orientation: cell.obstacle.orientation,
-          player: null
+          player: null,
+          spriteParts: cell.obstacle.parts
         });
       }
     });
@@ -56,7 +57,8 @@ export class Board implements Serializable<SerializedBoard> {
           blueprintId: obstacle.blueprintId,
           position: obstacle.position,
           orientation: obstacle.orientation,
-          player: this.game.playerManager.players[index]
+          player: this.game.playerManager.players[index],
+          spriteParts: obstacle.parts
         });
       });
     });

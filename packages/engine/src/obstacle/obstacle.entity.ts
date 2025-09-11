@@ -12,6 +12,7 @@ export type ObstacleOptions = {
   player: Player | null;
   position: Point3D;
   orientation: Direction;
+  spriteParts: Record<string, string>;
 };
 
 export type SerializedObstacle = {
@@ -19,12 +20,16 @@ export type SerializedObstacle = {
   id: string;
   name: string;
   description: string;
-  spriteId: string;
   isAttackable: boolean;
   maxHp: number | null;
   currentHp: number | null;
   player: string | null;
   orientation: Direction;
+  position: Point3D;
+  sprite: {
+    id: string;
+    parts: Record<string, string>;
+  };
 };
 
 export class Obstacle
@@ -43,7 +48,10 @@ export class Obstacle
 
   orientation: Direction;
 
-  constructor(game: Game, options: ObstacleOptions) {
+  constructor(
+    game: Game,
+    private options: ObstacleOptions
+  ) {
     super(`obstacle-${options.id}`, {});
     this.game = game;
     this.blueprint = options.blueprint;
@@ -59,12 +67,16 @@ export class Obstacle
       id: this.id,
       name: this.blueprint.name,
       description: this.blueprint.description,
-      spriteId: this.blueprint.spriteId,
       isAttackable: this.blueprint.isAttackable,
       maxHp: this.blueprint.isDestroyable ? this.blueprint.maxHp : null,
       currentHp: this.blueprint.isDestroyable ? this.currentHp : null,
       player: this.player?.id ?? null,
-      orientation: this.orientation
+      orientation: this.orientation,
+      position: this.position.serialize(),
+      sprite: {
+        id: this.blueprint.sprite.id,
+        parts: { ...this.blueprint.sprite.defaultParts, ...this.options.spriteParts }
+      }
     };
   }
 

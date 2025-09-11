@@ -1,6 +1,6 @@
 import type { ParsedAsepriteSheet } from '@/utils/aseprite-parser';
 import { objectEntries, type Nullable } from '@game/shared';
-import { Graphics, Texture, TextureSource } from 'pixi.js';
+import { Container, Sprite, Texture, TextureSource, type BLEND_MODES } from 'pixi.js';
 import { useApplication } from 'vue3-pixi';
 
 export const useMultiLayerTexture = <
@@ -10,13 +10,11 @@ export const useMultiLayerTexture = <
 >({
   sheet,
   tag,
-  parts,
-  dimensions
+  parts
 }: {
   sheet: MaybeRefOrGetter<Nullable<ParsedAsepriteSheet<TGroups, TBaseLayers, TGroupLayers>>>;
   tag: MaybeRefOrGetter<string>;
   parts: MaybeRefOrGetter<Record<TGroupLayers, TGroups | null>>;
-  dimensions: { width: number; height: number };
 }) => {
   const sheets = computed(() => {
     const _sheet = toValue(sheet);
@@ -34,9 +32,12 @@ export const useMultiLayerTexture = <
     return result;
   });
 
-  const texturesGroups = computed(() => {
+  const groups = computed(() => {
     return sheets.value.map(({ sheet }) => {
-      return sheet.animations[toValue(tag)];
+      return {
+        meta: sheet.data.meta as unknown as { opacity: number; blendMode?: BLEND_MODES },
+        textures: sheet.animations[toValue(tag)]
+      };
     });
   });
 
@@ -47,24 +48,54 @@ export const useMultiLayerTexture = <
     const _sheet = toValue(sheet);
     if (!_sheet) return;
 
-    textures.value = [];
-    const graphics: Graphics[] = [];
+    const containers: Container[] = [];
 
-    texturesGroups.value.forEach(groupTextures => {
-      groupTextures.forEach((texture, index) => {
-        if (!graphics[index]) {
-          graphics[index] = new Graphics();
+    textures.value = [];
+    // const graphics: Graphics[] = []; // graphics for all frames of the animation
+
+    groups.value.forEach(group => {
+      group.textures.forEach((texture, index) => {
+        // if (!graphics[index]) {
+        //   graphics[index] = new Graphics();
+        // }
+        if (!containers[index]) {
+          containers[index] = new Container();
         }
 
-        const g = graphics[index];
-        g.fill({ texture }).rect(0, 0, dimensions.width, dimensions.height);
+        const c = containers[index];
+        const sprite = new Sprite(texture);
+        if (group.meta.blendMode) {
+          sprite.blendMode = group.meta.blendMode;
+          console.log(sprite.blendMode);
+        }
+        sprite.alpha = group.meta.opacity / 255;
+        c.addChild(sprite);
+        // const g = graphics[index];
+
+        // // @TODO: probable need to cache this
+        // const baked = app.value.renderer.generateTexture(new Sprite(texture));
+
+        // g.rect(0, 0, dimensions.width, dimensions.height).fill({
+        //   texture: baked,
+        //   textureSpace: 'local'
+        // });
       });
     });
 
-    graphics.forEach(g => {
-      textures.value.push(app.value.renderer.generateTexture(g));
+    containers.forEach(c => {
+      const renderTexture = app.value.renderer.generateTexture({
+        target: c,
+        textureSourceOptions: {
+          scaleMode: 'nearest'
+        }
+      });
+      textures.value.push(renderTexture);
     });
+
+    // graphics.forEach(g => {
+    //   textures.value.push(app.value.renderer.generateTexture(g));
+    // });
   });
 
-  return textures;
+  return computed(() => (textures.value.length ? textures.value : [Texture.EMPTY]));
 };

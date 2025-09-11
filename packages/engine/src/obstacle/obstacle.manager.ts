@@ -39,6 +39,7 @@ export class ObstacleManager {
     position: Point3D;
     blueprintId: string;
     orientation: Direction;
+    spriteParts: Record<string, string>;
   }) {
     const blueprint = OBSTACLE_DICTIONARY[options.blueprintId];
     if (!blueprint) {
@@ -48,9 +49,7 @@ export class ObstacleManager {
     const obstacle = new Obstacle(this.game, {
       id,
       blueprint,
-      player: options.player,
-      position: options.position,
-      orientation: options.orientation
+      ...options
     });
     this.obstacleMap.set(obstacle.id, obstacle);
 

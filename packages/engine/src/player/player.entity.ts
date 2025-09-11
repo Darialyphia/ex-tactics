@@ -8,11 +8,25 @@ import { TURN_EVENTS } from '../game/systems/turn.system';
 import { PlayerDeployedForTurnEvent } from './player.events';
 import { PLAYER_EVENTS } from './player.constants';
 import { shrine } from '../obstacle/obstacles/shrine';
+import { match } from 'ts-pattern';
 
 export type SerializedPlayer = {
   entityType: 'player';
   name: string;
   id: string;
+  deployZone: string[];
+  heroes: Array<
+    | {
+        status: 'deployed';
+        unit: string;
+      }
+    | {
+        status: 'reserve';
+        blueprintId: string;
+        selectedTalents: string[];
+        cooldown: number;
+      }
+  >;
 };
 
 export type PlayerOptions = {
@@ -60,7 +74,22 @@ export class Player
     return {
       entityType: 'player' as const,
       name: this.options.name,
-      id: this.id
+      id: this.id,
+      deployZone: this.deployZone.map(p => p.id),
+      heroes: this.heroes.map(hero =>
+        match(hero)
+          .with({ status: 'deployed' } as const, hero => ({
+            status: 'deployed' as const,
+            unit: hero.unit.id
+          }))
+          .with({ status: 'reserve' } as const, hero => ({
+            status: 'reserve' as const,
+            blueprintId: hero.blueprintId,
+            selectedTalents: hero.selectedTalents,
+            cooldown: hero.cooldown
+          }))
+          .exhaustive()
+      )
     };
   }
 

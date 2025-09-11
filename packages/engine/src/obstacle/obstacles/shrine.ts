@@ -4,7 +4,10 @@ export const shrine: ObstacleBlueprint = {
   id: 'shrine',
   name: 'Shrine',
   description: 'Allows you to deploy your Heroes on nearby tiles.',
-  spriteId: 'shrine',
+  sprite: {
+    id: 'shrine',
+    defaultParts: {}
+  },
   isAttackable: true,
   isDestroyable: true,
   isWalkable: false,
