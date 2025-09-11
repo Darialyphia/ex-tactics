@@ -193,7 +193,14 @@ const parseAsepriteSheet = async (
   const basePath = src.split('/').slice(0, -1).join('/');
   const imagePath = `${basePath}/${asset.imagePath}`;
 
-  const assets = await loader.load<Texture>([imagePath]);
+  const assets = await loader.load<Texture>([
+    {
+      src: imagePath,
+      data: {
+        scaleMode: 'nearest'
+      }
+    }
+  ]);
 
   const texture = assets[imagePath];
   // texture.source.scaleMode = 'nearest';
@@ -246,6 +253,7 @@ export const asepriteSpriteSheetParser = {
   },
 
   parse(asset: any, resolvedAsset: any, loader: any) {
+    console.log(asset, resolvedAsset, loader);
     return parseAsepriteSheet(asset, resolvedAsset!.src!, loader!);
   }
 };
