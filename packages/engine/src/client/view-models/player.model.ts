@@ -27,7 +27,15 @@ export class PlayerViewModel {
     return new PlayerViewModel(this.data, this.getEntities(), this.getClient());
   }
 
+  get deployZone() {
+    return this.data.deployZone;
+  }
+
   get id() {
     return this.data.id;
+  }
+
+  get name() {
+    return this.data.name;
   }
 }

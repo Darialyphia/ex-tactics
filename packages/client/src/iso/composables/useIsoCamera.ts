@@ -1,4 +1,5 @@
 import { useSafeInject } from '@/shared/composables/useSafeInject';
+import type { Point } from '@game/shared';
 import type { Viewport } from 'pixi-viewport';
 import type { InjectionKey, Ref } from 'vue';
 
@@ -10,6 +11,7 @@ export type IsoCameraContext = {
   viewport: Ref<Viewport | null>;
   isDragging: Ref<boolean>;
   provideViewport(viewport: Viewport): void;
+  toScreen(point: Point): Point;
   rotateCW(): void;
   rotateCCW(): void;
 };
@@ -34,6 +36,13 @@ export const useIsoCameraProvider = (angle: Ref<RotationAngle>) => {
       });
       viewport.on('drag-end', () => {
         api.isDragging.value = false;
+      });
+    },
+    toScreen(point) {
+      if (!api.viewport.value) return { x: 0, y: 0 };
+      return api.viewport.value.toScreen({
+        x: point.x + api.offset.value.x,
+        y: point.y + api.offset.value.y
       });
     }
   };

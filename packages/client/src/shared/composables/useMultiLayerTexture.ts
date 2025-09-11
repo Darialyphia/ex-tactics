@@ -66,7 +66,6 @@ export const useMultiLayerTexture = <
         const sprite = new Sprite(texture);
         if (group.meta.blendMode) {
           sprite.blendMode = group.meta.blendMode;
-          console.log(sprite.blendMode);
         }
         sprite.alpha = group.meta.opacity / 255;
         c.addChild(sprite);

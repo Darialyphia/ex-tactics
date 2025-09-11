@@ -1,3 +1,4 @@
+import type { Point } from '@game/shared';
 import type { SerializedObstacle } from '../../obstacle/obstacle.entity';
 import type { GameClient, GameStateEntities } from '../client';
 

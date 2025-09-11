@@ -125,10 +125,25 @@
       "assets": [
         {
           "alias": [
-            "hovered-cell.gif"
+            "cell-highlights"
           ],
           "src": [
-            "/assets/ui/hovered-cell.gif"
+            "/assets/ui/cell-highlights.json"
+          ],
+          "parser": "aseprite_loader",
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "cell-highlights.png"
+          ],
+          "src": [
+            "/assets/ui/cell-highlights.png"
           ],
           "data": {
             "scaleMode": "nearest",
@@ -158,6 +173,40 @@
           ],
           "src": [
             "/assets/ui/hovered-cell.png"
+          ],
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "units",
+      "assets": [
+        {
+          "alias": [
+            "unit-placeholder"
+          ],
+          "src": [
+            "/assets/units/placeholder.json"
+          ],
+          "parser": "aseprite_loader",
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "unit-placeholder.png"
+          ],
+          "src": [
+            "/assets/units/placeholder.png"
           ],
           "data": {
             "scaleMode": "nearest",

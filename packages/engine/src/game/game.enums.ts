@@ -2,7 +2,7 @@ import type { Values } from '@game/shared';
 
 export const GAME_PHASES = {
   DEPLOY: 'deploy',
-  battle: 'battle',
+  BATTLE: 'battle',
   GAME_END: 'game_end'
 } as const;
 export type GamePhasesDict = typeof GAME_PHASES;

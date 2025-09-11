@@ -194,7 +194,6 @@ const parseAsepriteSheet = async (
     sheets: {},
     meta: asset.meta
   };
-  console.log(asset);
   const basePath = src.split('/').slice(0, -1).join('/');
   const imagePath = `${basePath}/${asset.imagePath}`;
 

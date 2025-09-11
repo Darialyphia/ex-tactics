@@ -1,6 +1,7 @@
 import type { Point } from '../types/geometry';
 import type { Serializable } from '../types/utils';
 
+type PointOrScalar = Point | number;
 export class Vec2 implements Serializable {
   static fromPoint(pt: Point) {
     return new Vec2(pt.x, pt.y);
@@ -83,9 +84,14 @@ export class Vec2 implements Serializable {
     return this;
   }
 
-  scale({ x, y }: Point) {
-    this.x *= x;
-    this.y *= y;
+  scale(pointOrScalar: PointOrScalar) {
+    if (typeof pointOrScalar === 'number') {
+      this.x *= pointOrScalar;
+      this.y *= pointOrScalar;
+    } else {
+      this.x *= pointOrScalar.x;
+      this.y *= pointOrScalar.y;
+    }
 
     return this;
   }

@@ -42,7 +42,7 @@ export const useIsoWorldProvider = (options: UseIsoWorldProviderOptions) => {
         ctx.columns.value * ctx.scale.value.x,
         ctx.rows.value * ctx.scale.value.y
       );
-      return isoPoint.y + isoPoint.z * maxZIndexPerElevation + (zIndexOffset ?? 0);
+      return Math.round(isoPoint.y + isoPoint.z * maxZIndexPerElevation + (zIndexOffset ?? 0));
     }
   };
 

@@ -7,6 +7,10 @@ import IsoWorld from '@/iso/scenes/IsoWorld.vue';
 import IsoCamera from '@/iso/scenes/IsoCamera.vue';
 import Board from './board/Board.vue';
 import Obstacle from './obstacle/Obstacle.vue';
+import { useScreen } from 'vue3-pixi';
+import type { IsoWorldContext } from '@/iso/composables/useIsoWorld';
+import { AlphaFilter, Container } from 'pixi.js';
+import { provideLightsManager } from '../composables/useLightsManager';
 
 const board = useBoard();
 
@@ -15,7 +19,7 @@ const planes = computed(() => {
 });
 
 const ui = useGameUi();
-const world = ref<{ camera: IsoCameraContext } | null>(null);
+const world = ref<{ camera: IsoCameraContext; grid: IsoWorldContext } | null>(null);
 const obstacles = useObstacles();
 
 until(() => world.value?.camera)
@@ -26,6 +30,14 @@ until(() => world.value?.camera)
       rotateCCW: () => camera.rotateCCW()
     };
   });
+
+const screen = useScreen();
+
+const ambientLightAlpha = new AlphaFilter();
+ambientLightAlpha.blendMode = 'multiply';
+
+const lightContainer = shallowRef<Container | null>(null);
+const lights = provideLightsManager(lightContainer);
 </script>
 
 <template>
@@ -38,9 +50,22 @@ until(() => world.value?.camera)
     :planes="planes"
   >
     <IsoCamera>
-      <Board />
+      <template v-if="lights.isReady">
+        <Board />
 
-      <Obstacle v-for="obstacle in obstacles" :key="obstacle.id" :obstacle="obstacle" />
+        <Obstacle v-for="obstacle in obstacles" :key="obstacle.id" :obstacle="obstacle" />
+      </template>
     </IsoCamera>
   </IsoWorld>
+
+  <container event-mode="none" v-if="world" :filters="[ambientLightAlpha]" ref="lightContainer">
+    <graphics
+      :alpha="0.65"
+      @effect="
+        g => {
+          g.clear().rect(0, 0, screen.width, screen.height).fill(0x433e76);
+        }
+      "
+    />
+  </container>
 </template>

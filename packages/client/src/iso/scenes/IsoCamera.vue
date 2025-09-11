@@ -27,7 +27,7 @@ until(camera.viewport)
       .drag({
         mouseButtons: 'left'
       })
-      .decelerate({ friction: 0.88 })
+      .decelerate({ friction: 0.94 })
       .wheel({ smooth: 20, percent: 0.25 })
       .clamp({
         direction: 'all'
@@ -51,7 +51,7 @@ useEventListener('resize', () => {
 
 watchEffect(() => {
   camera.offset.value = {
-    x: rows.value * (config.TILE_SIZE.x * 0.5) + config.CAMERA.PADDING - config.TILE_SIZE.x * 0.5,
+    x: rows.value * (config.TILE_SIZE.x * 0.5) + config.CAMERA.PADDING,
     y: planes.value * config.TILE_SIZE.z + config.CAMERA.PADDING
   };
 });
@@ -74,6 +74,14 @@ watchEffect(() => {
     :disable-on-context-menu="true"
     :sortable-children="true"
   >
+    <graphics
+      v-if="config.DEBUG"
+      @effect="
+        g => {
+          g.rect(0, 0, worldSize.width, worldSize.height).fill('blue');
+        }
+      "
+    />
     <container :sortable-children="true" v-bind="camera.offset.value">
       <slot :worldSize="worldSize" />
     </container>

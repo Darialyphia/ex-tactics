@@ -16,6 +16,10 @@ const {
   isAnimated?: boolean;
 }>();
 
+const emit = defineEmits<{
+  update: [Point3D];
+}>();
+
 const { isoPosition, zIndex } = useIsoPoint({
   position: computed(() => position),
   zIndexOffset: computed(() => zIndexOffset)
@@ -24,13 +28,6 @@ const { isoPosition, zIndex } = useIsoPoint({
 const containerRef = ref<Container>();
 
 const grid = useIsoWorld();
-const internal = ref(position);
-watch(
-  () => position,
-  newPos => {
-    internal.value = newPos;
-  }
-);
 
 watch(
   [isoPosition, zIndex, grid.angle, containerRef],
@@ -38,6 +35,7 @@ watch(
     if (!container) return;
     if (!isAnimated || !prevContainer || !isDefined(oldAngle) || !oldPos) {
       container.position.set(pos.x, pos.y);
+      emit('update', pos);
       container.zIndex = zIndex;
       return;
     }
@@ -69,10 +67,11 @@ watch(
         onUpdate: () => {
           const newVector = Vec2.fromPoint(startVector).rotate(state.angle).add(center);
 
-          const world = { x: newVector.x, y: newVector.y, z: oldPos.z };
-          const iso = grid.toIso(world, 0); // angle-agnostic projection
+          const point = { x: newVector.x, y: newVector.y, z: oldPos.z };
+          const iso = grid.toIso(point, 0); // angle-agnostic projection
           containerRef.value?.position.set(iso.x, iso.y);
           containerRef.value!.zIndex = grid.getZIndex(iso, zIndexOffset);
+          emit('update', { x: iso.x, y: iso.y, z: pos.z });
         },
         onComplete: () => {
           containerRef.value!.position.set(isoPosition.value.x, isoPosition.value.y);
@@ -115,16 +114,20 @@ watch(
         },
         zIndex: zIndex,
         ease: Power1.easeInOut,
-        onUpdate: () => {}
+        onUpdate: () => {
+          emit('update', { x: container.x, y: container.y, z: pos.z });
+        }
       });
     }
   },
   { immediate: true }
 );
+
+defineExpose({ container: containerRef });
 </script>
 
 <template>
-  <container ref="containerRef" :pivot="{ x: 0, y: 0 }">
-    <slot :isoPosition="isoPosition" :z-order="zIndex" />
+  <container ref="containerRef" :pivot="{ x: 0, y: 0 }" sortable-children>
+    <slot :isoPosition="isoPosition" :z-index="zIndex" :container="containerRef" />
   </container>
 </template>

@@ -10,6 +10,7 @@ import type {
 } from '@game/engine/src/game/systems/game-snapshot.system';
 import type { BoardCellViewModel } from '@game/engine/src/client/view-models/board-cell.model';
 import type { ObstacleViewModel } from '@game/engine/src/client/view-models/obstacle.model';
+import type { PlayerViewModel } from '@game/engine/src/client/view-models/player.model';
 
 export const useGameClientStore = defineStore('battle', () => {
   const client = ref<GameClient | null>(null);
@@ -104,6 +105,16 @@ export const useObstacles = () => {
   return computed(() => {
     return client.state.obstacles.map(obstacleId => {
       return client.state.entities[obstacleId] as ObstacleViewModel;
+    });
+  });
+};
+
+export const usePlayers = () => {
+  const client = useGameClient();
+
+  return computed(() => {
+    return client.state.players.map(playerId => {
+      return client.state.entities[playerId] as PlayerViewModel;
     });
   });
 };
