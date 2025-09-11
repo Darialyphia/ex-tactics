@@ -3,14 +3,23 @@ import type { FXEvent, FXEventMap } from '@game/engine/src/client/controllers/fx
 import { isDefined, type Nullable } from '@game/shared';
 import { gameStateRef } from './gameStateRef';
 import { defineStore } from 'pinia';
+import type {
+  GameStateSnapshot,
+  SerializedOmniscientState,
+  SerializedPlayerState
+} from '@game/engine/src/game/systems/game-snapshot.system';
 
 export const useGameClientStore = defineStore('battle', () => {
   const client = ref<GameClient | null>(null);
 
   return {
     client,
-    init(options: GameClientOptions) {
+    init(
+      options: GameClientOptions,
+      snapshot: GameStateSnapshot<SerializedOmniscientState | SerializedPlayerState>
+    ) {
       client.value = new GameClient(options);
+      client.value.initialize(snapshot);
     }
   };
 });

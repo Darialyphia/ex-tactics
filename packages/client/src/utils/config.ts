@@ -25,11 +25,11 @@ export const config = {
   },
 
   CAMERA: {
-    MIN_ZOOM: 3,
-    MAX_ZOOM: 3,
-    INITIAL_ZOOM: 3,
+    MIN_ZOOM: 2,
+    MAX_ZOOM: 2,
+    INITIAL_ZOOM: 2,
     PADDING: 25
   },
 
-  ISO_TILES_ROTATION_SPEED: 0.3
+  ISO_TILES_ROTATION_SPEED: 0.5
 };

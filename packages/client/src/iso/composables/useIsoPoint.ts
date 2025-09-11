@@ -2,7 +2,6 @@ import { useIsoWorld } from './useIsoWorld';
 import type { Nullable, Point3D } from '@game/shared';
 import { useIso } from './useIso';
 import type { MaybeRefOrGetter } from 'vue';
-import { config } from '@/utils/config';
 
 export type UseIsoTileOptions = {
   position: MaybeRefOrGetter<Point3D>;
@@ -26,9 +25,7 @@ export const useIsoPoint = ({ position, zIndexOffset }: UseIsoTileOptions) => {
   );
 
   const zIndex = computed(() => {
-    const raw = isoPosition.value.y + config.TILE_SIZE.z * 2 + (toValue(zIndexOffset) ?? 0);
-
-    return Math.round(raw * 10) / 10;
+    return grid.getZIndex(isoPosition.value, toValue(zIndexOffset));
   });
 
   return { isoPosition, zIndex };

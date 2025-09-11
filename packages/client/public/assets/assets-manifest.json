@@ -5,6 +5,25 @@
       "assets": []
     },
     {
+      "name": "portraits",
+      "assets": [
+        {
+          "alias": [
+            "portraits-placeholder"
+          ],
+          "src": [
+            "/assets/portraits/placeholder.png"
+          ],
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        }
+      ]
+    },
+    {
       "name": "tiles",
       "assets": [
         {
@@ -15,6 +34,7 @@
             "/assets/tiles/dirt.png"
           ],
           "data": {
+            "scaleMode": "nearest",
             "tags": {
               "m": true
             }
@@ -28,6 +48,41 @@
             "/assets/tiles/grass.png"
           ],
           "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "ui",
+      "assets": [
+        {
+          "alias": [
+            "hovered-cell"
+          ],
+          "src": [
+            "/assets/ui/hovered-cell.json"
+          ],
+          "loadParser": "aseprite_loader",
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "hovered-cell"
+          ],
+          "src": [
+            "/assets/ui/hovered-cell.png"
+          ],
+          "data": {
+            "scaleMode": "nearest",
             "tags": {
               "m": true
             }

@@ -1,4 +1,9 @@
-import type { EmptyObject, MaybePromise, Values } from '@game/shared';
+import {
+  isDefined,
+  type EmptyObject,
+  type MaybePromise,
+  type Values
+} from '@game/shared';
 import type { InputDispatcher } from '../input/input-system';
 import type {
   GameStateSnapshot,
@@ -138,9 +143,11 @@ export class GameClient {
   }
 
   getActivePlayerId() {
-    const activeUnit = this.stateManager.state.entities[
-      this.stateManager.state.activeUnitId
-    ]! as UnitViewModel;
+    const activeId = this.state.activeUnitId;
+    if (!isDefined(activeId)) {
+      return this.state.players[0];
+    }
+    const activeUnit = this.stateManager.state.entities[activeId]! as UnitViewModel;
     return activeUnit.player.id;
   }
 
@@ -149,7 +156,6 @@ export class GameClient {
   ) {
     this.lastSnapshotId = snapshot.id;
     this.initialState = snapshot.state;
-
     this.stateManager.initialize(snapshot.state);
 
     if (this.gameType === GAME_TYPES.LOCAL) {

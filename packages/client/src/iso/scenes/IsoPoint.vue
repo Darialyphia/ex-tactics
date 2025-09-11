@@ -13,7 +13,7 @@ const { isoPosition, zIndex } = useIsoPoint(toRefs(props));
 </script>
 
 <template>
-  <container :position="isoPosition" :z-order="zIndex" :pivot="{ x: 0, y: 0 }">
+  <container :position="isoPosition" :z-index="zIndex" :pivot="{ x: 0, y: 0 }">
     <slot :isoPosition="isoPosition" :z-index="zIndex" />
   </container>
 </template>

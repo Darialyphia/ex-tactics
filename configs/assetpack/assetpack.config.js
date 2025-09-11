@@ -29,18 +29,16 @@ const loadParserByAssetType = {
 const prefixByAssetType = {
   backgrounds: "",
   tilesets: "",
-  skills: "",
-  units: "",
+  units: "unit-",
   icons: "icon-",
   tiles: "tile-",
   ui: "",
-  obstacles: "",
+  obstacles: "obstacle-",
   fx: "fx-",
   normals: "",
-  modifiers: "",
   pedestals: "",
   hitboxes: "hitbox-",
-  emotes: "",
+  emotes: "emote-",
   portraits: "portraits-",
 };
 
@@ -66,9 +64,12 @@ function manifestEntryParser(tree, processor) {
       loadParser: needsCustomParser
         ? loadParserByAssetType[assetType]
         : undefined,
+        data: {
+          ...file.data,
+          scaleMode: "nearest",
+        }
     };
 
-    file.data && (res.data = file.data);
 
     return res;
   });

@@ -8,7 +8,7 @@ export interface TransformOptions {
   scale: boolean;
 }
 
-const rotateCartesian = (
+export const rotateCartesian = (
   { x, y, z }: Point3D,
   { columns, rows }: { columns: number; rows: number },
   rot: Angle

@@ -9,16 +9,13 @@ type SerializedPoint = {
 };
 
 export class PointAOEShape implements AOEShape<SerializedPoint> {
-  static fromJSON(json: SerializedPoint): PointAOEShape {
-    return new PointAOEShape(json.targetingType, json.params.point);
+  static fromJSON(json: EmptyObject): PointAOEShape {
+    return new PointAOEShape(json.targetingType);
   }
 
   readonly type = 'point' as const;
 
-  constructor(
-    readonly targetingType: TargetingType,
-    private point: Point3D
-  ) {}
+  constructor(readonly targetingType: TargetingType) {}
 
   serialize() {
     return {

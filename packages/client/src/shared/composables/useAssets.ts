@@ -12,7 +12,6 @@ import type { Nullable } from '@game/shared';
 import { useSafeInject } from './useSafeInject';
 import { asepriteSpriteSheetParser, type ParsedAsepriteSheet } from '@/utils/aseprite-parser';
 
-console.log(TexturePool);
 TexturePool.textureStyle.scaleMode = 'nearest';
 
 export type SpritesheetWithAnimations = Spritesheet & {
@@ -103,7 +102,7 @@ export const useAssetsProvider = (app: App) => {
   const preload = async () => {
     if (loaded.value) return;
     await init();
-    // await Promise.all(['ui'].map(id => Assets.loadBundle(id)));
+    await Promise.all(['ui'].map(id => Assets.loadBundle(id)));
     loaded.value = true;
 
     // loadNonCriticalResources();
@@ -119,13 +118,7 @@ export const useAssetsProvider = (app: App) => {
     fullyLoaded,
     preload,
     async load(bundleId: string) {
-      const asset = await Assets.loadBundle(bundleId);
-
-      Object.values(asset).forEach(asset => {
-        if (asset instanceof Texture) {
-          asset.source.scaleMode = 'nearest';
-        }
-      });
+      return await Assets.loadBundle(bundleId);
     },
     async loadSpritesheet<
       TGroups extends string = string,

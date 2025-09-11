@@ -15,7 +15,8 @@ import {
   type GameStarEvent,
   type SerializedStarEvent
 } from '../game.events';
-import type { AnyObject } from '@game/shared';
+import type { AnyObject, BetterExtract } from '@game/shared';
+import type { TurnPhase } from './turn.system';
 
 export type GameStateSnapshot<T> = {
   id: number;
@@ -39,8 +40,15 @@ export type EntityDiffDictionary = Record<string, Partial<SerializedEntity>>;
 export type SerializedOmniscientState = {
   config: Config;
   entities: EntityDictionary;
-  activeUnitId: string;
   turnOrder: string[];
+  activeUnitId: string | null;
+  phase: TurnPhase;
+  players: string[];
+  board: {
+    cols: number;
+    rows: number;
+    cells: string[];
+  };
 };
 
 export type SnapshotDiff = {
@@ -48,8 +56,9 @@ export type SnapshotDiff = {
   entities: EntityDiffDictionary;
   addedEntities: string[];
   removedEntities: string[];
-  activeUnitId: string;
+  activeUnitId: string | null;
   turnOrder: string[];
+  phase: TurnPhase;
 };
 
 export type SerializedPlayerState = SerializedOmniscientState;
@@ -101,8 +110,9 @@ export class GameSnapshotSystem {
     }
     return {
       config: this.getObjectDiff(state.config, prevState.config),
-      activeUnitId: state.activeUnitId,
+      activeUnitId: state.activeUnitId ?? null,
       turnOrder: state.turnOrder,
+      phase: state.phase,
       entities,
       removedEntities: Object.keys(prevState.entities).filter(
         key => !(key in state.entities)
@@ -245,8 +255,15 @@ export class GameSnapshotSystem {
     return {
       config: this.game.config,
       entities: this.buildEntityDictionary(),
-      activeUnitId: this.game.turnSystem.activeUnit!.id,
-      turnOrder: this.game.turnSystem.serialize()
+      activeUnitId: this.game.turnSystem.activeUnit?.id,
+      turnOrder: this.game.turnSystem.serialize(),
+      phase: this.game.turnSystem.phase,
+      players: this.game.playerManager.players.map(p => p.id),
+      board: {
+        cols: this.game.board.cols,
+        rows: this.game.board.rows,
+        cells: this.game.board.cells.map(c => c.id)
+      }
     };
   }
 

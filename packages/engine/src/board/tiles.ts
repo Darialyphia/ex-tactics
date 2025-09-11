@@ -7,6 +7,11 @@ export const TILES: Record<string, Tile> = keyBy(
       id: 'grass',
       spriteId: 'grass',
       isWalkable: true
+    },
+    {
+      id: 'dirt',
+      spriteId: 'dirt',
+      isWalkable: true
     }
   ],
   'id'

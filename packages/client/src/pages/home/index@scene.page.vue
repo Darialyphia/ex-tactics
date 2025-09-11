@@ -1,57 +1,124 @@
 <script lang="ts" setup>
 import IsoWorld from '@/iso/scenes/IsoWorld.vue';
 import IsoCamera from '@/iso/scenes/IsoCamera.vue';
-import { testMap } from '@game/engine/src/board/maps/test-map';
-import { indexToPoint } from '@game/shared';
+import { type Point3D } from '@game/shared';
 import { config } from '@/utils/config';
-import IsoPoint from '@/iso/scenes/IsoPoint.vue';
+import AnimatedIsoPoint from '@/iso/scenes/AnimatedIsoPoint.vue';
 import { useAssets } from '@/shared/composables/useAssets';
+import { rotateCartesian } from '@/iso/composables/useIso';
+import type { IsoCameraContext } from '@/iso/composables/useIsoCamera';
+import { useGameClientStore } from '@/battle/composables/useGameClient';
+import { until } from '@vueuse/core';
+import type { BoardCellViewModel } from '@game/engine/src/client/view-models/board-cell.model';
 
 definePage({
   name: 'Home',
   path: '/'
 });
 
-const cells = testMap.cells.map((cell, index) => ({
-  ...cell,
-  position: indexToPoint(index, testMap.cols, testMap.rows)
-}));
-const planes = Math.max(...cells.map(c => c.position.z)) + 1;
-
+const gameClientStore = useGameClientStore();
 const assets = useAssets();
-
-const textureNames = new Set(cells.map(cell => `tile-${cell.tile}`));
 const ready = ref(false);
 
-const load = async () => {
-  if (ready.value) return;
-  await Promise.all([...textureNames].map(tex => assets.load(tex)));
+const client = computed(() => gameClientStore.client);
+until(client)
+  .toBeTruthy()
+  .then(async client => {
+    const textureNames = new Set(
+      client.state.board.cells.map(cell => {
+        const entity = client.state.entities[cell] as BoardCellViewModel;
+        return entity.spriteId;
+      })
+    );
+    await Promise.all([...textureNames].map(tex => assets.load(tex)));
 
-  ready.value = true;
-};
+    ready.value = true;
+  });
 
-load();
+const world = ref<{ camera: IsoCameraContext } | null>(null);
+const angle = computed(() => {
+  // @ts-expect-error wrong types
+  return world.value?.camera.angle.value || 0;
+});
+
+const cells = computed(() => {
+  if (!client.value) return [];
+  return client.value.state.board.cells.map(cellId => {
+    return client.value?.state.entities[cellId] as BoardCellViewModel;
+  });
+});
+const planes = computed(() => {
+  if (!client.value) return 1;
+  return Math.max(...cells.value.map(cell => cell.position.z)) + 1;
+});
+
+const displayedCells = computed(() => {
+  if (!client.value) return [];
+  const cellMap = new Map<string, BoardCellViewModel>();
+  const getKey = (cell: Point3D) => `${cell.x}-${cell.y}-${cell.z}`;
+
+  cells.value.forEach(cell => {
+    cellMap.set(getKey(cell.position), cell);
+  });
+  return cells.value.filter(cell => {
+    const rotated = rotateCartesian(
+      cell.position,
+      { columns: client.value!.state.board.cols, rows: client.value!.state.board.rows },
+      angle.value
+    );
+
+    const result = !(
+      cellMap.get(getKey({ x: rotated.x + 1, y: rotated.y, z: rotated.z })) &&
+      cellMap.get(getKey({ x: rotated.x, y: rotated.y + 1, z: rotated.z })) &&
+      cellMap.get(getKey({ x: rotated.x - 1, y: rotated.y + 1, z: rotated.z })) &&
+      cellMap.get(getKey({ x: rotated.x, y: rotated.y - 1, z: rotated.z })) &&
+      cellMap.get(getKey({ x: cell.position.x, y: cell.position.y, z: cell.position.z + 1 }))
+    );
+
+    return result;
+  });
+});
+
+const uiRoot = document.getElementById('#app');
 </script>
 
 <template>
-  <container v-if="ready">
+  <container v-if="client && ready">
     <IsoWorld
+      ref="world"
       :angle="0"
       :tile-size="config.TILE_SIZE"
-      :columns="testMap.cols"
-      :rows="testMap.rows"
+      :columns="client.state.board.cols"
+      :rows="client.state.board.rows"
       :planes="planes"
     >
       <IsoCamera>
-        <IsoPoint
-          v-for="(cell, index) in cells"
+        <AnimatedIsoPoint
+          v-for="(cell, index) in displayedCells"
           :key="index"
           :position="cell.position"
           :tile-size="config.TILE_SIZE"
         >
-          <sprite :texture="`tile-${cell.tile}`" />
-        </IsoPoint>
+          <sprite :texture="cell.spriteId" />
+        </AnimatedIsoPoint>
       </IsoCamera>
     </IsoWorld>
+
+    <External :root="uiRoot!" id="camera-controls">
+      <button @click="world?.camera.rotateCW()">Rotate CW</button>
+      <button @click="world?.camera.rotateCCW()">Rotate CCW</button>
+    </External>
   </container>
 </template>
+
+<style lang="postcss">
+#camera-controls {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 10;
+}
+</style>

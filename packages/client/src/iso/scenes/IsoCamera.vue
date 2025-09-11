@@ -13,21 +13,21 @@ const camera = useIsoCamera();
 const { rows, columns, planes } = useIsoWorld();
 
 const worldSize = computed(() => ({
-  width: (columns.value + rows.value) * (config.TILE_SIZE.x * 0.5) + config.CAMERA.PADDING,
+  width: (columns.value + rows.value) * (config.TILE_SIZE.x * 0.5) + config.CAMERA.PADDING * 2,
   height:
     (columns.value + rows.value) * (config.TILE_SIZE.y * 0.5) +
     config.TILE_SIZE.z * planes.value +
-    config.CAMERA.PADDING
+    config.CAMERA.PADDING * 2
 }));
 
 until(camera.viewport)
   .toBeTruthy()
   .then(viewport => {
+    console.log('setup viewport');
     viewport
       .drag({
         mouseButtons: 'left'
       })
-      .pinch()
       .decelerate({ friction: 0.88 })
       .wheel({ smooth: 20, percent: 0.25 })
       .clamp({
@@ -52,11 +52,8 @@ useEventListener('resize', () => {
 
 watchEffect(() => {
   camera.offset.value = {
-    x:
-      config.TILE_SIZE.x * 0.5 +
-      rows.value * (config.TILE_SIZE.x * 0.5) +
-      config.CAMERA.PADDING * 0.5,
-    y: planes.value * config.TILE_SIZE.z + config.CAMERA.PADDING * 0.5
+    x: rows.value * (config.TILE_SIZE.x * 0.5) + config.CAMERA.PADDING - config.TILE_SIZE.x * 0.5,
+    y: planes.value * config.TILE_SIZE.z + config.CAMERA.PADDING
   };
 });
 </script>

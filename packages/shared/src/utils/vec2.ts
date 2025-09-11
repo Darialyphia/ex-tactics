@@ -97,30 +97,11 @@ export class Vec2 implements Serializable {
     return this;
   }
 
-  rotate(degrees: 90 | 180 | 270) {
-    let temp: number;
-    switch (degrees % 360) {
-      case 90:
-        temp = this.x;
-        this.x = -this.y;
-        this.y = temp;
-        break;
-      case 180:
-        this.x = -this.x;
-        this.y = -this.y;
-        break;
-      case 270:
-        temp = this.x;
-        this.x = this.y;
-        this.y = -temp;
-        break;
-      case 0:
-        // No rotation
-        break;
-      default:
-        throw new Error('Rotation must be 0, 90, 180, or 270 degrees');
-    }
-    return this;
+  rotate(radians: number) {
+    return Vec2.fromPoint({
+      x: this.x * Math.cos(radians) - this.y * Math.sin(radians),
+      y: this.x * Math.sin(radians) + this.y * Math.cos(radians)
+    });
   }
 
   dist({ x, y }: Point) {

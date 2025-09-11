@@ -12,7 +12,7 @@ export type MapBlueprint = {
       blueprintId: string;
       orientation: Direction;
     };
-  }>;
+  } | null>;
   onInit(game: Game): void;
   players: Array<{
     obstacles: Array<{

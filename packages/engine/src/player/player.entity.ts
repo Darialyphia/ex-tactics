@@ -11,11 +11,13 @@ import { shrine } from '../obstacle/obstacles/shrine';
 
 export type SerializedPlayer = {
   entityType: 'player';
+  name: string;
   id: string;
 };
 
 export type PlayerOptions = {
   id: string;
+  name: string;
   heroes: Array<{
     blueprintId: string;
     selectedTalents: string[];
@@ -57,6 +59,7 @@ export class Player
   serialize() {
     return {
       entityType: 'player' as const,
+      name: this.options.name,
       id: this.id
     };
   }

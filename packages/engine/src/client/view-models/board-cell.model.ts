@@ -32,4 +32,12 @@ export class BoardCellViewModel {
   get id() {
     return this.data.id;
   }
+
+  get spriteId() {
+    return `tile-${this.data.spriteId}`;
+  }
+
+  get position() {
+    return this.data.position;
+  }
 }
