@@ -24,10 +24,14 @@ const root = window;
 </template>
 
 <style>
-#ui-root {
+:where(#ui-root) {
   position: absolute;
   inset: 0;
   pointer-events: none;
+}
+
+:where(#ui-root :is(button, input, a, select, textarea)) {
+  pointer-events: auto;
 }
 
 #card-portal {

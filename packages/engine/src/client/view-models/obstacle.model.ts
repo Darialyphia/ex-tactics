@@ -31,4 +31,12 @@ export class ObstacleViewModel {
   get id() {
     return this.data.id;
   }
+
+  get spriteId() {
+    return `obstacle-${this.data.spriteId}`;
+  }
+
+  get orientation() {
+    return this.data.orientation;
+  }
 }

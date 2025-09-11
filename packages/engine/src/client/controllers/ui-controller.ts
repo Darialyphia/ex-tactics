@@ -1,7 +1,13 @@
+import { assert } from '@game/shared';
 import type { BoardCell } from '../../board/board-cell.entity';
 import type { GameClient } from '../client';
 
 import type { BoardCellViewModel } from '../view-models/board-cell.model';
+
+export type Camera = {
+  rotateCW(): void;
+  rotateCCW(): void;
+};
 
 export class DOMSelector {
   constructor(readonly id: string) {}
@@ -26,6 +32,8 @@ export class UiController {
 
   _hoveredCell: BoardCellViewModel | null = null;
 
+  private _camera: Camera | null = null;
+
   constructor(private client: GameClient) {}
 
   get isInteractivePlayer() {
@@ -34,6 +42,14 @@ export class UiController {
 
   get hoveredCell() {
     return this._hoveredCell;
+  }
+
+  get camera(): Camera | null {
+    return this._camera;
+  }
+
+  set camera(camera: Camera) {
+    this._camera = camera;
   }
 
   hoverAt(cell: BoardCellViewModel) {

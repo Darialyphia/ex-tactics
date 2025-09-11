@@ -24,6 +24,7 @@ export type SerializedObstacle = {
   maxHp: number | null;
   currentHp: number | null;
   player: string | null;
+  orientation: Direction;
 };
 
 export class Obstacle
@@ -62,7 +63,8 @@ export class Obstacle
       isAttackable: this.blueprint.isAttackable,
       maxHp: this.blueprint.isDestroyable ? this.blueprint.maxHp : null,
       currentHp: this.blueprint.isDestroyable ? this.currentHp : null,
-      player: this.player?.id ?? null
+      player: this.player?.id ?? null,
+      orientation: this.orientation
     };
   }
 

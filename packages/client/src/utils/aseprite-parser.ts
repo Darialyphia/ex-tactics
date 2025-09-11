@@ -253,7 +253,6 @@ export const asepriteSpriteSheetParser = {
   },
 
   parse(asset: any, resolvedAsset: any, loader: any) {
-    console.log(asset, resolvedAsset, loader);
     return parseAsepriteSheet(asset, resolvedAsset!.src!, loader!);
   }
 };

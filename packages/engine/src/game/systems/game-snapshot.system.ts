@@ -49,6 +49,8 @@ export type SerializedOmniscientState = {
     rows: number;
     cells: string[];
   };
+  obstacles: string[];
+  units: string[];
 };
 
 export type SnapshotDiff = {
@@ -59,6 +61,8 @@ export type SnapshotDiff = {
   activeUnitId: string | null;
   turnOrder: string[];
   phase: TurnPhase;
+  obstacles: string[];
+  units: string[];
 };
 
 export type SerializedPlayerState = SerializedOmniscientState;
@@ -113,6 +117,8 @@ export class GameSnapshotSystem {
       activeUnitId: state.activeUnitId ?? null,
       turnOrder: state.turnOrder,
       phase: state.phase,
+      obstacles: state.obstacles,
+      units: state.units,
       entities,
       removedEntities: Object.keys(prevState.entities).filter(
         key => !(key in state.entities)
@@ -259,6 +265,8 @@ export class GameSnapshotSystem {
       turnOrder: this.game.turnSystem.serialize(),
       phase: this.game.turnSystem.phase,
       players: this.game.playerManager.players.map(p => p.id),
+      obstacles: this.game.obstacleManager.obstacles.map(o => o.id),
+      units: this.game.unitManager.units.map(u => u.id),
       board: {
         cols: this.game.board.cols,
         rows: this.game.board.rows,
