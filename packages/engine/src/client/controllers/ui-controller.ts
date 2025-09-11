@@ -1,7 +1,7 @@
-import { GAME_PHASES } from '../../game/game.enums';
+import type { BoardCell } from '../../board/board-cell.entity';
 import type { GameClient } from '../client';
 
-import type { AbilityViewModel } from '../view-models/ability.model';
+import type { BoardCellViewModel } from '../view-models/board-cell.model';
 
 export class DOMSelector {
   constructor(readonly id: string) {}
@@ -24,12 +24,25 @@ export class UiController {
 
   highlightedElement: HTMLElement | null = null;
 
-  selectedManaCostIndices: number[] = [];
+  _hoveredCell: BoardCellViewModel | null = null;
 
   constructor(private client: GameClient) {}
 
   get isInteractivePlayer() {
     return this.client.playerId === this.client.getActivePlayerId();
+  }
+
+  get hoveredCell() {
+    return this._hoveredCell;
+  }
+
+  hoverAt(cell: BoardCellViewModel) {
+    if (this._hoveredCell?.equals(cell)) return;
+    this._hoveredCell = cell;
+  }
+
+  unhover() {
+    this._hoveredCell = null;
   }
 
   update() {}

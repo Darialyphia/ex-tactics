@@ -5,6 +5,7 @@ import type { BoardCellViewModel } from '@game/engine/src/client/view-models/boa
 import type { Point3D } from '@game/shared';
 import { rotateCartesian } from '@/iso/composables/useIso';
 import { useIsoCamera } from '@/iso/composables/useIsoCamera';
+import HoveredCellIndicator from './HoveredCellIndicator.vue';
 
 const board = useBoard();
 const camera = useIsoCamera();
@@ -38,4 +39,5 @@ const displayedCells = computed(() => {
 
 <template>
   <BoardCell v-for="cell in displayedCells" :key="cell.id" :cell="cell" />
+  <HoveredCellIndicator />
 </template>
