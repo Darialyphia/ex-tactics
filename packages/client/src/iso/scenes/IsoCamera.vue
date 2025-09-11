@@ -23,7 +23,6 @@ const worldSize = computed(() => ({
 until(camera.viewport)
   .toBeTruthy()
   .then(viewport => {
-    console.log('setup viewport');
     viewport
       .drag({
         mouseButtons: 'left'

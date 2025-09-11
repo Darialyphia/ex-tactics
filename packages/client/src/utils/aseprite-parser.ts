@@ -242,7 +242,7 @@ export const asepriteSpriteSheetParser = {
   },
 
   testParse(asset: any, resolvedAsset: any) {
-    return Promise.resolve(resolvedAsset?.loadParser === ASEPRITE_SPRITESHEET_LOADER);
+    return Promise.resolve(resolvedAsset?.parser === ASEPRITE_SPRITESHEET_LOADER);
   },
 
   parse(asset: any, resolvedAsset: any, loader: any) {

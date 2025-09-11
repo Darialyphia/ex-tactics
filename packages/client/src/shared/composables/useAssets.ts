@@ -118,7 +118,10 @@ export const useAssetsProvider = (app: App) => {
     fullyLoaded,
     preload,
     async load(bundleId: string) {
-      return await Assets.loadBundle(bundleId);
+      if (!bundlesPromises.has(bundleId)) {
+        bundlesPromises.set(bundleId, Assets.loadBundle(bundleId));
+      }
+      return await bundlesPromises.get(bundleId);
     },
     async loadSpritesheet<
       TGroups extends string = string,

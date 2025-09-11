@@ -8,6 +8,7 @@ import type {
   SerializedOmniscientState,
   SerializedPlayerState
 } from '@game/engine/src/game/systems/game-snapshot.system';
+import type { BoardCellViewModel } from '@game/engine/src/client/view-models/board-cell.model';
 
 export const useGameClientStore = defineStore('battle', () => {
   const client = ref<GameClient | null>(null);
@@ -82,4 +83,16 @@ export const useFxEvent = <T extends FXEvent>(
   onUnmounted(unsub);
 
   return unsub;
+};
+
+export const useBoard = () => {
+  const client = useGameClient();
+
+  return computed(() => ({
+    cols: client.state.board.cols,
+    rows: client.state.board.rows,
+    cells: client.state.board.cells.map(cellId => {
+      return client.state.entities[cellId] as BoardCellViewModel;
+    })
+  }));
 };

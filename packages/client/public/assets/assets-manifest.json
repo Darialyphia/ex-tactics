@@ -9,7 +9,7 @@
       "assets": [
         {
           "alias": [
-            "portraits-placeholder"
+            "portraits-placeholder.png"
           ],
           "src": [
             "/assets/portraits/placeholder.png"
@@ -31,6 +31,21 @@
             "tile-dirt"
           ],
           "src": [
+            "/assets/tiles/dirt.json"
+          ],
+          "parser": "aseprite_loader",
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "tile-dirt.png"
+          ],
+          "src": [
             "/assets/tiles/dirt.png"
           ],
           "data": {
@@ -43,6 +58,21 @@
         {
           "alias": [
             "tile-grass"
+          ],
+          "src": [
+            "/assets/tiles/grass.json"
+          ],
+          "parser": "aseprite_loader",
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "tile-grass.png"
           ],
           "src": [
             "/assets/tiles/grass.png"
@@ -66,7 +96,7 @@
           "src": [
             "/assets/ui/hovered-cell.json"
           ],
-          "loadParser": "aseprite_loader",
+          "parser": "aseprite_loader",
           "data": {
             "scaleMode": "nearest",
             "tags": {
@@ -76,7 +106,7 @@
         },
         {
           "alias": [
-            "hovered-cell"
+            "hovered-cell.png"
           ],
           "src": [
             "/assets/ui/hovered-cell.png"
