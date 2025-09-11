@@ -3,6 +3,8 @@ import { radialGradient } from '@/utils/sprite';
 import { Container, Sprite, Point as PixiPoint } from 'pixi.js';
 import type { ComputedRef } from 'vue';
 import { onTick } from 'vue3-pixi';
+import { useGameUi } from './useGameClient';
+import { config } from '@/utils/config';
 
 export type LightManagerContext = {
   isReady: ComputedRef<boolean>;
@@ -20,6 +22,8 @@ export const provideLightsManager = (container: Ref<Container | null>) => {
     [1, 'rgba(255,255,255,0)']
   ]);
 
+  const ui = useGameUi();
+
   const lights = new Map<
     string,
     {
@@ -29,10 +33,11 @@ export const provideLightsManager = (container: Ref<Container | null>) => {
   >();
 
   const createLightSprite = () => {
+    const zoom = ui.value.camera?.getZoom() ?? config.CAMERA.INITIAL_ZOOM;
     const sprite = new Sprite(lightTexture);
     sprite.anchor.set(0.5, 0.6);
-    sprite.scale.set(10, 10 * 0.75);
-    sprite.tint = 0xffffff;
+    sprite.scale.set(zoom * 5, zoom * 5 * 0.75);
+    sprite.tint = 0xffeebb;
     return sprite;
   };
 
@@ -47,6 +52,7 @@ export const provideLightsManager = (container: Ref<Container | null>) => {
   onTick(() => {
     const c = container.value;
     if (!c) return;
+    const zoom = ui.value.camera?.getZoom() ?? config.CAMERA.INITIAL_ZOOM;
 
     lights.forEach(light => {
       if (!light.sprite.parent) {
@@ -56,6 +62,7 @@ export const provideLightsManager = (container: Ref<Container | null>) => {
       const tmp = new PixiPoint();
       light.reference.getGlobalPosition(tmp);
       light.sprite.position.copyFrom(c.toLocal(tmp));
+      light.sprite.scale.set(zoom * 5, zoom * 5 * 0.75);
     });
   });
 

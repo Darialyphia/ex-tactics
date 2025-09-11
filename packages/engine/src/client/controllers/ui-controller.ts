@@ -9,6 +9,7 @@ import type { PlayerViewModel } from '../view-models/player.model';
 export type Camera = {
   rotateCW(): void;
   rotateCCW(): void;
+  getZoom(): number;
 };
 
 export const CELL_HIGHLIGHTS = {

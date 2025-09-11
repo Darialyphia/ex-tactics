@@ -1,4 +1,5 @@
 import { useSafeInject } from '@/shared/composables/useSafeInject';
+import { config } from '@/utils/config';
 import type { Point } from '@game/shared';
 import type { Viewport } from 'pixi-viewport';
 import type { InjectionKey, Ref } from 'vue';
@@ -14,6 +15,7 @@ export type IsoCameraContext = {
   toScreen(point: Point): Point;
   rotateCW(): void;
   rotateCCW(): void;
+  getZoom(): number;
 };
 const ISOCAMERA_INJECTION_KEY = Symbol('iso-camera') as InjectionKey<IsoCameraContext>;
 
@@ -28,6 +30,9 @@ export const useIsoCameraProvider = (angle: Ref<RotationAngle>) => {
     },
     rotateCCW() {
       api.angle.value = ((api.angle.value + 360 - 90) % 360) as RotationAngle;
+    },
+    getZoom() {
+      return api.viewport.value?.scale.x ?? config.CAMERA.INITIAL_ZOOM;
     },
     provideViewport(viewport) {
       api.viewport.value = viewport;

@@ -27,7 +27,8 @@ until(() => world.value?.camera)
   .then(camera => {
     ui.value.camera = {
       rotateCW: () => camera.rotateCW(),
-      rotateCCW: () => camera.rotateCCW()
+      rotateCCW: () => camera.rotateCCW(),
+      getZoom: () => camera.getZoom()
     };
   });
 
@@ -60,10 +61,10 @@ const lights = provideLightsManager(lightContainer);
 
   <container event-mode="none" v-if="world" :filters="[ambientLightAlpha]" ref="lightContainer">
     <graphics
-      :alpha="0.65"
+      :alpha="0.75"
       @effect="
         g => {
-          g.clear().rect(0, 0, screen.width, screen.height).fill(0x433e76);
+          g.clear().rect(0, 0, screen.width, screen.height).fill(0x222222);
         }
       "
     />
