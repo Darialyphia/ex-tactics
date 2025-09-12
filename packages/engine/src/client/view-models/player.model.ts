@@ -38,4 +38,8 @@ export class PlayerViewModel {
   get name() {
     return this.data.name;
   }
+
+  get heroesToDeploy() {
+    return this.data.heroes.filter(h => h.status === 'reserve' && h.cooldown === 0);
+  }
 }

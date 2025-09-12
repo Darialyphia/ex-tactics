@@ -118,3 +118,11 @@ export const usePlayers = () => {
     });
   });
 };
+
+export const useMyPlayer = () => {
+  const client = useGameClient();
+
+  return computed(() => {
+    return client.state.entities[client.playerId] as PlayerViewModel;
+  });
+};

@@ -17,7 +17,7 @@ export const createUnoConfig = (options: {
   const themeColors: Record<string, string> = {};
   const colorIdentifierRE = new RegExp("--color-(.+)-hsl$");
 
-  csstree.walk(ast, (node) => {
+  csstree.walk(ast, (node: any) => {
     if (node.type !== "Declaration") return;
     const { property } = node;
     const match = property.match(colorIdentifierRE);

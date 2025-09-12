@@ -23,6 +23,7 @@
     "@pixi/filter-adjustment": "^5.1.1",
     "@pixi/filter-outline": "^5.2.0",
     "@types/fs-extra": "^11.0.4",
+    "@unocss/postcss": "^66.5.1",
     "@vueuse/core": "^13.9.0",
     "gsap": "^3.13.0",
     "open-props": "^1.7.16",

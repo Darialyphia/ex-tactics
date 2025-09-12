@@ -15,8 +15,7 @@ export const testMap: MapBlueprint = {
           position: { x: 2, y: 6, z: 0 },
           orientation: DIRECTION.EAST,
           parts: {
-            runes: 'player1',
-            glow: 'player1'
+            runes: 'player1'
           }
         },
 
@@ -25,8 +24,7 @@ export const testMap: MapBlueprint = {
           position: { x: 5, y: 12, z: 0 },
           orientation: DIRECTION.EAST,
           parts: {
-            runes: 'player1',
-            glow: 'player1'
+            runes: 'player1'
           }
         },
 
@@ -35,8 +33,7 @@ export const testMap: MapBlueprint = {
           position: { x: 6, y: 3, z: 0 },
           orientation: DIRECTION.EAST,
           parts: {
-            runes: 'player1',
-            glow: 'player1'
+            runes: 'player1'
           }
         }
       ]
@@ -48,8 +45,7 @@ export const testMap: MapBlueprint = {
           position: { x: 19, y: 9, z: 0 },
           orientation: DIRECTION.WEST,
           parts: {
-            runes: 'player2',
-            glow: 'player2'
+            runes: 'player2'
           }
         },
         {
@@ -57,8 +53,7 @@ export const testMap: MapBlueprint = {
           position: { x: 23, y: 13, z: 0 },
           orientation: DIRECTION.EAST,
           parts: {
-            runes: 'player2',
-            glow: 'player2'
+            runes: 'player2'
           }
         },
         {
@@ -66,8 +61,7 @@ export const testMap: MapBlueprint = {
           position: { x: 20, y: 4, z: 0 },
           orientation: DIRECTION.EAST,
           parts: {
-            runes: 'player2',
-            glow: 'player2'
+            runes: 'player2'
           }
         }
       ]

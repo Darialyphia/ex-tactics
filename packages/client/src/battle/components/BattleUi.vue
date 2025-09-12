@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { useLights } from '@/shared/composables/useLightsManager';
-import { useGameClient, useGameState, useGameUi, usePlayers } from '../composables/useGameClient';
+import {
+  useGameClient,
+  useGameState,
+  useGameUi,
+  useMyPlayer,
+  usePlayers
+} from '../composables/useGameClient';
 import FPS from '@/shared/components/FPS.vue';
 
 const state = useGameState();
@@ -41,13 +47,15 @@ const lightPresets = [
 const selectedPreset = ref(lightPresets[1]);
 
 const lights = useLights();
+
+const player = useMyPlayer();
 </script>
 
 <template>
-  <header class="text-center">
+  <header>
     phase: {{ state.phase }}
 
-    <div class="sflex gap-2">
+    <div class="flex gap-2">
       <div>
         CAMERA
         <button @click="ui.camera?.rotateCW()">Rotate CW</button>
@@ -99,6 +107,11 @@ const lights = useLights();
 </template>
 
 <style lang="postcss" scoped>
+header {
+  padding: var(--size-2);
+  font-size: var(--font-size-0);
+}
+
 button {
   background-color: var(--gray-10);
   color: white;

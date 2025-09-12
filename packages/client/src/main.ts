@@ -18,7 +18,6 @@ import * as PIXI from 'pixi.js';
 import { MotionPathPlugin, Flip } from 'gsap/all';
 import App from './App.vue';
 
-// @ts-expect-error enables pixi devtools
 window.PIXI = PIXI;
 gsap.install(window);
 gsap.registerPlugin(PixiPlugin);

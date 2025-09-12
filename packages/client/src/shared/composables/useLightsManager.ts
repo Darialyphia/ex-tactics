@@ -57,11 +57,7 @@ export const useLights = defineStore('lights', () => {
     ambientLightColor: computed({
       get: () => lightsSettings.ambientColor,
       set: (val: number) => {
-        gsap.to(lightsSettings, {
-          duration: 0.5,
-          ambientColor: val,
-          easing: Power2.easeOut
-        });
+        lightsSettings.ambientColor = val;
         if (!ambientLightContainer.value) return;
         gsap.to(ambientLightContainer.value, {
           duration: 0.5,
@@ -75,11 +71,7 @@ export const useLights = defineStore('lights', () => {
     ambientLightAlpha: computed({
       get: () => lightsSettings.ambientAlpha,
       set: (val: number) => {
-        gsap.to(lightsSettings, {
-          duration: 0.5,
-          ambientAlpha: val,
-          easing: Power2.easeOut
-        });
+        lightsSettings.ambientAlpha = val;
         if (!ambientLightContainer.value) return;
         gsap.to(ambientLightContainer.value, {
           duration: 0.5,
@@ -91,11 +83,7 @@ export const useLights = defineStore('lights', () => {
     lightIntensity: computed({
       get: () => lightsSettings.lightIntensity,
       set: (val: number) => {
-        gsap.to(lightsSettings, {
-          duration: 0.5,
-          lightIntensity: val,
-          easing: Power2.easeOut
-        });
+        lightsSettings.lightIntensity = val;
         lights.forEach(light => {
           gsap.to(light.sprite, {
             duration: 0.5,
@@ -111,11 +99,7 @@ export const useLights = defineStore('lights', () => {
     lightColor: computed({
       get: () => lightsSettings.lightColor,
       set: (val: number) => {
-        gsap.to(lightsSettings, {
-          duration: 0.5,
-          lightColor: val,
-          easing: Power2.easeOut
-        });
+        lightsSettings.lightColor = val;
         lights.forEach(light => {
           gsap.to(light.sprite, {
             duration: 0.5,
@@ -130,11 +114,7 @@ export const useLights = defineStore('lights', () => {
     lightAlpha: computed({
       get: () => lightsSettings.lightAlpha,
       set: (val: number) => {
-        gsap.to(lightsSettings, {
-          duration: 0.5,
-          lightAlpha: val,
-          easing: Power2.easeOut
-        });
+        lightsSettings.lightAlpha = val;
         lights.forEach(light => {
           gsap.to(light.sprite, {
             duration: 0.5,
