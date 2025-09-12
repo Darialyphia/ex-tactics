@@ -3,15 +3,15 @@ import AnimatedIsoPoint from '@/iso/scenes/AnimatedIsoPoint.vue';
 import type { ObstacleViewModel } from '@game/engine/src/client/view-models/obstacle.model';
 import ObstacleSprite from './ObstacleSprite.vue';
 import ObstacleShadow from './ObstacleShadow.vue';
-import { useLightsManager } from '@/battle/composables/useLightsManager';
 import { Container } from 'pixi.js';
 import { until } from '@vueuse/core';
+import { useLights } from '@/shared/composables/useLightsManager';
 
 const { obstacle } = defineProps<{
   obstacle: ObstacleViewModel;
 }>();
 
-const lights = useLightsManager();
+const lights = useLights();
 
 const isoRef = ref<{ container: Container }>();
 until(isoRef)

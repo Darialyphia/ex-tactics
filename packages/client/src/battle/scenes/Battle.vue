@@ -7,10 +7,8 @@ import IsoWorld from '@/iso/scenes/IsoWorld.vue';
 import IsoCamera from '@/iso/scenes/IsoCamera.vue';
 import Board from './board/Board.vue';
 import Obstacle from './obstacle/Obstacle.vue';
-import { useScreen } from 'vue3-pixi';
 import type { IsoWorldContext } from '@/iso/composables/useIsoWorld';
-import { AlphaFilter, Container } from 'pixi.js';
-import { provideLightsManager } from '../composables/useLightsManager';
+import Lights from '@/shared/scenes/Lights.vue';
 
 const board = useBoard();
 
@@ -31,14 +29,6 @@ until(() => world.value?.camera)
       getZoom: () => camera.getZoom()
     };
   });
-
-const screen = useScreen();
-
-const ambientLightAlpha = new AlphaFilter();
-ambientLightAlpha.blendMode = 'multiply';
-
-const lightContainer = shallowRef<Container | null>(null);
-const lights = provideLightsManager(lightContainer);
 </script>
 
 <template>
@@ -51,22 +41,10 @@ const lights = provideLightsManager(lightContainer);
     :planes="planes"
   >
     <IsoCamera>
-      <template v-if="lights.isReady">
-        <Board />
+      <Board />
 
-        <Obstacle v-for="obstacle in obstacles" :key="obstacle.id" :obstacle="obstacle" />
-      </template>
+      <Obstacle v-for="obstacle in obstacles" :key="obstacle.id" :obstacle="obstacle" />
+      <Lights />
     </IsoCamera>
   </IsoWorld>
-
-  <container event-mode="none" v-if="world" :filters="[ambientLightAlpha]" ref="lightContainer">
-    <graphics
-      :alpha="0.75"
-      @effect="
-        g => {
-          g.clear().rect(0, 0, screen.width, screen.height).fill(0x222222);
-        }
-      "
-    />
-  </container>
 </template>
