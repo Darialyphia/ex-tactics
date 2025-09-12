@@ -15,13 +15,13 @@ const ui = useGameUi();
   >
     <UiAnimatedSprite assetId="hovered-cell" />
     <!-- <container
-      v-if="canDeploy && ui.selectedUnit && state.phase === GAME_PHASES.DEPLOY"
-      :alpha="0.5"
-      :position="config.UNIT_SPRITE_OFFSET"
-    >
-      <UnitOrientation :unit="ui.selectedUnit">
-        <UnitSprite :unit="ui.selectedUnit" />
-      </UnitOrientation>
-    </container> -->
+        v-if="canDeploy && ui.selectedUnit && state.phase === GAME_PHASES.DEPLOY"
+        :alpha="0.5"
+        :position="config.UNIT_SPRITE_OFFSET"
+      >
+        <UnitOrientation :unit="ui.selectedUnit">
+          <UnitSprite :unit="ui.selectedUnit" />
+        </UnitOrientation>
+      </container> -->
   </IsoPoint>
 </template>

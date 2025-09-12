@@ -9,16 +9,17 @@ import Board from './board/Board.vue';
 import Obstacle from './obstacle/Obstacle.vue';
 import type { IsoWorldContext } from '@/iso/composables/useIsoWorld';
 import Lights from '@/shared/scenes/Lights.vue';
+import { provideLayers } from '@/shared/composables/useLayers';
 
 const board = useBoard();
+const ui = useGameUi();
+const obstacles = useObstacles();
 
 const planes = computed(() => {
   return Math.max(...board.value.cells.map(cell => cell.position.z)) + 1;
 });
 
-const ui = useGameUi();
 const world = ref<{ camera: IsoCameraContext; grid: IsoWorldContext } | null>(null);
-const obstacles = useObstacles();
 
 until(() => world.value?.camera)
   .toBeTruthy()
@@ -29,6 +30,8 @@ until(() => world.value?.camera)
       getZoom: () => camera.getZoom()
     };
   });
+
+provideLayers();
 </script>
 
 <template>
