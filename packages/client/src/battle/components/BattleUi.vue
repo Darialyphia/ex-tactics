@@ -5,12 +5,10 @@ import FPS from '@/shared/components/FPS.vue';
 import DeployUi from './DeployUi.vue';
 
 const state = useGameState();
-
 const ui = useGameUi();
-
 const players = usePlayers();
-
 const client = useGameClient();
+const lights = useLights();
 
 const lightPresets = [
   {
@@ -39,9 +37,15 @@ const lightPresets = [
   }
 ];
 
-const selectedPreset = ref(lightPresets[1]);
-
-const lights = useLights();
+const selectedPreset = ref(lightPresets[0]);
+const updateLight = () => {
+  lights.ambientLightAlpha = selectedPreset.value.ambientAlpha;
+  lights.ambientLightColor = selectedPreset.value.ambientColor;
+  lights.lightColor = selectedPreset.value.lightColor;
+  lights.lightIntensity = selectedPreset.value.lightIntensity;
+  lights.lightAlpha = selectedPreset.value.lightAlpha;
+};
+updateLight();
 </script>
 
 <template>
@@ -63,11 +67,7 @@ const lights = useLights();
           @click="
             () => {
               selectedPreset = preset;
-              lights.ambientLightAlpha = preset.ambientAlpha;
-              lights.ambientLightColor = preset.ambientColor;
-              lights.lightColor = preset.lightColor;
-              lights.lightIntensity = preset.lightIntensity;
-              lights.lightAlpha = preset.lightAlpha;
+              updateLight();
             }
           "
         >

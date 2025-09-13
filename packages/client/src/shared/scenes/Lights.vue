@@ -4,12 +4,12 @@ import { useLights } from '../composables/useLightsManager';
 import { AlphaFilter, Container, Texture } from 'pixi.js';
 import { useIsoCamera } from '@/iso/composables/useIsoCamera';
 
+const camera = useIsoCamera();
 const lights = useLights();
+onTick(lights.onTick);
 
 const ambientLightAlpha = new AlphaFilter();
 ambientLightAlpha.blendMode = 'multiply';
-
-onTick(lights.onTick);
 
 const lightsContainer = computed({
   get: () => lights.container,
@@ -23,8 +23,6 @@ const ambientLight = computed({
     lights.ambientLightContainer = val;
   }
 });
-
-const camera = useIsoCamera();
 </script>
 
 <template>
@@ -35,6 +33,7 @@ const camera = useIsoCamera();
     :z-index="999999"
   >
     <Sprite
+      ref="ambientLight"
       :x="-camera.offset.value.x"
       :y="-camera.offset.value.y"
       :texture="Texture.WHITE"
@@ -42,15 +41,6 @@ const camera = useIsoCamera();
         x: camera.viewport.value?.worldWidth ?? 1,
         y: camera.viewport.value?.worldHeight ?? 1
       }"
-      ref="ambientLight"
     />
-    <!-- <graphics
-      :alpha="0.55"
-      @effect="
-        g => {
-          g.clear().rect(0, 0, screen.width, screen.height).fill(lights.ambientLightColor);
-        }
-      "
-    /> -->
   </container>
 </template>

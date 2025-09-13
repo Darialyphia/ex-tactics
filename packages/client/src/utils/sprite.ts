@@ -1,5 +1,10 @@
+import type { Point } from '@game/shared';
 import { type FrameObject, type Spritesheet, Texture } from 'pixi.js';
-
+import { RoundedRectangle } from 'pixi.js';
+import { config } from './config';
+import { DIRECTION, type Direction } from '@game/engine/src/board/board.utils';
+import type { Angle } from '@/iso/composables/useIso';
+import { match } from 'ts-pattern';
 export const hasAnimation = (spritesheet: Spritesheet, name: string) => {
   return !!spritesheet.animations[name];
 };
@@ -90,3 +95,53 @@ export function rectangleWithHoles({
   console.log(c.toDataURL());
   return Texture.from(c);
 }
+
+export const generateHitArea = ({
+  offset,
+  boxWidth,
+  boxHeight,
+  spriteWidth,
+  spriteHeight,
+  anchor
+}: {
+  offset: number;
+  boxWidth: number;
+  boxHeight: number;
+  spriteWidth: number;
+  spriteHeight: number;
+  anchor: Point;
+}) => {
+  return new RoundedRectangle(
+    offset - spriteWidth * anchor.x,
+    offset - spriteHeight * anchor.y,
+    boxWidth,
+    boxHeight,
+    16
+  );
+};
+
+export const unitHitArea = generateHitArea({
+  offset: config.UNIT_HITBOX.offset,
+  boxWidth: config.UNIT_HITBOX.width,
+  boxHeight: config.UNIT_HITBOX.height,
+  spriteWidth: config.UNIT_SPRITE_SIZE.width,
+  spriteHeight: config.UNIT_SPRITE_SIZE.height,
+  anchor: config.UNIT_ANCHOR
+});
+
+export const getScaleXForOrientation = (orientation: Direction, cameraAngle: Angle) => {
+  return match(orientation)
+    .with(DIRECTION.NORTH, () => {
+      return cameraAngle === 180 || cameraAngle === 270 ? -1 : 1;
+    })
+    .with(DIRECTION.EAST, () => {
+      return cameraAngle === 90 || cameraAngle === 180 ? -1 : 1;
+    })
+    .with(DIRECTION.SOUTH, () => {
+      return cameraAngle === 0 || cameraAngle === 180 ? -1 : 1;
+    })
+    .with(DIRECTION.WEST, () => {
+      return cameraAngle === 0 || cameraAngle === 270 ? -1 : 1;
+    })
+    .exhaustive();
+};

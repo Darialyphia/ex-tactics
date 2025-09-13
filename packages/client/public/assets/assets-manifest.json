@@ -139,6 +139,35 @@
       "assets": [
         {
           "alias": [
+            "arrow-down"
+          ],
+          "src": [
+            "/assets/ui/arrow-down.json"
+          ],
+          "parser": "aseprite_loader",
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "arrow-down.png"
+          ],
+          "src": [
+            "/assets/ui/arrow-down.png"
+          ],
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
             "cell-highlights"
           ],
           "src": [
@@ -168,6 +197,34 @@
         },
         {
           "alias": [
+            "check-icon.png"
+          ],
+          "src": [
+            "/assets/ui/check-icon.png"
+          ],
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "deployed-icon.png"
+          ],
+          "src": [
+            "/assets/ui/deployed-icon.png"
+          ],
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
             "hovered-cell"
           ],
           "src": [
@@ -187,6 +244,64 @@
           ],
           "src": [
             "/assets/ui/hovered-cell.png"
+          ],
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "orientation-arrow"
+          ],
+          "src": [
+            "/assets/ui/orientation-arrow.json"
+          ],
+          "parser": "aseprite_loader",
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "orientation-arrow.png"
+          ],
+          "src": [
+            "/assets/ui/orientation-arrow.png"
+          ],
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "orientation-icon"
+          ],
+          "src": [
+            "/assets/ui/orientation-icon.json"
+          ],
+          "parser": "aseprite_loader",
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "orientation-icon.png"
+          ],
+          "src": [
+            "/assets/ui/orientation-icon.png"
           ],
           "data": {
             "scaleMode": "nearest",

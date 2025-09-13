@@ -130,6 +130,14 @@ export const useLights = defineStore('lights', () => {
       const newLight = createLightSprite();
       lights.set(id, { ...newLight, reference: object, id: nextLightId++ });
     },
+    removeLightSource(id: string) {
+      const light = lights.get(id);
+      if (!light) return;
+      if (light.container.parent) {
+        light.container.parent.removeChild(light.container);
+      }
+      lights.delete(id);
+    },
     container,
     ambientLightContainer: computed({
       get() {

@@ -7,6 +7,9 @@ import { GAME_PHASES } from '../../game/game.enums';
 import type { PlayerViewModel } from '../view-models/player.model';
 import { DIRECTION, type Direction } from '../../board/board.utils';
 import type { SerializedPlayer } from '../../player/player.entity';
+import type { CellClickAction } from '../actions/action';
+import { DeployCellClickAction } from '../actions/deploy.cell-click-action';
+import { SelectHeroToDeployCellClickAction } from '../actions/select-hero-to-deploy';
 
 export type Camera = {
   rotateCW(): void;
@@ -37,7 +40,11 @@ export class DOMSelector {
 }
 
 export type HeroToDeploy = SerializedPlayer['heroes'][number] & { status: 'reserve' };
-
+export type DeployedHero = {
+  hero: HeroToDeploy;
+  position: Point3D;
+  orientation: Direction;
+};
 export class UiController {
   private hoverTimeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -47,18 +54,24 @@ export class UiController {
 
   highlightedElement: HTMLElement | null = null;
 
-  _hoveredCell: BoardCellViewModel | null = null;
+  private _hoveredCell: BoardCellViewModel | null = null;
 
-  deployment = {} as Record<
-    string,
-    { hero: HeroToDeploy; position: Point3D; orientation: Direction }
-  >;
+  hoveredHeroInDeployActionBar: HeroToDeploy | null = null;
+
+  deployment = {} as Record<string, DeployedHero>;
 
   selectedHeroToDeploy: HeroToDeploy | null = null;
 
   private _camera: Camera | null = null;
 
-  constructor(private client: GameClient) {}
+  private cellClickRules: CellClickAction[];
+
+  constructor(private client: GameClient) {
+    this.cellClickRules = [
+      new DeployCellClickAction(client)
+      // new SelectHeroToDeployCellClickAction(client)
+    ];
+  }
 
   get isInteractivePlayer() {
     return this.client.playerId === this.client.getActivePlayerId();
@@ -76,12 +89,34 @@ export class UiController {
     this._camera = camera;
   }
 
+  private swapDeployment(a: DeployedHero, b: DeployedHero) {
+    const tempPosition = a.position;
+    const tempOrientation = a.orientation;
+
+    a.position = b.position;
+    a.orientation = b.orientation;
+
+    b.position = tempPosition;
+    b.orientation = tempOrientation;
+  }
+
   deployAt(position: Point3D) {
     const heroToDeploy = this.selectedHeroToDeploy;
     assert(heroToDeploy, 'No hero selected to deploy');
+
     const heroDeployedAtPosition = Object.values(this.deployment).find(d =>
       Vec3.fromPoint3D(d.position).equals(position)
     );
+
+    const alreadyDeployedHero = Object.values(this.deployment).find(
+      d => d.hero === heroToDeploy
+    );
+
+    if (alreadyDeployedHero && heroDeployedAtPosition) {
+      this.swapDeployment(alreadyDeployedHero, heroDeployedAtPosition);
+      this.selectedHeroToDeploy = null;
+      return;
+    }
 
     this.deployment[heroToDeploy.blueprintId] = {
       hero: heroToDeploy,
@@ -125,10 +160,10 @@ export class UiController {
   }
 
   onCellClick(cell: BoardCellViewModel) {
-    if (this.client.state.phase === GAME_PHASES.DEPLOY) {
-      const player = this.client.state.entities[this.client.playerId] as PlayerViewModel;
-      if (this.selectedHeroToDeploy && player.deployZone.some(p => p.equals(cell))) {
-        this.deployAt(cell.position);
+    for (const rule of this.cellClickRules) {
+      if (rule.predicate(cell)) {
+        rule.action(cell);
+        break;
       }
     }
   }

@@ -51,7 +51,7 @@ export const testMap: MapBlueprint = {
         {
           blueprintId: shrine.id,
           position: { x: 23, y: 13, z: 0 },
-          orientation: DIRECTION.EAST,
+          orientation: DIRECTION.WEST,
           parts: {
             runes: 'player2'
           }
@@ -59,7 +59,7 @@ export const testMap: MapBlueprint = {
         {
           blueprintId: shrine.id,
           position: { x: 20, y: 4, z: 0 },
-          orientation: DIRECTION.EAST,
+          orientation: DIRECTION.WEST,
           parts: {
             runes: 'player2'
           }

@@ -25,6 +25,7 @@ const textures = useMultiLayerTexture({
     :scale-y="0.8"
     :skew-x="0.5"
     :y="-5"
+    event-mode="none"
   >
     <blur-filter :strength="5" />
   </animated-sprite>

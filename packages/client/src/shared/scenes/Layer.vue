@@ -7,16 +7,21 @@ const { layer } = defineProps<{
 }>();
 
 const { layers } = useLayers();
+
+const containerRef = shallowRef<Container | null>(null);
+
+watch([containerRef, () => layer], ([container, layer], [, prevLayer]) => {
+  if (container) {
+    if (prevLayer) {
+      layers[prevLayer].detach(container);
+    }
+    layers[layer].attach(container);
+  }
+});
 </script>
 
 <template>
-  <container
-    :ref="
-      (container: Container) => {
-        layers[layer].attach(container);
-      }
-    "
-  >
+  <container ref="containerRef">
     <slot />
   </container>
 </template>

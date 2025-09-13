@@ -1,6 +1,8 @@
 export const PIXEL_ART_ASSETS_SCALING = 2;
 
 export const config = {
+  DEBUG: false,
+
   PIXEL_ART_ASSETS_SCALING,
 
   TILE_SIZE: {
@@ -14,9 +16,15 @@ export const config = {
     height: 64
   },
 
-  UNIT_SPRITE_OFFSET: {
-    x: 0,
-    y: -24
+  UNIT_ANCHOR: {
+    x: 0.5,
+    y: 1
+  },
+
+  UNIT_HITBOX: {
+    offset: 16,
+    height: 48,
+    width: 32
   },
 
   TILE_SPRITE_SIZE: {
@@ -31,7 +39,5 @@ export const config = {
     PADDING: 48
   },
 
-  ISO_TILES_ROTATION_SPEED: 0.5,
-
-  DEBUG: false
+  ISO_TILES_ROTATION_SPEED: 0.5
 };

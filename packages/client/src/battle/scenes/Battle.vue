@@ -10,8 +10,7 @@ import Obstacle from './obstacle/Obstacle.vue';
 import type { IsoWorldContext } from '@/iso/composables/useIsoWorld';
 import Lights from '@/shared/scenes/Lights.vue';
 import { provideLayers } from '@/shared/composables/useLayers';
-import HeroToDeploy from './unit/HeroToDeploy.vue';
-import AnimatedIsoPoint from '@/iso/scenes/AnimatedIsoPoint.vue';
+import DeployedHeroes from './unit/DeployedHeroes.vue';
 
 const board = useBoard();
 const ui = useGameUi();
@@ -47,16 +46,8 @@ provideLayers();
   >
     <IsoCamera>
       <Board />
-
       <Obstacle v-for="obstacle in obstacles" :key="obstacle.id" :obstacle="obstacle" />
-      <AnimatedIsoPoint
-        v-for="hero in ui.deployment"
-        :key="hero.hero.blueprintId"
-        :position="hero.position"
-        :z-index-offset="50"
-      >
-        <HeroToDeploy :hero="hero.hero" />
-      </AnimatedIsoPoint>
+      <DeployedHeroes />
       <Lights />
     </IsoCamera>
   </IsoWorld>
