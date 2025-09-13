@@ -162,7 +162,7 @@ export const useLights = defineStore('lights', () => {
           c.addChild(light.container);
         }
 
-        const base = 0.6;
+        const base = 0.7;
         const n = smoothNoise(t + light.flickerSeed);
         light.container.alpha = base * (0.8 + n * 0.8);
 

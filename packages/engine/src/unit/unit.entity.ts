@@ -25,6 +25,7 @@ export type SerializedUnit = {
   entityType: 'unit';
   id: string;
   position: Point3D;
+  orientation: Direction;
   player: string;
   pAtk: number;
   mAtk: number;
@@ -32,9 +33,18 @@ export type SerializedUnit = {
   mDef: number;
   maxHp: number;
   currentHp: number;
+  maxMp: number;
+  currentMp: number;
+  maxAp: number;
+  currentAp: number;
   initiative: number;
   abilities: string[];
   passives: string[];
+  potentialMoves: Array<{ point: Point3D; path: Point3D[] }>;
+  sprite: {
+    id: string;
+    parts: Record<string, string>;
+  };
 };
 
 export type UnitOptions = {
@@ -117,16 +127,26 @@ export class Unit
       entityType: 'unit' as const,
       id: this.id,
       position: this.position.serialize(),
+      orientation: this.orientation,
       player: this.player.id,
       pAtk: this.pAtk,
       mAtk: this.mAtk,
       pDef: this.pDef,
       mDef: this.mDef,
       maxHp: this.maxHp,
-      currentHp: this.maxHp, // TODO: currentHp
+      currentHp: this.currentHp,
+      maxMp: this.maxMp,
+      currentMp: this.currentMp,
+      maxAp: this.maxAp,
+      currentAp: this.currentAp,
       initiative: this.initiative,
       abilities: this.abilities.map(a => a.id),
-      passives: this.passives.map(p => p.id)
+      passives: this.passives.map(p => p.id),
+      potentialMoves: this.getPotentialMoves(),
+      sprite: {
+        id: this.blueprint.sprite.id,
+        parts: { ...this.blueprint.sprite.defaultParts }
+      }
     };
   }
 
@@ -144,6 +164,14 @@ export class Unit
 
   get maxHp() {
     return this.interceptors.maxHp.getValue(this.blueprint.baseStats.maxHp, {});
+  }
+
+  get maxMp() {
+    return this.interceptors.maxMp.getValue(this.game.config.DEFAULT_MAX_MANA, {});
+  }
+
+  get maxAp() {
+    return this.interceptors.maxAp.getValue(this.game.config.DEFAULT_MAX_AP, {});
   }
 
   get pAtk() {
@@ -372,7 +400,10 @@ export class Unit
       this.currentMp + this.mpRegenPerTurn,
       this.game.config.DEFAULT_MAX_MANA
     );
-    this.currentAp = this.currentAp + this.apRegenPerTurn;
+    this.currentAp = Math.min(
+      this.currentAp + this.apRegenPerTurn,
+      this.game.config.DEFAULT_MAX_AP
+    );
     this.movementsMadeThisTurn = 0;
     this.actionsTakenThisTurn = 0;
 
@@ -421,7 +452,7 @@ export class Unit
     this.movement.position.z = to.z;
   }
 
-  getPossibleMoves() {
+  getPotentialMoves() {
     if (!this.canMove) return [];
     return this.movement.getAllPossibleMoves(this.remainingMovement);
   }

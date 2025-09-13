@@ -90,13 +90,10 @@ export class TurnSystem implements Serializable<SerializedTurnOrder> {
     if (hasUnitToDeploy) return;
 
     this._phase = ROUND_PHASES.BATTLE;
+    this.startBattlePhase();
   }
 
-  startRound() {
-    const hasUnitToDeploy = this.game.playerManager.players.some(p => p.hasHeroToDeploy);
-    this._phase = hasUnitToDeploy ? ROUND_PHASES.DEPLOY : ROUND_PHASES.BATTLE;
-
-    this._turnCount++;
+  private startBattlePhase() {
     this.queue = [];
     this._processedUnits.clear();
 
@@ -107,6 +104,14 @@ export class TurnSystem implements Serializable<SerializedTurnOrder> {
     );
 
     this.activeUnit?.startTurn();
+  }
+
+  startRound() {
+    const hasUnitToDeploy = this.game.playerManager.players.some(p => p.hasHeroToDeploy);
+    this._phase = hasUnitToDeploy ? ROUND_PHASES.DEPLOY : ROUND_PHASES.BATTLE;
+
+    this._turnCount++;
+    this.startBattlePhase();
   }
 
   removeFromCurrentQueue(unit: Unit) {

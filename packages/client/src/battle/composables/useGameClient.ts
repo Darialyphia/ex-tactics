@@ -11,6 +11,7 @@ import type {
 import type { BoardCellViewModel } from '@game/engine/src/client/view-models/board-cell.model';
 import type { ObstacleViewModel } from '@game/engine/src/client/view-models/obstacle.model';
 import type { PlayerViewModel } from '@game/engine/src/client/view-models/player.model';
+import type { UnitViewModel } from '@game/engine/src/client/view-models/unit.model';
 
 export const useGameClientStore = defineStore('battle', () => {
   const client = ref<GameClient | null>(null);
@@ -107,6 +108,14 @@ export const useObstacles = () => {
   });
 };
 
+export const useUnits = () => {
+  return gameStateRef(state => {
+    return state.units.map(unitId => {
+      return state.entities[unitId] as UnitViewModel;
+    });
+  });
+};
+
 export const usePlayers = () => {
   return gameStateRef(state => {
     return state.players.map(playerId => {
@@ -119,5 +128,12 @@ export const useMyPlayer = () => {
   const client = useGameClient();
   return gameStateRef(state => {
     return state.entities[client.playerId] as PlayerViewModel;
+  });
+};
+
+export const useActiveUnit = () => {
+  return gameStateRef(state => {
+    if (!state.activeUnitId) return null;
+    return state.entities[state.activeUnitId] as UnitViewModel;
   });
 };

@@ -4,9 +4,9 @@ import type { MapBlueprint } from '../map-blueprint';
 
 export const testMap: MapBlueprint = {
   id: 'testMap',
-  cols: 25,
+  cols: 20,
   rows: 17,
-  cells: [...Array(25 * 17 + 1).fill({ tile: 'grass' })],
+  cells: [...Array(20 * 17 + 1).fill({ tile: 'grass' })],
   players: [
     {
       obstacles: [
@@ -42,7 +42,7 @@ export const testMap: MapBlueprint = {
       obstacles: [
         {
           blueprintId: shrine.id,
-          position: { x: 19, y: 9, z: 0 },
+          position: { x: 13, y: 9, z: 0 },
           orientation: DIRECTION.WEST,
           parts: {
             runes: 'player2'
@@ -50,7 +50,7 @@ export const testMap: MapBlueprint = {
         },
         {
           blueprintId: shrine.id,
-          position: { x: 23, y: 13, z: 0 },
+          position: { x: 17, y: 13, z: 0 },
           orientation: DIRECTION.WEST,
           parts: {
             runes: 'player2'
@@ -58,7 +58,7 @@ export const testMap: MapBlueprint = {
         },
         {
           blueprintId: shrine.id,
-          position: { x: 20, y: 4, z: 0 },
+          position: { x: 15, y: 4, z: 0 },
           orientation: DIRECTION.WEST,
           parts: {
             runes: 'player2'

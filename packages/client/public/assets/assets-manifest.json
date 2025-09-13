@@ -309,6 +309,151 @@
               "m": true
             }
           }
+        },
+        {
+          "alias": [
+            "path-end"
+          ],
+          "src": [
+            "/assets/ui/path-end.json"
+          ],
+          "parser": "aseprite_loader",
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "path-end.png"
+          ],
+          "src": [
+            "/assets/ui/path-end.png"
+          ],
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "path-start"
+          ],
+          "src": [
+            "/assets/ui/path-start.json"
+          ],
+          "parser": "aseprite_loader",
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "path-start.png"
+          ],
+          "src": [
+            "/assets/ui/path-start.png"
+          ],
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "path-straight"
+          ],
+          "src": [
+            "/assets/ui/path-straight.json"
+          ],
+          "parser": "aseprite_loader",
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "path-straight.png"
+          ],
+          "src": [
+            "/assets/ui/path-straight.png"
+          ],
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "path-turn"
+          ],
+          "src": [
+            "/assets/ui/path-turn.json"
+          ],
+          "parser": "aseprite_loader",
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "ready-button.png"
+          ],
+          "src": [
+            "/assets/ui/ready-button.png"
+          ],
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "unit-stat-bars-frame.png"
+          ],
+          "src": [
+            "/assets/ui/unit-stat-bars-frame.png"
+          ],
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "unit-stat-bars"
+          ],
+          "src": [
+            "/assets/ui/unit-stat-bars.json"
+          ],
+          "parser": "aseprite_loader",
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
         }
       ]
     },

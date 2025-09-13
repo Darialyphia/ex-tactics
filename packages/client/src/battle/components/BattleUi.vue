@@ -3,6 +3,7 @@ import { useLights } from '@/shared/composables/useLightsManager';
 import { useGameClient, useGameState, useGameUi, usePlayers } from '../composables/useGameClient';
 import FPS from '@/shared/components/FPS.vue';
 import DeployUi from './DeployUi.vue';
+import { ROUND_PHASES } from '@game/engine/src/game/systems/turn.system';
 
 const state = useGameState();
 const ui = useGameUi();
@@ -29,7 +30,7 @@ const lightPresets = [
   },
   {
     name: 'Night',
-    ambientColor: 0x343182,
+    ambientColor: 0x343162,
     ambientAlpha: 0.95,
     lightIntensity: 7,
     lightColor: 0xf29668,
@@ -46,10 +47,22 @@ const updateLight = () => {
   lights.lightAlpha = selectedPreset.value.lightAlpha;
 };
 updateLight();
+
+const autoDeploy = () => {
+  players.value.forEach(player => {
+    client.playerId = player.id;
+    player.heroesToDeploy.forEach(hero => {
+      const idx = Math.floor(Math.random() * player.deployZone.length);
+      ui.value.selectedHeroToDeploy = hero;
+      ui.value.deployAt(player.deployZone[idx].position);
+    });
+    client.deploy();
+  });
+};
 </script>
 
 <template>
-  <header class="flex gap-3">
+  <header class="flex items-center gap-3">
     phase: {{ state.phase }}
 
     <div class="flex gap-2">
@@ -94,6 +107,7 @@ updateLight();
       >
         Player {{ player.name }} view
       </button>
+      <button v-if="state.phase === ROUND_PHASES.DEPLOY" @click="autoDeploy">Auto deploy</button>
     </div>
   </header>
   <FPS />

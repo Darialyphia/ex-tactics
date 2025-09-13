@@ -34,13 +34,7 @@ watch(
       :disabled="Object.keys(ui.deployment).length !== player.heroesToDeploy.length"
       @click="
         () => {
-          client.deploy(
-            Object.values(ui.deployment).map(h => ({
-              blueprintId: h.hero.blueprintId,
-              position: h.position,
-              orientation: h.orientation
-            }))
-          );
+          client.deploy();
           ui.clearDeployment();
         }
       "

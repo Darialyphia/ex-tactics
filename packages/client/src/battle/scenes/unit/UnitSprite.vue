@@ -1,20 +1,36 @@
 <script setup lang="ts">
+import { useGameState } from '@/battle/composables/useGameClient';
 import { useMultiLayerTexture } from '@/shared/composables/useMultiLayerTexture';
 import { useSpritesheet } from '@/shared/composables/useSpritesheet';
 import { config } from '@/utils/config';
 import { unitHitArea } from '@/utils/sprite';
-import type { ObstacleViewModel } from '@game/engine/src/client/view-models/obstacle.model';
+import type { UnitViewModel } from '@game/engine/src/client/view-models/unit.model';
+import { OutlineFilter } from 'pixi-filters';
 
-const { obstacle } = defineProps<{
-  obstacle: ObstacleViewModel;
+const { unit } = defineProps<{
+  unit: UnitViewModel;
 }>();
 
-const sheet = useSpritesheet<'', 'base'>(() => obstacle.spriteId);
+const sheet = useSpritesheet<'', 'base'>(() => unit.spriteId);
 
 const textures = useMultiLayerTexture({
   sheet,
-  parts: () => obstacle.spriteParts,
+  parts: () => unit.spriteParts,
   tag: 'idle'
+});
+
+const outlineFilter = new OutlineFilter({
+  color: 0xffffff,
+  thickness: 2,
+  quality: 0.5
+});
+
+const state = useGameState();
+const isActiveUnit = computed(() => {
+  return state.value.activeUnitId === unit.id;
+});
+const filters = computed(() => {
+  return isActiveUnit.value ? [outlineFilter] : [];
 });
 </script>
 
@@ -25,6 +41,7 @@ const textures = useMultiLayerTexture({
       :textures="textures"
       :hit-area="unitHitArea"
       event-mode="none"
+      :filters="filters"
     />
     <graphics
       v-if="config.DEBUG"

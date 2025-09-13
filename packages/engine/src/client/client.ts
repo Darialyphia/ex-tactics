@@ -247,13 +247,13 @@ export class GameClient {
     this.queue.push(...snapshots);
   }
 
-  deploy(
-    heroes: Array<{
-      blueprintId: string;
-      position: Point3D;
-      orientation: Direction;
-    }>
-  ) {
+  deploy() {
+    const heroes = Object.values(this.ui.deployment).map(h => ({
+      blueprintId: h.hero.blueprintId,
+      position: h.position,
+      orientation: h.orientation
+    }));
+
     this.networkAdapter.dispatch({
       type: 'deploy',
       payload: {

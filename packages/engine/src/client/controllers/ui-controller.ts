@@ -1,7 +1,5 @@
 import { assert, Vec3, type Point3D, type Values } from '@game/shared';
-import type { BoardCell } from '../../board/board-cell.entity';
 import type { GameClient } from '../client';
-
 import type { BoardCellViewModel } from '../view-models/board-cell.model';
 import { GAME_PHASES } from '../../game/game.enums';
 import type { PlayerViewModel } from '../view-models/player.model';
@@ -9,7 +7,8 @@ import { DIRECTION, type Direction } from '../../board/board.utils';
 import type { SerializedPlayer } from '../../player/player.entity';
 import type { CellClickAction } from '../actions/action';
 import { DeployCellClickAction } from '../actions/deploy.cell-click-action';
-import { SelectHeroToDeployCellClickAction } from '../actions/select-hero-to-deploy';
+import type { UnitViewModel } from '../view-models/unit.model';
+import { DeclareMoveIntentCellClickAction } from '../actions/declareMoveIntent.cell-click-action';
 
 export type Camera = {
   rotateCW(): void;
@@ -68,8 +67,8 @@ export class UiController {
 
   constructor(private client: GameClient) {
     this.cellClickRules = [
-      new DeployCellClickAction(client)
-      // new SelectHeroToDeployCellClickAction(client)
+      new DeployCellClickAction(client),
+      new DeclareMoveIntentCellClickAction(client)
     ];
   }
 
@@ -154,6 +153,16 @@ export class UiController {
       if (player.deployZone.some(p => p.equals(cell))) {
         return CELL_HIGHLIGHTS.CYAN;
       }
+    }
+
+    if (this.client.state.phase === GAME_PHASES.BATTLE) {
+      const activeUnit = this.client.state.entities[
+        this.client.state.activeUnitId!
+      ] as UnitViewModel;
+      const canMove = activeUnit?.potentialMoves.some(p =>
+        Vec3.fromPoint3D(p.point).equals(cell.position)
+      );
+      if (canMove) return CELL_HIGHLIGHTS.BLUE;
     }
 
     return null;

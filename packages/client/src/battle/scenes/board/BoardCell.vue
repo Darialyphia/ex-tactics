@@ -5,6 +5,7 @@ import BoardCellSprite from './BoardCellSprite.vue';
 import { useGameUi } from '@/battle/composables/useGameClient';
 import { config } from '@/utils/config';
 import BoardCellHighlight from './BoardCellHighlight.vue';
+import MoveIntentPath from './MoveIntentPath.vue';
 
 const { cell } = defineProps<{ cell: BoardCellViewModel }>();
 
@@ -21,6 +22,7 @@ const ui = useGameUi();
   >
     <BoardCellSprite :cell="cell" />
     <BoardCellHighlight :cell="cell" />
+    <MoveIntentPath :cell="cell" />
 
     <template v-if="config.DEBUG">
       <text

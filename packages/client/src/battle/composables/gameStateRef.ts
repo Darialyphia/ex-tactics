@@ -8,7 +8,7 @@ import { useGameClient } from './useGameClient';
 export const gameStateRef = <T>(selector: (state: GameClientState) => T) => {
   const client = useGameClient();
 
-  const value = ref(selector(client.state));
+  const value = ref(selector(client.state)) as Ref<T>;
 
   watchEffect(() => {
     value.value = selector(client.state);

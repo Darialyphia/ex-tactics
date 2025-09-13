@@ -83,4 +83,8 @@ export class Obstacle
   get blueprintId() {
     return this.blueprint.id;
   }
+
+  get isWalkable() {
+    return this.blueprint.isWalkable;
+  }
 }

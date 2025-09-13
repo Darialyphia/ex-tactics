@@ -69,7 +69,12 @@ export class BoardCell
   }
 
   get isWalkable() {
-    return !this.above && this.tile.isWalkable && !this.unit;
+    return (
+      !this.above &&
+      this.tile.isWalkable &&
+      !this.unit &&
+      (this.obstacle ? this.obstacle.isWalkable : true)
+    );
   }
 
   get unit() {

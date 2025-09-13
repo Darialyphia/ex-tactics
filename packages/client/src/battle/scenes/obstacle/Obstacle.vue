@@ -4,33 +4,25 @@ import type { ObstacleViewModel } from '@game/engine/src/client/view-models/obst
 import ObstacleSprite from './ObstacleSprite.vue';
 import ObstacleShadow from './ObstacleShadow.vue';
 import { Container } from 'pixi.js';
-import { until } from '@vueuse/core';
-import { useLights } from '@/shared/composables/useLightsManager';
 import { useIsoCamera } from '@/iso/composables/useIsoCamera';
 import { getScaleXForOrientation } from '@/utils/sprite';
+import LightSource from '@/shared/scenes/LightSource.vue';
 
 const { obstacle } = defineProps<{
   obstacle: ObstacleViewModel;
 }>();
-
-const lights = useLights();
-
-const isoRef = ref<{ container: Container }>();
-until(isoRef)
-  .toBeTruthy()
-  .then(iso => {
-    lights.addLightSource(obstacle.id, iso.container);
-  });
 
 const camera = useIsoCamera();
 const scaleX = computed(() => getScaleXForOrientation(obstacle.orientation, camera.angle.value));
 </script>
 
 <template>
-  <AnimatedIsoPoint :position="obstacle.position" :z-index-offset="50" ref="isoRef">
-    <container :scale-x="scaleX">
-      <ObstacleShadow :obstacle="obstacle" />
-      <ObstacleSprite :obstacle="obstacle" />
-    </container>
+  <AnimatedIsoPoint :position="obstacle.position" :z-index-offset="50">
+    <LightSource :id="obstacle.id">
+      <container :scale-x="scaleX">
+        <ObstacleShadow :obstacle="obstacle" />
+        <ObstacleSprite :obstacle="obstacle" />
+      </container>
+    </LightSource>
   </AnimatedIsoPoint>
 </template>
