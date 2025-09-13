@@ -1,11 +1,7 @@
 import { z } from 'zod';
 import { defaultInputSchema, Input } from '../input';
 import { assert } from '@game/shared';
-import {
-  IllegalDeploymentError,
-  IllegalMovementError,
-  NotActivePlayerError
-} from '../input-errors';
+import { IllegalDeploymentError } from '../input-errors';
 import { TURN_PHASES } from '../../game/systems/turn.system';
 
 const schema = defaultInputSchema.extend({

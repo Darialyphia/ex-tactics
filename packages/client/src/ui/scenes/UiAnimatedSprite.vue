@@ -27,7 +27,5 @@ const textures = computed(() => {
     playing
     :anchor="0.5"
     :textures="textures"
-  >
-    <slot />
-  </animated-sprite>
+  />
 </template>

@@ -17,6 +17,7 @@ const ui = useGameUi();
     v-slot="{ zIndex }"
     @pointerenter="ui.hoverAt(cell)"
     @pointerleave="ui.unhover()"
+    @pointerup="ui.onCellClick(cell)"
   >
     <BoardCellSprite :cell="cell" />
     <BoardCellHighlight :cell="cell" />

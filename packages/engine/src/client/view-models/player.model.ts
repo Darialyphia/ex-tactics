@@ -1,5 +1,7 @@
 import type { GameClient, GameStateEntities } from '../client';
 import type { SerializedPlayer } from '../../player/player.entity';
+import type { HeroToDeploy } from '../controllers/ui-controller';
+import type { BoardCellViewModel } from './board-cell.model';
 
 export class PlayerViewModel {
   private getEntities: () => GameStateEntities;
@@ -28,7 +30,9 @@ export class PlayerViewModel {
   }
 
   get deployZone() {
-    return this.data.deployZone;
+    return this.data.deployZone.map(
+      cell => this.getEntities()[cell] as BoardCellViewModel
+    );
   }
 
   get id() {
@@ -40,6 +44,8 @@ export class PlayerViewModel {
   }
 
   get heroesToDeploy() {
-    return this.data.heroes.filter(h => h.status === 'reserve' && h.cooldown === 0);
+    return this.data.heroes.filter(
+      h => h.status === 'reserve' && h.cooldown === 0
+    ) as HeroToDeploy[];
   }
 }

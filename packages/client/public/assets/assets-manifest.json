@@ -54,6 +54,20 @@
               "m": true
             }
           }
+        },
+        {
+          "alias": [
+            "portraits-placeholder2.png"
+          ],
+          "src": [
+            "/assets/portraits/placeholder2.png"
+          ],
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
         }
       ]
     },
@@ -207,6 +221,35 @@
           ],
           "src": [
             "/assets/units/placeholder.png"
+          ],
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "unit-placeholder2"
+          ],
+          "src": [
+            "/assets/units/placeholder2.json"
+          ],
+          "parser": "aseprite_loader",
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "unit-placeholder2.png"
+          ],
+          "src": [
+            "/assets/units/placeholder2.png"
           ],
           "data": {
             "scaleMode": "nearest",

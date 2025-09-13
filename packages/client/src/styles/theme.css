@@ -114,11 +114,7 @@
     linear-gradient(130deg, hsl(200 100% 35% / 0.3), hsl(320 100% 35% / 0.3)), hsl(250 30% 0% / 0.6);
   --fancy-border: solid var(--border-size-2) hsl(var(--color-primary-hsl) / 0.5);
 
-  --unit-icon-size: calc(38 * 3px);
-  --unit-icon-size-mobile: 38px;
-
-  --card-width: 160px;
-  --card-height: 224px;
+  --pixel-art-scale: 3;
 }
 
 html.dark {

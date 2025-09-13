@@ -1,13 +1,8 @@
 <script setup lang="ts">
 import { useLights } from '@/shared/composables/useLightsManager';
-import {
-  useGameClient,
-  useGameState,
-  useGameUi,
-  useMyPlayer,
-  usePlayers
-} from '../composables/useGameClient';
+import { useGameClient, useGameState, useGameUi, usePlayers } from '../composables/useGameClient';
 import FPS from '@/shared/components/FPS.vue';
+import DeployUi from './DeployUi.vue';
 
 const state = useGameState();
 
@@ -47,12 +42,10 @@ const lightPresets = [
 const selectedPreset = ref(lightPresets[1]);
 
 const lights = useLights();
-
-const player = useMyPlayer();
 </script>
 
 <template>
-  <header>
+  <header class="flex gap-3">
     phase: {{ state.phase }}
 
     <div class="flex gap-2">
@@ -104,6 +97,7 @@ const player = useMyPlayer();
     </div>
   </header>
   <FPS />
+  <DeployUi />
 </template>
 
 <style lang="postcss" scoped>

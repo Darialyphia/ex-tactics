@@ -112,7 +112,8 @@ export class Player
   get deployZone() {
     return this.obstacles
       .filter(o => o.blueprintId === shrine.id)
-      .flatMap(obstacle => this.game.board.getNeighbors(obstacle.position));
+      .flatMap(obstacle => this.game.board.getNeighbors(obstacle.position))
+      .filter(c => c.isWalkable);
   }
 
   private onRoundEnd() {
