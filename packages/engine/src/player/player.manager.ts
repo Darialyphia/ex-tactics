@@ -13,7 +13,7 @@ export class PlayerManager {
   initialize(options: PlayerManagerOptions) {
     options.players.forEach(p => {
       const player = new Player(this.game, p);
-      this.playerMap.set(p.id, player);
+      this.playerMap.set(player.id, player);
     });
   }
 

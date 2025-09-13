@@ -103,7 +103,6 @@ export class ClientStateController {
     removedEntities.forEach(id => {
       delete this.state.entities[id];
     });
-
     this.state = {
       ...this.state,
       ...rest,

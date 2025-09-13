@@ -16,7 +16,7 @@ import {
   type SerializedStarEvent
 } from '../game.events';
 import type { AnyObject, BetterExtract } from '@game/shared';
-import type { TurnPhase } from './turn.system';
+import type { RoundPhase } from './turn.system';
 
 export type GameStateSnapshot<T> = {
   id: number;
@@ -42,7 +42,7 @@ export type SerializedOmniscientState = {
   entities: EntityDictionary;
   turnOrder: string[];
   activeUnitId: string | null;
-  phase: TurnPhase;
+  phase: RoundPhase;
   players: string[];
   board: {
     cols: number;
@@ -60,7 +60,7 @@ export type SnapshotDiff = {
   removedEntities: string[];
   activeUnitId: string | null;
   turnOrder: string[];
-  phase: TurnPhase;
+  phase: RoundPhase;
   obstacles: string[];
   units: string[];
 };

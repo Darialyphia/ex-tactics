@@ -6,7 +6,6 @@ import type { BoardCellViewModel } from './board-cell.model';
 export class PlayerViewModel {
   private getEntities: () => GameStateEntities;
   private getClient: () => GameClient;
-
   constructor(
     private data: SerializedPlayer,
     entityDictionary: GameStateEntities,

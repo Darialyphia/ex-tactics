@@ -20,6 +20,7 @@ import { EndTurnInput } from './inputs/end-turn';
 import { MoveInput } from './inputs/move.input';
 import { AttackInput } from './inputs/attack.input';
 import { UseAbilityInput } from './inputs/use-ability';
+import { DeployInput } from './inputs/deploy.input';
 
 type GenericInputMap = Record<string, Constructor<Input<DefaultSchema>>>;
 
@@ -37,7 +38,8 @@ const inputMap = validateinputMap({
   endTurn: EndTurnInput,
   move: MoveInput,
   attack: AttackInput,
-  useAbility: UseAbilityInput
+  useAbility: UseAbilityInput,
+  deploy: DeployInput
 });
 
 type InputMap = typeof inputMap;

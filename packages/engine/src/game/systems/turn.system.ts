@@ -27,11 +27,11 @@ export type TurnEventMap = {
   [TURN_EVENTS.ROUND_END]: RoundEvent;
 };
 
-export const TURN_PHASES = {
+export const ROUND_PHASES = {
   DEPLOY: 'deploy',
   BATTLE: 'battle'
 } as const;
-export type TurnPhase = Values<typeof TURN_PHASES>;
+export type RoundPhase = Values<typeof ROUND_PHASES>;
 
 export type SerializedTurnOrder = string[];
 
@@ -42,7 +42,7 @@ export class TurnSystem implements Serializable<SerializedTurnOrder> {
 
   queue: Unit[] = [];
 
-  private _phase: TurnPhase = TURN_PHASES.DEPLOY;
+  private _phase: RoundPhase = ROUND_PHASES.DEPLOY;
 
   constructor(private game: Game) {}
 
@@ -85,16 +85,16 @@ export class TurnSystem implements Serializable<SerializedTurnOrder> {
   }
 
   private onPlayerDeployedForTurn() {
-    if (this.phase !== TURN_PHASES.DEPLOY) return;
+    if (this.phase !== ROUND_PHASES.DEPLOY) return;
     const hasUnitToDeploy = this.game.playerManager.players.some(p => p.hasHeroToDeploy);
     if (hasUnitToDeploy) return;
 
-    this._phase = TURN_PHASES.BATTLE;
+    this._phase = ROUND_PHASES.BATTLE;
   }
 
   startRound() {
     const hasUnitToDeploy = this.game.playerManager.players.some(p => p.hasHeroToDeploy);
-    this._phase = hasUnitToDeploy ? TURN_PHASES.DEPLOY : TURN_PHASES.BATTLE;
+    this._phase = hasUnitToDeploy ? ROUND_PHASES.DEPLOY : ROUND_PHASES.BATTLE;
 
     this._turnCount++;
     this.queue = [];

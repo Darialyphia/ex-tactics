@@ -2,6 +2,7 @@ import {
   isDefined,
   type EmptyObject,
   type MaybePromise,
+  type Point3D,
   type Values
 } from '@game/shared';
 import type { InputDispatcher } from '../input/input-system';
@@ -25,6 +26,7 @@ import type { PassiveViewModel } from './view-models/passive.model';
 import type { PlayerViewModel } from './view-models/player.model';
 import type { UnitViewModel } from './view-models/unit.model';
 import type { BoardCellViewModel } from './view-models/board-cell.model';
+import type { Direction } from '../board/board.utils';
 
 export const GAME_TYPES = {
   LOCAL: 'local',
@@ -172,6 +174,7 @@ export class GameClient {
     this.queue = [];
     await this.sync();
   }
+
   async update(snapshot: GameStateSnapshot<SnapshotDiff>) {
     if (snapshot.id <= this.lastSnapshotId) {
       console.log(
@@ -242,5 +245,21 @@ export class GameClient {
   private async sync() {
     const snapshots = await this.networkAdapter.sync(this.lastSnapshotId);
     this.queue.push(...snapshots);
+  }
+
+  deploy(
+    heroes: Array<{
+      blueprintId: string;
+      position: Point3D;
+      orientation: Direction;
+    }>
+  ) {
+    this.networkAdapter.dispatch({
+      type: 'deploy',
+      payload: {
+        playerId: this.playerId,
+        heroes
+      }
+    });
   }
 }

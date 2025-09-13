@@ -28,6 +28,24 @@ watch(
 <template>
   <div v-if="state.phase === 'deploy'" class="deploy-ui">
     <button
+      v-if="player.heroesToDeploy.length"
+      class="deploy-button"
+      aria-label="Ready"
+      :disabled="Object.keys(ui.deployment).length !== player.heroesToDeploy.length"
+      @click="
+        () => {
+          client.deploy(
+            Object.values(ui.deployment).map(h => ({
+              blueprintId: h.hero.blueprintId,
+              position: h.position,
+              orientation: h.orientation
+            }))
+          );
+          ui.clearDeployment();
+        }
+      "
+    />
+    <button
       v-for="(hero, index) in player.heroesToDeploy"
       :key="index"
       :style="{
@@ -42,6 +60,9 @@ watch(
       @mouseenter="ui.hoveredHeroInDeployActionBar = hero"
       @mouseleave="ui.hoveredHeroInDeployActionBar = null"
     />
+    <p v-if="player.heroesToDeploy.length === 0" class="waiting">
+      Waiting for opponent's deployment...
+    </p>
   </div>
 </template>
 
@@ -52,6 +73,23 @@ watch(
   left: 0;
   padding: var(--size-3);
   color: white;
+  display: flex;
+  gap: var(--size-3);
+  align-items: center;
+}
+
+.deploy-button {
+  width: calc(48px * var(--pixel-art-scale));
+  aspect-ratio: 1;
+  background: url('/assets/ui/ready-button.png') no-repeat center/cover;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    filter: brightness(1.2);
+  }
+  &:disabled {
+    filter: grayscale(0.8) brightness(0.45);
+  }
 }
 
 .portrait {
@@ -81,5 +119,15 @@ watch(
     aspect-ratio: 1;
     background: url('/assets/ui/check-icon.png') no-repeat center/cover;
   }
+}
+
+.waiting {
+  height: calc(48px * var(--pixel-art-scale));
+  display: flex;
+  align-items: center;
+  font-size: var(--font-size-5);
+  line-height: 1;
+  font-weight: 700;
+  text-shadow: 2px 2px 0 var(--gray-11);
 }
 </style>

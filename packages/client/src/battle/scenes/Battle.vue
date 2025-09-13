@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { config } from '@/utils/config';
-import { useBoard, useGameUi, useObstacles } from '../composables/useGameClient';
+import { useBoard, useGameState, useGameUi, useObstacles } from '../composables/useGameClient';
 import type { IsoCameraContext } from '@/iso/composables/useIsoCamera';
 import { until } from '@vueuse/core';
 import IsoWorld from '@/iso/scenes/IsoWorld.vue';
@@ -11,10 +11,12 @@ import type { IsoWorldContext } from '@/iso/composables/useIsoWorld';
 import Lights from '@/shared/scenes/Lights.vue';
 import { provideLayers } from '@/shared/composables/useLayers';
 import DeployedHeroes from './unit/DeployedHeroes.vue';
+import { ROUND_PHASES } from '@game/engine/src/game/systems/turn.system';
 
 const board = useBoard();
 const ui = useGameUi();
 const obstacles = useObstacles();
+const state = useGameState();
 
 const planes = computed(() => {
   return Math.max(...board.value.cells.map(cell => cell.position.z)) + 1;
@@ -47,7 +49,7 @@ provideLayers();
     <IsoCamera>
       <Board />
       <Obstacle v-for="obstacle in obstacles" :key="obstacle.id" :obstacle="obstacle" />
-      <DeployedHeroes />
+      <DeployedHeroes v-if="state.phase === ROUND_PHASES.DEPLOY" />
       <Lights />
     </IsoCamera>
   </IsoWorld>

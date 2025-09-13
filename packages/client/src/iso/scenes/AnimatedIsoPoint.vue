@@ -41,6 +41,8 @@ watch(
     }
 
     if (angle !== oldAngle) {
+      gsap.killTweensOf(container);
+
       const center = { x: (grid.columns.value - 1) / 2, y: (grid.rows.value - 1) / 2 };
 
       const rotatedOldCartesianPos = rotateCartesian(
@@ -78,31 +80,6 @@ watch(
           containerRef.value!.zIndex = zIndex;
         }
       });
-
-      // const center = {
-      //   x: (grid.columns.value - 1) / 2,
-      //   y: (grid.rows.value - 1) / 2
-      // };
-
-      // const oldVector = {
-      //   x: oldPos.x - center.x,
-      //   y: oldPos.y - center.y
-      // };
-
-      // if (!containerRef.value) return;
-
-      // const rotationState = { angle: deg2Rad(oldAngle) };
-
-      // gsap.to(rotationState, {
-      //   duration: config.ISO_TILES_ROTATION_SPEED,
-      //   angle: deg2Rad(grid.angle.value),
-      //   ease: Power1.easeInOut,
-      //   onUpdate: () => {
-      //     const vec = Vec2.fromPoint(oldVector).rotate(rotationState.angle - deg2Rad(oldAngle));
-      //     const iso = grid.toIso({ x: vec.x + center.x, y: vec.y + center.y, z: position.z }, 0); // 0 angle to avoid double rotation
-      //     containerRef.value!.position.set(iso.x, iso.y);
-      //   }
-      // });
     } else {
       gsap.killTweensOf(container);
 

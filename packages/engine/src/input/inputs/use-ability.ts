@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { TURN_PHASES } from '../../game/systems/turn.system';
+import { ROUND_PHASES } from '../../game/systems/turn.system';
 import { defaultInputSchema, Input } from '../input';
 import { assert, isDefined, Vec3 } from '@game/shared';
 import {
@@ -22,7 +22,7 @@ const schema = defaultInputSchema.extend({
 export class UseAbilityInput extends Input<typeof schema> {
   readonly name = 'useAbility';
 
-  readonly allowedPhases = [TURN_PHASES.BATTLE];
+  readonly allowedPhases = [ROUND_PHASES.BATTLE];
 
   protected payloadSchema = schema;
 

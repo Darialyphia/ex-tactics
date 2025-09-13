@@ -49,6 +49,7 @@ type PlayerHero =
       selectedTalents: string[];
       cooldown: number;
     };
+
 export class Player
   extends Entity<EmptyObject>
   implements Serializable<SerializedPlayer>
@@ -152,9 +153,10 @@ export class Player
   }
 
   deployHero(blueprintId: string, position: Point3D, orientation: Direction) {
-    const hero = this.heroes.find(
-      h => h.status === 'reserve' && h.blueprintId === blueprintId
-    ) as PlayerHero & { status: 'reserve' };
+    const hero = this.heroes.find(h => {
+      return h.status === 'reserve' && h.blueprintId === blueprintId;
+    }) as PlayerHero & { status: 'reserve' };
+
     if (!hero) return;
 
     const unit = this.game.unitManager.addUnit({
@@ -165,9 +167,7 @@ export class Player
       selectedTalents: hero.selectedTalents
     });
 
-    this.heroes = this.heroes.filter(
-      h => h.status === 'reserve' && h.blueprintId === blueprintId
-    );
+    this.heroes.splice(this.heroes.indexOf(hero), 1);
     this.heroes.push({
       status: 'deployed',
       unit

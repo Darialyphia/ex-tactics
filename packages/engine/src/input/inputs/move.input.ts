@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { defaultInputSchema, Input } from '../input';
 import { assert } from '@game/shared';
 import { IllegalMovementError, NotActivePlayerError } from '../input-errors';
-import { TURN_PHASES } from '../../game/systems/turn.system';
+import { ROUND_PHASES } from '../../game/systems/turn.system';
 
 const schema = defaultInputSchema.extend({
   x: z.number(),
@@ -13,7 +13,7 @@ const schema = defaultInputSchema.extend({
 export class MoveInput extends Input<typeof schema> {
   readonly name = 'move';
 
-  readonly allowedPhases = [TURN_PHASES.BATTLE];
+  readonly allowedPhases = [ROUND_PHASES.BATTLE];
 
   protected payloadSchema = schema;
 

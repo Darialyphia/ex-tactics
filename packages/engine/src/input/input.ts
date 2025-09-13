@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { assert, type JSONValue, type Serializable } from '@game/shared';
 import type { Game } from '../game/game';
 import { MissingPayloadError, WrongRoundPhaseError } from './input-errors';
-import type { TurnPhase } from '../game/systems/turn.system';
+import type { RoundPhase } from '../game/systems/turn.system';
 
 export const defaultInputSchema = z.object({
   playerId: z.string()
@@ -20,7 +20,7 @@ export abstract class Input<TSchema extends DefaultSchema>
 
   protected payload!: z.infer<TSchema>;
 
-  protected abstract allowedPhases: TurnPhase[];
+  protected abstract allowedPhases: RoundPhase[];
 
   constructor(
     protected game: Game,

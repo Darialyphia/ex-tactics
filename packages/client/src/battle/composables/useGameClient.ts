@@ -23,6 +23,10 @@ export const useGameClientStore = defineStore('battle', () => {
     ) {
       client.value = new GameClient(options);
       client.value.initialize(snapshot);
+      // @ts-expect-error export the client for debugging
+      window.__debugClient = () => {
+        console.log(client.value);
+      };
     }
   };
 });
@@ -34,9 +38,7 @@ export const useGameClient = () => {
 };
 
 export const useGameState = () => {
-  const client = useGameClient();
-
-  return computed(() => client.stateManager.state);
+  return gameStateRef(state => ({ ...state }));
 };
 
 export const useGameUi = () => {
@@ -88,41 +90,34 @@ export const useFxEvent = <T extends FXEvent>(
 };
 
 export const useBoard = () => {
-  const client = useGameClient();
-
-  return computed(() => ({
-    cols: client.state.board.cols,
-    rows: client.state.board.rows,
-    cells: client.state.board.cells.map(cellId => {
-      return client.state.entities[cellId] as BoardCellViewModel;
+  return gameStateRef(state => ({
+    cols: state.board.cols,
+    rows: state.board.rows,
+    cells: state.board.cells.map(cellId => {
+      return state.entities[cellId] as BoardCellViewModel;
     })
   }));
 };
 
 export const useObstacles = () => {
-  const client = useGameClient();
-
-  return computed(() => {
-    return client.state.obstacles.map(obstacleId => {
-      return client.state.entities[obstacleId] as ObstacleViewModel;
+  return gameStateRef(state => {
+    return state.obstacles.map(obstacleId => {
+      return state.entities[obstacleId] as ObstacleViewModel;
     });
   });
 };
 
 export const usePlayers = () => {
-  const client = useGameClient();
-
-  return computed(() => {
-    return client.state.players.map(playerId => {
-      return client.state.entities[playerId] as PlayerViewModel;
+  return gameStateRef(state => {
+    return state.players.map(playerId => {
+      return state.entities[playerId] as PlayerViewModel;
     });
   });
 };
 
 export const useMyPlayer = () => {
   const client = useGameClient();
-
-  return computed(() => {
-    return client.state.entities[client.playerId] as PlayerViewModel;
+  return gameStateRef(state => {
+    return state.entities[client.playerId] as PlayerViewModel;
   });
 };

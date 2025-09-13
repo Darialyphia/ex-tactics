@@ -77,6 +77,7 @@ export class Unit
     private options: UnitOptions
   ) {
     super(`unit-${options.id}`, makeUnitInterceptors());
+    this.blueprint = options.blueprint;
     this.movement = new MovementComponent(this.game, this, {
       position: options.position,
       pathfinding: new PathfinderComponent(
@@ -90,7 +91,6 @@ export class Unit
     this.currentMp = this.game.config.STARTING_MANA;
     this.currentAp = this.game.config.STARTING_AP;
     this.player = options.player;
-    this.blueprint = options.blueprint;
     this.abilities = [
       ...options.blueprint.defaultAbilities,
       ...options.selectedTalents.map(

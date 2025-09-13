@@ -46,6 +46,10 @@ const game = new Game({
     }
   ]
 });
+// @ts-expect-error ad debug helper
+window.__debugGame = () => {
+  console.log(game);
+};
 game.initialize();
 
 const clientStore = useGameClientStore();
