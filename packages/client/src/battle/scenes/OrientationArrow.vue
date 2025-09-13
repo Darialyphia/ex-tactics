@@ -18,7 +18,7 @@ const DIRECTION_TO_ANGLE = {
 const tag = computed(() => {
   const base = DIRECTION_TO_ANGLE[orientation];
 
-  return '' + (base + (camera.angle.value % 360));
+  return '' + ((base + camera.angle.value) % 360);
 });
 </script>
 

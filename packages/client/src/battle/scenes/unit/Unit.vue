@@ -13,6 +13,7 @@ import HpBar from '../HpBar.vue';
 import MpBar from '../MpBar.vue';
 import UiAnimatedSprite from '@/ui/scenes/UiAnimatedSprite.vue';
 import OrientationArrow from '../OrientationArrow.vue';
+import Layer from '@/shared/scenes/Layer.vue';
 
 const { unit } = defineProps<{
   unit: UnitViewModel;
@@ -63,11 +64,13 @@ watch(isActiveUnit, active => {
         {{ unit.indexInTurnOrder }}
       </pixi-text>
 
-      <container :y="-60" :x="-12">
-        <UiAnimatedSprite asset-id="unit-stat-bars" :anchor="0" />
-        <HpBar :value="unit.hp" :max="unit.maxHp" :x="2" :y="2" />
-        <MpBar :value="unit.mp" :max="unit.maxMp" :x="2" :y="5" />
-      </container>
+      <Layer layer="ui">
+        <container :y="-60" :x="-12">
+          <UiAnimatedSprite asset-id="unit-stat-bars" :anchor="0" />
+          <HpBar :value="unit.hp" :max="unit.maxHp" :x="2" :y="2" />
+          <MpBar :value="unit.mp" :max="unit.maxMp" :x="2" :y="5" />
+        </container>
+      </Layer>
     </LightSource>
   </AnimatedIsoPoint>
 </template>
