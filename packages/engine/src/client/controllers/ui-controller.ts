@@ -87,6 +87,7 @@ export class UiController {
     const activeUnit = this.client.state.entities[
       this.client.state.activeUnitId!
     ] as UnitViewModel;
+    if (!activeUnit) return;
     activeUnit.cancelAttackIntent();
   }
 
@@ -147,5 +148,7 @@ export class UiController {
     this._hoveredCell = null;
   }
 
-  update() {}
+  update() {
+    this.clearUnitaction();
+  }
 }

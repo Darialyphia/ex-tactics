@@ -329,7 +329,7 @@ export class Unit
   }
 
   canAttack(unit: Unit): boolean {
-    return this.interceptors.canAttack.getValue(this.currentAp > this.apCostPerAttack, {
+    return this.interceptors.canAttack.getValue(this.currentAp >= this.apCostPerAttack, {
       unit
     });
   }
@@ -351,10 +351,14 @@ export class Unit
 
   canAttackAt(point: Point3D) {
     if (this.position.equals(point)) {
+      console.warn('cannot attack self');
       return false;
     }
     const target = this.game.unitManager.getUnitAt(point);
-    if (!target) return false;
+    if (!target) {
+      console.warn('no target at point', point);
+      return false;
+    }
 
     if (!this.canAttack(target) || !target.canBeAttackedBy(this)) {
       return false;
@@ -362,11 +366,19 @@ export class Unit
 
     const area = this.attackTargetingShape.getArea(this.position);
 
-    return area.some(p => Vec3.fromPoint3D(p).equals(point));
+    const isInArea = area.some(p => Vec3.fromPoint3D(p).equals(point));
+    if (!isInArea) {
+      console.warn('target not in targeting area');
+      return false;
+    }
+
+    return true;
   }
 
   attack(target: Vec3) {
+    console.log(this.currentAp);
     this.currentAp -= this.apCostPerAttack;
+    console.log(this.currentAp);
     this.actionsTakenThisTurn += 1;
     this.orientation = getDirectionFromDiff(this.position, target)!;
     this.combat.attack(target);

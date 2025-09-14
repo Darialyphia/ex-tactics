@@ -148,3 +148,8 @@ export const useActiveUnit = () => {
     return state.entities[state.activeUnitId] as UnitViewModel;
   });
 };
+
+export const useClientPlayerId = () => {
+  const client = useGameClient();
+  return gameStateRef(() => client.playerId);
+};

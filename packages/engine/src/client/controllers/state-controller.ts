@@ -37,6 +37,10 @@ export class ClientStateController {
     this.state.entities = this.buildentities(initialState.entities);
   }
 
+  get activeUnit() {
+    return this.state.entities[this.state.activeUnitId!] as UnitViewModel;
+  }
+
   private buildViewModel(entity: SerializedEntity) {
     const dict: GameClientState['entities'] = this.state?.entities ?? {};
 

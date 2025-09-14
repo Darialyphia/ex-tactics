@@ -126,6 +126,13 @@ export class UnitViewModel {
     );
   }
 
+  get cell() {
+    const entities = this.getEntities();
+    return (entities[`${this.position.x}:${this.position.y}:${this.position.z}`] as
+      | BoardCellViewModel
+      | undefined)!;
+  }
+
   get portrait() {
     return `/assets/portraits/${this.data.icons.portrait}.png`;
   }
@@ -234,6 +241,7 @@ export class UnitViewModel {
       this.cancelAttackIntent();
     }
   }
+
   moveTowards(point: Point3D) {
     const destination = this.data.potentialMoves.find(p =>
       Vec3.fromPoint3D(p.point).equals(point)

@@ -7,7 +7,7 @@ import LightSource from '@/shared/scenes/LightSource.vue';
 import type { UnitViewModel } from '@game/engine/src/client/view-models/unit.model';
 import UnitSprite from './UnitSprite.vue';
 import UnitShadow from './UnitShadow.vue';
-import { useActiveUnit } from '@/battle/composables/useGameClient';
+import { useActiveUnit, useGameUi } from '@/battle/composables/useGameClient';
 import { useIsoWorld } from '@/iso/composables/useIsoWorld';
 import OrientationArrow from '../OrientationArrow.vue';
 import Layer from '@/shared/scenes/Layer.vue';
@@ -20,7 +20,7 @@ const { unit } = defineProps<{
 
 const camera = useIsoCamera();
 const grid = useIsoWorld();
-
+const ui = useGameUi();
 const activeUnit = useActiveUnit();
 
 const isActiveUnit = computed(() => {
@@ -43,6 +43,8 @@ watch(isActiveUnit, active => {
         :scale-x="getScaleXForOrientation(unit.orientation, camera.angle.value)"
         :alpha="isActiveUnit && activeUnit?.moveIntent ? 0.7 : 1"
         event-mode="static"
+        @pointerenter="ui.hoverAt(unit.cell)"
+        @pointerleave="ui.unhover()"
         @click="unit.onClick()"
       >
         <UnitShadow :unit="unit" />

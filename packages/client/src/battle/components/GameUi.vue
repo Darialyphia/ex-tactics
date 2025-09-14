@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { useLights } from '@/shared/composables/useLightsManager';
-import { useGameClient, useGameState, useGameUi, usePlayers } from '../composables/useGameClient';
+import {
+  useClientPlayerId,
+  useGameClient,
+  useGameState,
+  useGameUi,
+  usePlayers
+} from '../composables/useGameClient';
 import FPS from '@/shared/components/FPS.vue';
 import DeployUi from './DeployUi.vue';
 import { ROUND_PHASES } from '@game/engine/src/game/systems/turn.system';
@@ -51,7 +57,7 @@ updateLight();
 
 const autoDeploy = () => {
   players.value.forEach(player => {
-    client.playerId = player.id;
+    client.switchPlayerId(player.id);
     player.heroesToDeploy.forEach(hero => {
       const idx = Math.floor(Math.random() * player.deployZone.length);
       ui.value.selectedHeroToDeploy = hero;
@@ -60,6 +66,8 @@ const autoDeploy = () => {
     client.deploy();
   });
 };
+
+const clientPlayerId = useClientPlayerId();
 </script>
 
 <template>
@@ -103,8 +111,8 @@ const autoDeploy = () => {
       <button
         v-for="player in players"
         :key="player.id"
-        :class="{ active: client.playerId === player.id }"
-        @click="client.playerId = player.id"
+        :class="{ active: clientPlayerId === player.id }"
+        @click="client.switchPlayerId(player.id)"
       >
         Player {{ player.name }} view
       </button>

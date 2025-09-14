@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import type { HeroToDeploy } from '@game/engine/src/client/controllers/ui-controller';
-import { useGameClient, useGameState, useGameUi, useMyPlayer } from '../composables/useGameClient';
+import {
+  useClientPlayerId,
+  useGameClient,
+  useGameState,
+  useGameUi,
+  useMyPlayer
+} from '../composables/useGameClient';
 import { UNITS_DICTIONARY } from '@game/engine/src/unit/units';
 
 const player = useMyPlayer();
@@ -16,13 +22,12 @@ const toggleHero = (hero: HeroToDeploy) => {
 };
 
 const client = useGameClient();
-watch(
-  () => client.playerId,
-  () => {
-    ui.value.clearDeployment();
-    ui.value.selectedHeroToDeploy = null;
-  }
-);
+const clientPlayerId = useClientPlayerId();
+
+watch(clientPlayerId, () => {
+  ui.value.clearDeployment();
+  ui.value.selectedHeroToDeploy = null;
+});
 </script>
 
 <template>

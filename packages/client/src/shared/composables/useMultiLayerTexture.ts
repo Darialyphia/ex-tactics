@@ -51,13 +51,9 @@ export const useMultiLayerTexture = <
     const containers: Container[] = [];
 
     textures.value = [];
-    // const graphics: Graphics[] = []; // graphics for all frames of the animation
 
     groups.value.forEach(group => {
       group.textures.forEach((texture, index) => {
-        // if (!graphics[index]) {
-        //   graphics[index] = new Graphics();
-        // }
         if (!containers[index]) {
           containers[index] = new Container();
         }
@@ -69,15 +65,6 @@ export const useMultiLayerTexture = <
         }
         sprite.alpha = group.meta.opacity / 255;
         c.addChild(sprite);
-        // const g = graphics[index];
-
-        // // @TODO: probable need to cache this
-        // const baked = app.value.renderer.generateTexture(new Sprite(texture));
-
-        // g.rect(0, 0, dimensions.width, dimensions.height).fill({
-        //   texture: baked,
-        //   textureSpace: 'local'
-        // });
       });
     });
 

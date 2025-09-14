@@ -60,7 +60,6 @@ const filters = computed(() => {
       :anchor="config.UNIT_ANCHOR"
       :textures="textures"
       :hit-area="unitHitArea"
-      event-mode="none"
       :filters="filters"
     />
     <graphics

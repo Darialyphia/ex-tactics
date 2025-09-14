@@ -87,7 +87,7 @@ export class IllegalTalentUnlockError extends InputError {
 
 export class IllegalAttackTargetError extends InputError {
   constructor() {
-    super(`Cannot attack at position this target`);
+    super(`Cannot attack at position`);
   }
 }
 

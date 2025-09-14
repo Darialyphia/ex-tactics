@@ -27,6 +27,7 @@ import type { PlayerViewModel } from './view-models/player.model';
 import type { UnitViewModel } from './view-models/unit.model';
 import type { BoardCellViewModel } from './view-models/board-cell.model';
 import type { Direction } from '../board/board.utils';
+import { de } from 'zod/v4/locales';
 
 export const GAME_TYPES = {
   LOCAL: 'local',
@@ -169,7 +170,7 @@ export class GameClient {
     this.stateManager.initialize(snapshot.state);
 
     if (this.gameType === GAME_TYPES.LOCAL) {
-      this.playerId = this.getActivePlayerId();
+      this.switchPlayerId(this.getActivePlayerId());
     }
 
     this.isReady = true;
@@ -215,7 +216,7 @@ export class GameClient {
       this.stateManager.update(snapshot.state);
 
       if (this.gameType === GAME_TYPES.LOCAL) {
-        this.playerId = this.getActivePlayerId();
+        this.switchPlayerId(this.getActivePlayerId());
       }
 
       this.ui.update();
@@ -240,6 +241,12 @@ export class GameClient {
   onUiSync(cb: () => void) {
     this.emitter.on('uiSync', cb);
     return () => this.emitter.off('uiSync', cb);
+  }
+
+  switchPlayerId(playerId: string) {
+    if (this.playerId === playerId) return;
+    this.playerId = playerId;
+    this.forceSync();
   }
 
   waitUntil(predicate: (state: GameClientState) => boolean) {
@@ -272,6 +279,45 @@ export class GameClient {
       payload: {
         playerId: this.playerId,
         heroes
+      }
+    });
+  }
+
+  move() {
+    const destination = this.stateManager.activeUnit.moveIntent?.point;
+    if (!destination) {
+      console.warn('No move intent set');
+      return;
+    }
+
+    this.stateManager.activeUnit.moveIntent = null;
+    this.networkAdapter.dispatch({
+      type: 'move',
+      payload: {
+        playerId: this.playerId,
+        ...destination
+      }
+    });
+  }
+
+  attack() {
+    const moveIntent = this.stateManager.activeUnit.moveIntent;
+    if (moveIntent) {
+      this.move();
+    }
+
+    const attackIntent = this.stateManager.activeUnit.attackIntent;
+    if (!attackIntent) {
+      console.warn('No attack intent set');
+      return;
+    }
+
+    this.stateManager.activeUnit.attackIntent = null;
+    this.networkAdapter.dispatch({
+      type: 'attack',
+      payload: {
+        playerId: this.playerId,
+        ...attackIntent
       }
     });
   }
