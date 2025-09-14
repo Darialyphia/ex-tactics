@@ -12,9 +12,7 @@ export class DeployCellClickAction implements CellClickAction {
     const ui = this.client.ui;
     const state = this.client.state;
     if (state.phase !== GAME_PHASES.DEPLOY) return false;
-
     const player = state.entities[this.client.playerId] as PlayerViewModel;
-
     return !!ui.selectedHeroToDeploy && player.deployZone.some(p => p.equals(cell));
   }
 

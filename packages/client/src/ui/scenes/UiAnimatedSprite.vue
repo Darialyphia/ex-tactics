@@ -20,6 +20,7 @@ const {
 const sheet = useSpritesheet<'', string>(() => assetId);
 const textures = computed(() => {
   if (!sheet.value) return null;
+  if (!tag) return null;
   return createSpritesheetFrameObject(tag, sheet.value.sheets.base[layer]);
 });
 </script>

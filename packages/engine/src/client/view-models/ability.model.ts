@@ -32,4 +32,8 @@ export class AbilityViewModel {
   get id() {
     return this.data.id;
   }
+
+  get icon() {
+    return `/assets/icons/${this.data.iconId}.png`;
+  }
 }

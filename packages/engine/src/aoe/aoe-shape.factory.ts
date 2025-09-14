@@ -1,4 +1,5 @@
-import type { AOEShape } from './aoe-shape';
+import type { AnyObject } from '@game/shared';
+import type { AOEShape, GenericAOEShape } from './aoe-shape';
 import type { TargetingType } from './aoe.constants';
 import { CircleAOEShape } from './circle.aoe-shape';
 import { CrossAOEShape } from './cross.aoe-shape';
@@ -16,18 +17,23 @@ const dict = {
   diagonalCross: DiagonalCrossAOEShape
 } as const;
 
-type AOEType = keyof typeof dict;
-export const makeAoeShape = <T extends AOEType>(
-  type: T,
+export type AOEType = keyof typeof dict;
+export const makeAoeShape = (
+  type: string,
   targetingType: TargetingType,
-  params: (typeof dict)[T] extends AOEShape<infer U> ? U['params'] : never
-): InstanceType<(typeof dict)[T]> => {
-  return dict[type].fromJSON({
+  params: AnyObject
+): GenericAOEShape => {
+  const ctor = dict[type as AOEType];
+  if (!ctor) {
+    throw new Error(`Unknown AOE shape type: ${type}`);
+  }
+
+  return ctor.fromJSON({
     // @ts-expect-error
     type,
     // @ts-expect-error
     targetingType,
     // @ts-expect-error
     params
-  }) as InstanceType<(typeof dict)[T]>;
+  });
 };

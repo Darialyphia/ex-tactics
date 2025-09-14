@@ -49,6 +49,7 @@ export type GameClientOptions = {
   networkAdapter: NetworkAdapter;
   gameType: GameType;
   playerId: string;
+  forceSync: () => void;
 };
 
 export type GameStateEntities = Record<
@@ -92,7 +93,10 @@ export class GameClient {
   private emitter = new AsyncTypedEventEmitter<{
     update: EmptyObject;
     updateCompleted: GameStateSnapshot<SnapshotDiff>;
+    uiSync: EmptyObject;
   }>('sequential');
+
+  readonly forceSync: () => void;
 
   constructor(options: GameClientOptions) {
     this.networkAdapter = options.networkAdapter;
@@ -100,6 +104,10 @@ export class GameClient {
     this.ui = new UiController(this);
     this.gameType = options.gameType;
     this.playerId = options.playerId;
+    this.forceSync = () => {
+      options.forceSync();
+      this.emitter.emit('uiSync', {});
+    };
 
     this.networkAdapter.subscribe(async snapshot => {
       console.groupCollapsed(`Snapshot Update: ${snapshot.id}`);
@@ -227,6 +235,11 @@ export class GameClient {
   onUpdateCompleted(cb: (snapshot: GameStateSnapshot<SnapshotDiff>) => void) {
     this.emitter.on('updateCompleted', cb);
     return () => this.emitter.off('updateCompleted', cb);
+  }
+
+  onUiSync(cb: () => void) {
+    this.emitter.on('uiSync', cb);
+    return () => this.emitter.off('uiSync', cb);
   }
 
   waitUntil(predicate: (state: GameClientState) => boolean) {

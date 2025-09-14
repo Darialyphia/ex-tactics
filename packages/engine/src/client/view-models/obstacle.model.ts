@@ -1,6 +1,7 @@
 import type { Point } from '@game/shared';
 import type { SerializedObstacle } from '../../obstacle/obstacle.entity';
 import type { GameClient, GameStateEntities } from '../client';
+import type { PlayerViewModel } from './player.model';
 
 export class ObstacleViewModel {
   private getEntities: () => GameStateEntities;
@@ -47,5 +48,10 @@ export class ObstacleViewModel {
 
   get position() {
     return this.data.position;
+  }
+
+  get player() {
+    if (!this.data.player) return null;
+    return this.getEntities()[this.data.player] as PlayerViewModel;
   }
 }

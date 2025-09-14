@@ -1,134 +1,80 @@
 <script setup lang="ts">
-import { useLights } from '@/shared/composables/useLightsManager';
-import { useGameClient, useGameState, useGameUi, usePlayers } from '../composables/useGameClient';
-import FPS from '@/shared/components/FPS.vue';
-import DeployUi from './DeployUi.vue';
 import { ROUND_PHASES } from '@game/engine/src/game/systems/turn.system';
+import { useActiveUnit, useGameState, useGameUi, useMyPlayer } from '../composables/useGameClient';
 
 const state = useGameState();
+const activeUnit = useActiveUnit();
+const myPlayer = useMyPlayer();
 const ui = useGameUi();
-const players = usePlayers();
-const client = useGameClient();
-const lights = useLights();
-
-const lightPresets = [
-  {
-    name: 'Day',
-    ambientColor: 0x998648,
-    ambientAlpha: 0,
-    lightIntensity: 3,
-    lightColor: 0xffffdd,
-    lightAlpha: 0.5
-  },
-  {
-    name: 'Dusk',
-    ambientColor: 0x222222,
-    ambientAlpha: 0.65,
-    lightIntensity: 5,
-    lightAlpha: 0.5,
-    lightColor: 0xffeebb
-  },
-  {
-    name: 'Night',
-    ambientColor: 0x343162,
-    ambientAlpha: 0.95,
-    lightIntensity: 7,
-    lightColor: 0xf29668,
-    lightAlpha: 1
-  }
-];
-
-const selectedPreset = ref(lightPresets[0]);
-const updateLight = () => {
-  lights.ambientLightAlpha = selectedPreset.value.ambientAlpha;
-  lights.ambientLightColor = selectedPreset.value.ambientColor;
-  lights.lightColor = selectedPreset.value.lightColor;
-  lights.lightIntensity = selectedPreset.value.lightIntensity;
-  lights.lightAlpha = selectedPreset.value.lightAlpha;
-};
-updateLight();
-
-const autoDeploy = () => {
-  players.value.forEach(player => {
-    client.playerId = player.id;
-    player.heroesToDeploy.forEach(hero => {
-      const idx = Math.floor(Math.random() * player.deployZone.length);
-      ui.value.selectedHeroToDeploy = hero;
-      ui.value.deployAt(player.deployZone[idx].position);
-    });
-    client.deploy();
-  });
-};
 </script>
-
 <template>
-  <header class="flex items-center gap-3">
-    phase: {{ state.phase }}
+  <section v-if="state.phase === ROUND_PHASES.BATTLE" class="battle-ui">
+    <p v-if="!activeUnit?.player.equals(myPlayer)">Opponent's turn</p>
 
-    <div class="flex gap-2">
+    <div v-else-if="activeUnit" class="flex gap-2">
+      <div class="portrait" :style="`--bg: url(${activeUnit.portrait})`" />
+
       <div>
-        CAMERA
-        <button @click="ui.camera?.rotateCW()">Rotate CW</button>
-        <button @click="ui.camera?.rotateCCW()">Rotate CCW</button>
+        <p>{{ activeUnit.name }}</p>
+        <p>HP: {{ activeUnit.hp }} / {{ activeUnit.maxHp }}</p>
+        <p>MP: {{ activeUnit.mp }} / {{ activeUnit.maxMp }}</p>
+        <p>AP: {{ activeUnit.ap }} / {{ activeUnit.maxAp }}</p>
       </div>
-      <div>
-        LIGHTS
+
+      <div class="ml-auto mr-10 flex gap-2">
+        <template v-if="!ui.selectedUnitAction">
+          <button
+            v-for="action in activeUnit.actions"
+            :key="action.id"
+            class="action"
+            :style="`--bg: url(${action.type === 'attack' ? '/assets/icons/attack.png' : action.ability.icon})`"
+            @click="ui.selectedUnitAction = action"
+          />
+        </template>
         <button
-          v-for="preset in lightPresets"
-          :key="preset.name"
-          :class="{ active: selectedPreset.name === preset.name }"
-          @click="
-            () => {
-              selectedPreset = preset;
-              updateLight();
-            }
-          "
-        >
-          {{ preset.name }}
-        </button>
+          v-else
+          class="action"
+          :style="{ '--bg': 'url(/assets/icons/back.png)' }"
+          @click="ui.clearUnitaction()"
+        />
       </div>
     </div>
-    <div>
-      DEBUG
-      <button
-        @click="
-          () => {
-            console.log(state);
-          }
-        "
-      >
-        Debug Game State
-      </button>
-      <button
-        v-for="player in players"
-        :key="player.id"
-        :class="{ active: client.playerId === player.id }"
-        @click="client.playerId = player.id"
-      >
-        Player {{ player.name }} view
-      </button>
-      <button v-if="state.phase === ROUND_PHASES.DEPLOY" @click="autoDeploy">Auto deploy</button>
-    </div>
-  </header>
-  <FPS />
-  <DeployUi />
+  </section>
 </template>
 
-<style lang="postcss" scoped>
-header {
-  padding: var(--size-2);
-  font-size: var(--font-size-0);
+<style scoped lang="postcss">
+.battle-ui {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  padding: var(--size-3);
+  color: white;
+  width: 100%;
 }
 
-button {
-  background-color: var(--gray-10);
-  color: white;
-  padding: var(--size-2);
-  border-radius: var(--radius-2);
-  margin: var(--size-2);
+.portrait {
+  position: relative;
+  width: calc(48px * var(--pixel-art-scale));
+  aspect-ratio: 1;
+  background: var(--bg) no-repeat center/cover;
   cursor: pointer;
+}
 
-  &.active {
+.action {
+  position: relative;
+  width: calc(32px * var(--pixel-art-scale));
+  align-self: center;
+  aspect-ratio: 1;
+  border-radius: var(--radius-2);
+  background: var(--bg) no-repeat center/cover;
+  box-shadow: 0 0 0 2px var(--color-bg);
+  cursor: pointer;
+  border-radius: var(--radius-round);
+
+  &:hover {
+    filter: brightness(1.2);
+  }
+  &.selected {
     outline: solid var(--border-size-2) var(--yellow-6);
   }
 }

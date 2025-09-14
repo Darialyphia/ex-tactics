@@ -5,6 +5,25 @@
       "assets": []
     },
     {
+      "name": "icons",
+      "assets": [
+        {
+          "alias": [
+            "icon-attack"
+          ],
+          "src": [
+            "/assets/icons/attack.png"
+          ],
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        }
+      ]
+    },
+    {
       "name": "obstacles",
       "assets": [
         {
@@ -405,6 +424,20 @@
             "/assets/ui/path-turn.json"
           ],
           "parser": "aseprite_loader",
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "path-turn.png"
+          ],
+          "src": [
+            "/assets/ui/path-turn.png"
+          ],
           "data": {
             "scaleMode": "nearest",
             "tags": {

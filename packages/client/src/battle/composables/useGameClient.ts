@@ -1,6 +1,6 @@
 import { GameClient, type GameClientOptions } from '@game/engine/src/client/client';
 import type { FXEvent, FXEventMap } from '@game/engine/src/client/controllers/fx-controller';
-import { isDefined, type Nullable } from '@game/shared';
+import { isDefined, type BetterOmit, type Nullable } from '@game/shared';
 import { gameStateRef } from './gameStateRef';
 import { defineStore } from 'pinia';
 import type {
@@ -15,14 +15,16 @@ import type { UnitViewModel } from '@game/engine/src/client/view-models/unit.mod
 
 export const useGameClientStore = defineStore('battle', () => {
   const client = ref<GameClient | null>(null);
-
+  const forceUpdate = () => {
+    triggerRef(client);
+  };
   return {
     client,
     init(
-      options: GameClientOptions,
+      options: BetterOmit<GameClientOptions, 'forceSync'>,
       snapshot: GameStateSnapshot<SerializedOmniscientState | SerializedPlayerState>
     ) {
-      client.value = new GameClient(options);
+      client.value = new GameClient({ ...options, forceSync: forceUpdate });
       client.value.initialize(snapshot);
       // @ts-expect-error export the client for debugging
       window.__debugClient = () => {
@@ -45,7 +47,15 @@ export const useGameState = () => {
 export const useGameUi = () => {
   const client = useGameClient();
 
-  return computed(() => client.ui);
+  const ui = computed(() => client.ui);
+
+  const cleanup = client.onUiSync(() => {
+    triggerRef(ui);
+  });
+
+  onUnmounted(cleanup);
+
+  return ui;
 };
 
 export const useEntity = <T>(entityId: MaybeRef<string>) => {
@@ -134,6 +144,7 @@ export const useMyPlayer = () => {
 export const useActiveUnit = () => {
   return gameStateRef(state => {
     if (!state.activeUnitId) return null;
+
     return state.entities[state.activeUnitId] as UnitViewModel;
   });
 };

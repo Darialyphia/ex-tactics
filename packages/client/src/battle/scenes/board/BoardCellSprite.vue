@@ -45,20 +45,21 @@ const hitArea = Hitbox.from(
 
 <template>
   <animated-sprite
-    v-if="sheet"
+    v-if="sheet && !config.DEBUG"
     :anchor="0.5"
     :textures="sheet.sheets.base.tile.animations[0]"
     :hit-area="hitArea"
   />
-  <!-- <graphics
-      @effect="
-        g => {
-          g.setStrokeStyle({ width: 2, color: 'red' });
-          hitArea.shape.forEach(polygon => {
-            g.poly(polygon.points);
-          });
-          g.stroke();
-        }
-      "
-    /> -->
+  <graphics
+    v-if="config.DEBUG"
+    @effect="
+      g => {
+        g.setStrokeStyle({ width: 2, color: 'red' });
+        hitArea.shape.forEach(polygon => {
+          g.poly(polygon.points);
+        });
+        g.stroke().fill(0x770000);
+      }
+    "
+  />
 </template>

@@ -13,11 +13,24 @@ export const gameStateRef = <T>(selector: (state: GameClientState) => T) => {
   watchEffect(() => {
     value.value = selector(client.state);
   });
-  const unsub = client.onUpdateCompleted(() => {
-    value.value = selector(client.state);
-  });
+  const cleanups = [
+    client.onUpdateCompleted(() => {
+      value.value = selector(client.state);
+    }),
+    client.onUiSync(() => {
+      const v = selector(client.state);
+      const isEqual = v === value.value;
+      value.value = v;
 
-  onUnmounted(() => unsub());
+      if (isEqual) {
+        triggerRef(value);
+      }
+    })
+  ];
+
+  onUnmounted(() => {
+    cleanups.forEach(fn => fn());
+  });
 
   return value;
 };

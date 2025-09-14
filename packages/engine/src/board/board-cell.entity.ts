@@ -17,6 +17,8 @@ export type SerializedBoardCell = {
   id: string;
   position: Point3D;
   spriteId: string;
+  unit: string | null;
+  obstacle: string | null;
 };
 
 export class BoardCell
@@ -40,7 +42,9 @@ export class BoardCell
       id: this.id,
       entityType: 'board_cell' as const,
       position: this.position.serialize(),
-      spriteId: this.tile.spriteId
+      spriteId: this.tile.spriteId,
+      unit: this.unit?.id || null,
+      obstacle: this.obstacle?.id || null
     };
   }
 

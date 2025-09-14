@@ -1,8 +1,9 @@
 import type { JSONObject, Point3D, Serializable } from '@game/shared';
 import type { TargetingType } from './aoe.constants';
+import type { AOEType } from './aoe-shape.factory';
 
 export type SerializedAOE = {
-  type: string;
+  type: AOEType;
   targetingType: TargetingType;
   params: JSONObject;
 };

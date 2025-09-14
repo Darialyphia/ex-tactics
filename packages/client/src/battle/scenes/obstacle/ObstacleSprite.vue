@@ -20,12 +20,7 @@ const textures = useMultiLayerTexture({
 
 <template>
   <container>
-    <animated-sprite
-      :anchor="config.UNIT_ANCHOR"
-      :textures="textures"
-      :hit-area="unitHitArea"
-      event-mode="none"
-    />
+    <animated-sprite :anchor="config.UNIT_ANCHOR" :textures="textures" :hit-area="unitHitArea" />
     <graphics
       v-if="config.DEBUG"
       :alpha="0.5"

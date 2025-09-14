@@ -90,10 +90,7 @@ watch(
   position: relative;
   width: calc(48px * var(--pixel-art-scale));
   aspect-ratio: 1;
-  border-radius: var(--radius-2);
   background: var(--bg) no-repeat center/cover;
-  border: 2px solid var(--color-border);
-  box-shadow: 0 0 0 2px var(--color-bg);
   cursor: pointer;
 
   &:hover {

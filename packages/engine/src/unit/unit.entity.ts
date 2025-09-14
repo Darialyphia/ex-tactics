@@ -20,10 +20,12 @@ import {
   UnitTurnEvent
 } from './unit.events';
 import { getDirectionFromDiff, type Direction } from '../board/board.utils';
+import type { SerializedAOE } from '../aoe/aoe-shape';
 
 export type SerializedUnit = {
   entityType: 'unit';
   id: string;
+  name: string;
   position: Point3D;
   orientation: Direction;
   player: string;
@@ -45,6 +47,11 @@ export type SerializedUnit = {
     id: string;
     parts: Record<string, string>;
   };
+  icons: {
+    portrait: string;
+  };
+  attackTargetingShape: SerializedAOE;
+  attackAOEShape: SerializedAOE;
 };
 
 export type UnitOptions = {
@@ -126,6 +133,7 @@ export class Unit
     return {
       entityType: 'unit' as const,
       id: this.id,
+      name: this.blueprint.name,
       position: this.position.serialize(),
       orientation: this.orientation,
       player: this.player.id,
@@ -146,7 +154,12 @@ export class Unit
       sprite: {
         id: this.blueprint.sprite.id,
         parts: { ...this.blueprint.sprite.defaultParts }
-      }
+      },
+      icons: {
+        portrait: this.blueprint.icons.portrait
+      },
+      attackTargetingShape: this.attackTargetingShape.serialize(),
+      attackAOEShape: this.attackAOEShape.serialize()
     };
   }
 

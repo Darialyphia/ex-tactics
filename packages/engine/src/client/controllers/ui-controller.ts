@@ -1,30 +1,16 @@
 import { assert, Vec3, type Point3D, type Values } from '@game/shared';
 import type { GameClient } from '../client';
 import type { BoardCellViewModel } from '../view-models/board-cell.model';
-import { GAME_PHASES } from '../../game/game.enums';
-import type { PlayerViewModel } from '../view-models/player.model';
 import { DIRECTION, type Direction } from '../../board/board.utils';
 import type { SerializedPlayer } from '../../player/player.entity';
-import type { CellClickAction } from '../actions/action';
-import { DeployCellClickAction } from '../actions/deploy.cell-click-action';
+import type { AbilityViewModel } from '../view-models/ability.model';
 import type { UnitViewModel } from '../view-models/unit.model';
-import { DeclareMoveIntentCellClickAction } from '../actions/declareMoveIntent.cell-click-action';
 
 export type Camera = {
   rotateCW(): void;
   rotateCCW(): void;
   getZoom(): number;
 };
-
-export const CELL_HIGHLIGHTS = {
-  BLUE: 'blue',
-  RED: 'red',
-  WHITE: 'white',
-  YELLOW: 'yellow',
-  ORANGE: 'orange',
-  CYAN: 'cyan'
-} as const;
-export type CellHighlight = Values<typeof CELL_HIGHLIGHTS>;
 
 export class DOMSelector {
   constructor(readonly id: string) {}
@@ -44,9 +30,14 @@ export type DeployedHero = {
   position: Point3D;
   orientation: Direction;
 };
-export class UiController {
-  private hoverTimeout: ReturnType<typeof setTimeout> | null = null;
 
+export type UnitAction = { id: string } & (
+  | {
+      type: 'attack';
+    }
+  | { type: 'ability'; ability: AbilityViewModel }
+);
+export class UiController {
   DOMSelectors = {};
 
   displayedElements = {};
@@ -63,14 +54,9 @@ export class UiController {
 
   private _camera: Camera | null = null;
 
-  private cellClickRules: CellClickAction[];
+  private _selectedUnitAction: UnitAction | null = null;
 
-  constructor(private client: GameClient) {
-    this.cellClickRules = [
-      new DeployCellClickAction(client),
-      new DeclareMoveIntentCellClickAction(client)
-    ];
-  }
+  constructor(private client: GameClient) {}
 
   get isInteractivePlayer() {
     return this.client.playerId === this.client.getActivePlayerId();
@@ -86,6 +72,22 @@ export class UiController {
 
   set camera(camera: Camera) {
     this._camera = camera;
+  }
+
+  get selectedUnitAction(): UnitAction | null {
+    return this._selectedUnitAction;
+  }
+
+  set selectedUnitAction(action: UnitAction) {
+    this._selectedUnitAction = action;
+  }
+
+  clearUnitaction() {
+    this._selectedUnitAction = null;
+    const activeUnit = this.client.state.entities[
+      this.client.state.activeUnitId!
+    ] as UnitViewModel;
+    activeUnit.cancelAttackIntent();
   }
 
   private swapDeployment(a: DeployedHero, b: DeployedHero) {
@@ -146,34 +148,4 @@ export class UiController {
   }
 
   update() {}
-
-  getCellHighlight(cell: BoardCellViewModel): CellHighlight | null {
-    const player = this.client.state.entities[this.client.playerId] as PlayerViewModel;
-    if (this.client.state.phase === GAME_PHASES.DEPLOY) {
-      if (player.deployZone.some(p => p.equals(cell))) {
-        return CELL_HIGHLIGHTS.CYAN;
-      }
-    }
-
-    if (this.client.state.phase === GAME_PHASES.BATTLE) {
-      const activeUnit = this.client.state.entities[
-        this.client.state.activeUnitId!
-      ] as UnitViewModel;
-      const canMove = activeUnit?.potentialMoves.some(p =>
-        Vec3.fromPoint3D(p.point).equals(cell.position)
-      );
-      if (canMove) return CELL_HIGHLIGHTS.BLUE;
-    }
-
-    return null;
-  }
-
-  onCellClick(cell: BoardCellViewModel) {
-    for (const rule of this.cellClickRules) {
-      if (rule.predicate(cell)) {
-        rule.action(cell);
-        break;
-      }
-    }
-  }
 }

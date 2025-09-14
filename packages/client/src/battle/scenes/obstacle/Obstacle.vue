@@ -7,6 +7,8 @@ import { Container } from 'pixi.js';
 import { useIsoCamera } from '@/iso/composables/useIsoCamera';
 import { getScaleXForOrientation } from '@/utils/sprite';
 import LightSource from '@/shared/scenes/LightSource.vue';
+import { useGameState } from '@/battle/composables/useGameClient';
+import { ROUND_PHASES } from '@game/engine/src/game/systems/turn.system';
 
 const { obstacle } = defineProps<{
   obstacle: ObstacleViewModel;
@@ -14,12 +16,16 @@ const { obstacle } = defineProps<{
 
 const camera = useIsoCamera();
 const scaleX = computed(() => getScaleXForOrientation(obstacle.orientation, camera.angle.value));
+const state = useGameState();
 </script>
 
 <template>
   <AnimatedIsoPoint :position="obstacle.position" :z-index-offset="50">
     <LightSource :id="obstacle.id">
-      <container :scale-x="scaleX">
+      <container
+        :scale-x="scaleX"
+        :event-mode="state.phase === ROUND_PHASES.DEPLOY ? 'none' : 'static'"
+      >
         <ObstacleShadow :obstacle="obstacle" />
         <ObstacleSprite :obstacle="obstacle" />
       </container>

@@ -3,7 +3,7 @@ import { useGameClientStore } from '@/battle/composables/useGameClient';
 import { GAME_TYPES } from '@game/engine/src/client/client';
 import { defaultConfig } from '@game/engine/src/config';
 import { Game } from '@game/engine/src/game/game';
-import BattleUi from '@/battle/components/BattleUi.vue';
+import BattleUi from '@/battle/components/GameUi.vue';
 
 definePage({
   name: 'Home',
