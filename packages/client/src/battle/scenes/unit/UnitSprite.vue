@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { useActiveUnit, useGameState } from '@/battle/composables/useGameClient';
+import { useActiveUnit, useFxEvent, useGameState } from '@/battle/composables/useGameClient';
 import { useMultiLayerTexture } from '@/shared/composables/useMultiLayerTexture';
 import { useSpritesheet } from '@/shared/composables/useSpritesheet';
 import { config } from '@/utils/config';
 import { unitHitArea } from '@/utils/sprite';
+import { FX_EVENTS } from '@game/engine/src/client/controllers/fx-controller';
 import type { UnitViewModel } from '@game/engine/src/client/view-models/unit.model';
 import { Vec3 } from '@game/shared';
-import { OutlineFilter } from 'pixi-filters';
+import { ColorOverlayFilter, OutlineFilter } from 'pixi-filters';
+import type { Filter } from 'pixi.js';
 
 const { unit } = defineProps<{
   unit: UnitViewModel;
@@ -30,6 +32,10 @@ const attackIntentFilter = new OutlineFilter({
   thickness: 2,
   quality: 0.5
 });
+const takeDamageFilter = new ColorOverlayFilter({
+  color: 0xff0000,
+  alpha: 0
+});
 
 const state = useGameState();
 const isActiveUnit = computed(() => {
@@ -38,7 +44,7 @@ const isActiveUnit = computed(() => {
 
 const activeUnit = useActiveUnit();
 const filters = computed(() => {
-  const result = [];
+  const result: Filter[] = [takeDamageFilter];
 
   if (isActiveUnit.value) {
     result.push(outlineFilter);
@@ -51,6 +57,19 @@ const filters = computed(() => {
     result.push(attackIntentFilter);
   }
   return result;
+});
+
+useFxEvent(FX_EVENTS.UNIT_AFTER_RECEIVE_DAMAGE, async e => {
+  const damagedUnit = state.value.entities[e.unit] as UnitViewModel;
+  if (!damagedUnit.equals(unit)) return;
+
+  gsap.to(takeDamageFilter, {
+    alpha: 0.5,
+    duration: 0.1,
+    yoyo: true,
+    repeat: 1,
+    ease: Power1.easeInOut
+  });
 });
 </script>
 

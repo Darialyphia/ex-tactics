@@ -133,8 +133,7 @@ export class InputSystem {
 
   private handleError(err: unknown) {
     console.groupCollapsed('%c[INPUT SYSTEM]: ERROR', 'color: #ff0000');
-    console.error(err);
-    console.log({
+    console.error(err, {
       initialState: this.game.options,
       history: this.game.inputSystem.serialize()
     });

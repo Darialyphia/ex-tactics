@@ -20,6 +20,48 @@
               "m": true
             }
           }
+        },
+        {
+          "alias": [
+            "icon-back"
+          ],
+          "src": [
+            "/assets/icons/back.png"
+          ],
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "icon-confirm"
+          ],
+          "src": [
+            "/assets/icons/confirm.png"
+          ],
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "icon-move"
+          ],
+          "src": [
+            "/assets/icons/move.png"
+          ],
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
         }
       ]
     },

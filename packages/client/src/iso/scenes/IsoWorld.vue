@@ -14,7 +14,7 @@ const props = defineProps<{
 }>();
 
 const grid = useIsoWorldProvider(toRefs(props));
-const camera = useIsoCameraProvider(grid.angle);
+const camera = useIsoCameraProvider(grid);
 defineExpose({ grid, camera });
 </script>
 

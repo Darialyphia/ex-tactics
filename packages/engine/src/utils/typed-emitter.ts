@@ -83,6 +83,10 @@ export abstract class TypedSerializableEvent<TData, TSerialized extends JSONObje
   abstract serialize(): TSerialized;
 }
 
+export type SerializedEvent<TEvent extends TypedSerializableEvent<any, any>> = ReturnType<
+  TEvent['serialize']
+>;
+
 type GenericSerializableEventMap = Record<
   string,
   TypedSerializableEvent<AnyObject, JSONObject>

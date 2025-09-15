@@ -62,6 +62,11 @@ export class UnitViewModel {
     return this.data.position;
   }
 
+  // needed for movement animation
+  set position(position: Point3D) {
+    this.data.position = position;
+  }
+
   get orientation() {
     return this.data.orientation;
   }

@@ -28,8 +28,10 @@ export class DeclareAttackUnitClickAction implements UnitClickAction {
       Vec3.fromPoint3D(p.point).equals(unit.position)
     )!;
 
-    const needsToMove = attackable.origins.every(
-      origin => !Vec3.fromPoint3D(origin.point).equals(activeUnit.position)
+    const needsToMove = !attackable.origins.some(origin =>
+      Vec3.fromPoint3D(origin.point).equals(
+        activeUnit.moveIntent?.point ?? activeUnit.position
+      )
     );
     if (needsToMove) {
       const closestOrigin = activeUnit.potentialMoves

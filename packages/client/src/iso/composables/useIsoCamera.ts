@@ -1,8 +1,9 @@
 import { useSafeInject } from '@/shared/composables/useSafeInject';
 import { config } from '@/utils/config';
-import { Vec2, type Point } from '@game/shared';
+import { Vec2, type Point, type Point3D } from '@game/shared';
 import type { Viewport } from 'pixi-viewport';
 import type { InjectionKey, Ref } from 'vue';
+import type { IsoWorldContext } from './useIsoWorld';
 
 export type RotationAngle = 0 | 90 | 180 | 270;
 
@@ -12,7 +13,7 @@ export type IsoCameraContext = {
   viewport: Ref<Viewport | null>;
   isDragging: Ref<boolean>;
   provideViewport(viewport: Viewport): void;
-  toScreen(point: Point): Point;
+  toScreen(point: Point3D): Point;
   rotateCW(): void;
   rotateCCW(): void;
   getZoom(): number;
@@ -20,9 +21,9 @@ export type IsoCameraContext = {
 };
 const ISOCAMERA_INJECTION_KEY = Symbol('iso-camera') as InjectionKey<IsoCameraContext>;
 
-export const useIsoCameraProvider = (angle: Ref<RotationAngle>) => {
+export const useIsoCameraProvider = (isoWorld: IsoWorldContext) => {
   const api: IsoCameraContext = {
-    angle,
+    angle: isoWorld.angle as Ref<RotationAngle>,
     offset: ref({ x: 0, y: 0 }),
     viewport: ref(null),
     isDragging: ref(false),
@@ -55,9 +56,10 @@ export const useIsoCameraProvider = (angle: Ref<RotationAngle>) => {
     },
     toScreen(point) {
       if (!api.viewport.value) return { x: 0, y: 0 };
+      const iso = isoWorld.toIso(point);
       return api.viewport.value.toScreen({
-        x: point.x + api.offset.value.x,
-        y: point.y + api.offset.value.y
+        x: iso.x + api.offset.value.x,
+        y: iso.y + api.offset.value.y
       });
     }
   };

@@ -27,6 +27,9 @@ export const config = {
     width: 32
   },
 
+  UNIT_MOVEMENT_BOUNCE_HEIGHT: 1,
+  UNIT_MOVEMENT_BOUNCE_DURATION: 0.3,
+
   TILE_SPRITE_SIZE: {
     width: 48,
     height: 40

@@ -289,9 +289,8 @@ export class Unit
 
   get canMove(): boolean {
     return this.interceptors.canMove.getValue(
-      this.movementsMadeThisTurn < this.movementRange && this.canMoveAfterAttacking
-        ? this.actionsTakenThisTurn === 0
-        : true,
+      this.movementsMadeThisTurn < this.movementRange &&
+        (this.canMoveAfterAttacking ? true : this.actionsTakenThisTurn === 0),
       {}
     );
   }
@@ -463,10 +462,12 @@ export class Unit
   }
 
   move(to: Point3D) {
+    const prevPos = this.position.clone();
     const path = this.movement.move(to);
     if (path) {
       this.movementsMadeThisTurn += path.distance;
-      const [last, previous] = path.path.slice(-2);
+      let [last, previous] = path.path.slice(-2);
+      if (!previous) previous = prevPos;
       this.orientation = getDirectionFromDiff(last, previous)!;
     }
   }
@@ -479,7 +480,9 @@ export class Unit
 
   getPotentialMoves() {
     if (!this.canMove) return [];
-    return this.movement.getAllPossibleMoves(this.remainingMovement);
+    return this.movement
+      .getAllPossibleMoves(this.remainingMovement)
+      .filter(p => this.canMoveTo(p.point));
   }
 
   destroy(source: Unit) {

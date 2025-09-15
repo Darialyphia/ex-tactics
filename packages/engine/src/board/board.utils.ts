@@ -18,7 +18,7 @@ export const DIRECTIONS_TO_DIFF = {
 export const getDirectionFromDiff = (a: Point, b: Point) => {
   const diffX = b.x - a.x;
   const diffY = b.y - a.y;
-
+  console.log(a, b);
   if (diffX === 0 && diffY === -1) {
     return DIRECTION.NORTH;
   }
