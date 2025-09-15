@@ -58,10 +58,11 @@ updateLight();
 const autoDeploy = () => {
   players.value.forEach(player => {
     client.switchPlayerId(player.id);
+    const availablePositions = player.deployZone.map(z => z.position);
     player.heroesToDeploy.forEach(hero => {
-      const idx = Math.floor(Math.random() * player.deployZone.length);
+      const idx = Math.floor(Math.random() * availablePositions.length);
       ui.value.selectedHeroToDeploy = hero;
-      ui.value.deployAt(player.deployZone[idx].position);
+      ui.value.deployAt(availablePositions.splice(idx, 1)[0]);
     });
     client.deploy();
   });

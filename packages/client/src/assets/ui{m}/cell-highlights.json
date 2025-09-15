@@ -1,5 +1,5 @@
 { "frames": {
-   "cell-highlights__base_normal_0": {
+   "cell-highlights__base_empty_0": {
     "frame": { "x": 0, "y": 0, "w": 48, "h": 40 },
     "rotated": false,
     "trimmed": false,
@@ -72,7 +72,7 @@
   "size": { "w": 384, "h": 40 },
   "scale": "1",
   "frameTags": [
-   { "name": "normal", "from": 0, "to": 0, "direction": "forward", "color": "#000000ff" },
+   { "name": "empty", "from": 0, "to": 0, "direction": "forward", "color": "#000000ff" },
    { "name": "white", "from": 1, "to": 1, "direction": "forward", "color": "#000000ff" },
    { "name": "cyan", "from": 2, "to": 2, "direction": "forward", "color": "#000000ff" },
    { "name": "blue", "from": 3, "to": 3, "direction": "forward", "color": "#000000ff" },

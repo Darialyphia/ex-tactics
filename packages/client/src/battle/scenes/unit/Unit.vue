@@ -15,7 +15,6 @@ import UnitStatBars from './UnitStatBars.vue';
 import UnitTurnOrderIndicator from './UnitTurnOrderIndicator.vue';
 import { useUnitAnimations } from '@/battle/composables/useUnitAnimations';
 import { FX_EVENTS } from '@game/engine/src/client/controllers/fx-controller';
-
 const { unit } = defineProps<{
   unit: UnitViewModel;
 }>();

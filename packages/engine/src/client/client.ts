@@ -192,6 +192,16 @@ export class GameClient {
     await this.sync();
   }
 
+  private startPlayingFX() {
+    this._isPlayingFx = true;
+    this.forceSync();
+  }
+
+  private stopPlayingFX() {
+    this._isPlayingFx = false;
+    this.forceSync();
+  }
+
   async update(snapshot: GameStateSnapshot<SnapshotDiff>) {
     if (snapshot.id <= this.lastSnapshotId) {
       console.log(
@@ -210,7 +220,7 @@ export class GameClient {
     this.lastSnapshotId = snapshot.id;
 
     try {
-      this._isPlayingFx = true;
+      this.startPlayingFX();
       this.stateManager.preupdate(snapshot.state);
       for (const event of snapshot.events) {
         await this.stateManager.onEvent(event, async () => {
@@ -219,7 +229,6 @@ export class GameClient {
 
         await this.fx.emit(event.eventName, event.event);
       }
-      this._isPlayingFx = false;
 
       this.stateManager.update(snapshot.state);
 
@@ -229,6 +238,8 @@ export class GameClient {
 
       this.ui.update();
       this.snapshots.set(snapshot.id, snapshot);
+      this.stopPlayingFX();
+
       await this.emitter.emit('update', {});
       await this.emitter.emit('updateCompleted', snapshot);
     } catch (err) {

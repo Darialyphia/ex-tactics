@@ -55,6 +55,7 @@ const isActiveUnitMoveIntentCell = computed(() => {
       </text>
     </template>
   </AnimatedIsoPoint>
+
   <AnimatedIsoPoint :position="cell.position" event-mode="none" :z-index-offset="50">
     <UnitSprite v-if="activeUnit && isActiveUnitMoveIntentCell" :unit="activeUnit" />
   </AnimatedIsoPoint>

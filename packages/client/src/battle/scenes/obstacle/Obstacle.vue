@@ -7,8 +7,12 @@ import { Container } from 'pixi.js';
 import { useIsoCamera } from '@/iso/composables/useIsoCamera';
 import { getScaleXForOrientation } from '@/utils/sprite';
 import LightSource from '@/shared/scenes/LightSource.vue';
-import { useGameState } from '@/battle/composables/useGameClient';
+import { useGameState, useLatestSimulationResult } from '@/battle/composables/useGameClient';
 import { ROUND_PHASES } from '@game/engine/src/game/systems/turn.system';
+import Layer from '@/shared/scenes/Layer.vue';
+import UiAnimatedSprite from '@/ui/scenes/UiAnimatedSprite.vue';
+import HpBar from '../HpBar.vue';
+import type { SerializedObstacle } from '@game/engine/src/obstacle/obstacle.entity';
 
 const { obstacle } = defineProps<{
   obstacle: ObstacleViewModel;
@@ -17,6 +21,14 @@ const { obstacle } = defineProps<{
 const camera = useIsoCamera();
 const scaleX = computed(() => getScaleXForOrientation(obstacle.orientation, camera.angle.value));
 const state = useGameState();
+
+const simulation = useLatestSimulationResult();
+const simulatedHp = computed(() => {
+  if (!simulation.value) return obstacle.hp;
+  const simUnit = simulation.value.state.entities[obstacle.id] as SerializedObstacle | undefined;
+  if (!simUnit) return 0;
+  return simUnit.currentHp;
+});
 </script>
 
 <template>
@@ -29,6 +41,19 @@ const state = useGameState();
         <ObstacleShadow :obstacle="obstacle" />
         <ObstacleSprite :obstacle="obstacle" />
       </container>
+
+      <Layer layer="ui" v-if="obstacle.maxHP && obstacle.hp && simulatedHp">
+        <container :y="-56" :x="-12">
+          <UiAnimatedSprite asset-id="obstacle-stat-bars" :anchor="0" />
+          <HpBar
+            :value="obstacle.hp"
+            :simulated-value="simulatedHp"
+            :max="obstacle.maxHP"
+            :x="2"
+            :y="2"
+          />
+        </container>
+      </Layer>
     </LightSource>
   </AnimatedIsoPoint>
 </template>

@@ -10,6 +10,7 @@ import { GAME_PHASES } from '../../game/game.enums';
 import type { PlayerViewModel } from './player.model';
 
 export const CELL_HIGHLIGHTS = {
+  EMPTY: 'empty',
   BLUE: 'blue',
   RED: 'red',
   WHITE: 'white',
@@ -69,34 +70,6 @@ export class BoardCellViewModel {
     if (!this.data.obstacle) return null;
     const entities = this.getEntities();
     return entities[this.data.obstacle] as ObstacleViewModel;
-  }
-
-  get activeUnitCanAttack() {
-    const client = this.getClient();
-    const entities = this.getEntities();
-    if (client.state.phase !== GAME_PHASES.BATTLE) return false;
-    if (!client.state.activeUnitId) return false;
-
-    const activeUnit = entities[client.state.activeUnitId] as UnitViewModel;
-    if (!activeUnit) return false;
-
-    return activeUnit.attackablePoints.some(p =>
-      Vec3.fromPoint3D(p.point).equals(this.position)
-    );
-  }
-
-  get activeUnitCanMove() {
-    const client = this.getClient();
-    const entities = this.getEntities();
-    if (client.state.phase !== GAME_PHASES.BATTLE) return false;
-    if (!client.state.activeUnitId) return false;
-
-    const activeUnit = entities[client.state.activeUnitId] as UnitViewModel;
-    if (!activeUnit) return false;
-
-    return activeUnit.potentialMoves.some(p =>
-      Vec3.fromPoint3D(p.point).equals(this.position)
-    );
   }
 
   get enemiesInAttackRange() {

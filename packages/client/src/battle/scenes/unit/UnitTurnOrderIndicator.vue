@@ -14,18 +14,17 @@ const activeUnit = useActiveUnit();
     v-if="activeUnit && !activeUnit.equals(unit) && unit.indexInTurnOrder >= 0"
     :style="{
       fill: 'white',
-      fontSize: '42px',
-      fontWeight: 'bold',
+      fontSize: '36px',
       dropShadow: {
         angle: Math.PI / 4,
         color: '#000000',
-        distance: 6
+        distance: 4
       }
     }"
     :scale="0.25"
     :anchor-x="0.5"
-    :y="-61"
-    :x="22"
+    :y="-60"
+    :x="20"
   >
     {{ unit.indexInTurnOrder }}
   </pixi-text>

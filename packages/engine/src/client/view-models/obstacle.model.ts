@@ -54,4 +54,12 @@ export class ObstacleViewModel {
     if (!this.data.player) return null;
     return this.getEntities()[this.data.player] as PlayerViewModel;
   }
+
+  get maxHP() {
+    return this.data.maxHp;
+  }
+
+  get hp() {
+    return this.data.currentHp;
+  }
 }

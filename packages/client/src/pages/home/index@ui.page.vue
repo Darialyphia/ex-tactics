@@ -62,7 +62,7 @@ clientStore.init(
         return game.dispatch(input);
       },
       subscribe(cb) {
-        game.subscribeOmniscient(cb);
+        game.subscribeOmniscient(async arg => cb(arg));
       },
       sync(lastSnapshotId) {
         console.log('TODO: sync ', lastSnapshotId);

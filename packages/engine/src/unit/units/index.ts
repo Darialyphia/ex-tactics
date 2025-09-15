@@ -31,7 +31,11 @@ export const UNITS_DICTIONARY: Record<string, UnitBlueprint> = {
       return new PointAOEShape(TARGETING_TYPES.NON_ALLY);
     },
     getAttackTargetingShape(game, unit) {
-      return new CrossAOEShape(TARGETING_TYPES.NON_ALLY, 1, 1);
+      return new CrossAOEShape(TARGETING_TYPES.NON_ALLY, {
+        horizontalSize: 1,
+        verticalSize: 1,
+        includeCenter: false
+      });
     }
   },
   testHero2: {
@@ -61,7 +65,11 @@ export const UNITS_DICTIONARY: Record<string, UnitBlueprint> = {
       return new PointAOEShape(TARGETING_TYPES.NON_ALLY);
     },
     getAttackTargetingShape(game, unit) {
-      return new CrossAOEShape(TARGETING_TYPES.NON_ALLY, 1, 1);
+      return new CrossAOEShape(TARGETING_TYPES.NON_ALLY, {
+        horizontalSize: 2,
+        verticalSize: 1,
+        includeCenter: false
+      });
     }
   }
 };

@@ -46,7 +46,6 @@ export const useGameState = () => {
 
 export const useGameUi = () => {
   const client = useGameClient();
-
   const ui = computed(() => client.ui);
 
   const cleanup = client.onUiSync(() => {
@@ -157,4 +156,9 @@ export const useClientPlayerId = () => {
 export const useLatestSimulationResult = () => {
   const client = useGameClient();
   return gameStateRef(() => client.latestSimulationResult);
+};
+
+export const useIsPlayingFX = () => {
+  const client = useGameClient();
+  return gameStateRef(() => client.isPlayingFx);
 };

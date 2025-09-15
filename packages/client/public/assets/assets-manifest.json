@@ -214,6 +214,35 @@
       "assets": [
         {
           "alias": [
+            "ap"
+          ],
+          "src": [
+            "/assets/ui/ap.json"
+          ],
+          "parser": "aseprite_loader",
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "ap.png"
+          ],
+          "src": [
+            "/assets/ui/ap.png"
+          ],
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
             "arrow-down"
           ],
           "src": [
@@ -320,6 +349,35 @@
           "src": [
             "/assets/ui/hovered-cell.png"
           ],
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "obstacle-stat-bars-frame.png"
+          ],
+          "src": [
+            "/assets/ui/obstacle-stat-bars-frame.png"
+          ],
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "obstacle-stat-bars"
+          ],
+          "src": [
+            "/assets/ui/obstacle-stat-bars.json"
+          ],
+          "parser": "aseprite_loader",
           "data": {
             "scaleMode": "nearest",
             "tags": {

@@ -11,6 +11,8 @@ import type { Ability } from '../../unit/ability/ability.entity';
 import type { AbilityViewModel } from './ability.model';
 import { DeclareAttackUnitClickAction } from '../actions/declare-attack.unit-click-action';
 import { CancelMoveIntentkUnitClickAction } from '../actions/cancel-move-intent.unit-click-action';
+import { ROUND_PHASES } from '../../game/systems/turn.system';
+import { th } from 'zod/v4/locales';
 
 type AttackablePoint = {
   point: Point3D;
@@ -228,9 +230,32 @@ export class UnitViewModel {
     ];
   }
 
+  isInAttackZone(cell: BoardCellViewModel) {
+    return this.attackZone.some(p => Vec3.fromPoint3D(p.point).equals(cell.position));
+  }
+
+  canAttackFromCurrentPosition(cell: BoardCellViewModel) {
+    const pos = this.moveIntent?.point ?? this.position;
+    const targetingShape = this.attackTargetingShape;
+    const area = targetingShape.getArea(pos);
+    return area.some(p => Vec3.fromPoint3D(p).equals(cell.position));
+  }
+
   canMoveTo(cell: BoardCellViewModel) {
+    const client = this.getClient();
+    if (client.state.phase !== ROUND_PHASES.BATTLE) return false;
+
     return this.data.potentialMoves.some(point =>
       Vec3.fromPoint3D(point.point).equals(cell.position)
+    );
+  }
+
+  canAttack(cell: BoardCellViewModel) {
+    const client = this.getClient();
+    if (client.state.phase !== ROUND_PHASES.BATTLE) return false;
+
+    return this.attackablePoints.some(p =>
+      Vec3.fromPoint3D(p.point).equals(cell.position)
     );
   }
 

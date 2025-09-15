@@ -20,9 +20,18 @@ const simulatedHp = computed(() => {
 </script>
 
 <template>
-  <container :y="-60" :x="-12">
-    <UiAnimatedSprite asset-id="unit-stat-bars" :anchor="0" />
-    <HpBar :value="unit.hp" :simulated-value="simulatedHp" :max="unit.maxHp" :x="2" :y="2" />
-    <MpBar :value="unit.mp" :max="unit.maxMp" :x="2" :y="5" />
+  <container :y="-62" :x="-12">
+    <UiAnimatedSprite
+      v-for="(ap, index) in unit.ap"
+      :key="index"
+      asset-id="ap"
+      :x="10 + (index - 1) * 6"
+      :y="0"
+    />
+    <container :y="3">
+      <UiAnimatedSprite asset-id="unit-stat-bars" :anchor="0" />
+      <HpBar :value="unit.hp" :simulated-value="simulatedHp" :max="unit.maxHp" :x="2" :y="2" />
+      <MpBar :value="unit.mp" :max="unit.maxMp" :x="2" :y="5" />
+    </container>
   </container>
 </template>

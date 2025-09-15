@@ -15,7 +15,7 @@ export type EventMapWithStarEvent<TEvents extends GenericEventMap> = TEvents & {
 
 export class AsyncTypedEventEmitter<TEvents extends GenericEventMap> {
   private _listeners: Partial<{
-    [Event in keyof EventMapWithStarEvent<TEvents>]: Set<
+    [Event in keyof EventMapWithStarEvent<TEvents>]: Array<
       (eventArg: EventMapWithStarEvent<TEvents>[Event]) => MaybePromise<void>
     >;
   }> = {};
@@ -71,9 +71,9 @@ export class AsyncTypedEventEmitter<TEvents extends GenericEventMap> {
     handler: (eventArg: EventMapWithStarEvent<TEvents>[TEventName]) => MaybePromise<void>
   ) {
     if (!this._listeners[eventName]) {
-      this._listeners[eventName] = new Set();
+      this._listeners[eventName] = [];
     }
-    this._listeners[eventName].add(handler);
+    this._listeners[eventName].push(handler);
 
     return () => this.off(eventName, handler as any);
   }
@@ -83,7 +83,7 @@ export class AsyncTypedEventEmitter<TEvents extends GenericEventMap> {
     handler: (eventArg: EventMapWithStarEvent<TEvents>[TEventName]) => MaybePromise<void>
   ) {
     if (!this._listeners[eventName]) {
-      this._listeners[eventName] = new Set();
+      this._listeners[eventName] = [];
     }
     let handled = false;
     const onceHandler = (eventArg: EventMapWithStarEvent<TEvents>[TEventName]) => {
@@ -93,7 +93,7 @@ export class AsyncTypedEventEmitter<TEvents extends GenericEventMap> {
       this.off(eventName, onceHandler as any);
       return handler(eventArg);
     };
-    this._listeners[eventName].add(onceHandler);
+    this._listeners[eventName].push(onceHandler);
 
     return () => this.off(eventName, onceHandler as any);
   }
@@ -104,8 +104,8 @@ export class AsyncTypedEventEmitter<TEvents extends GenericEventMap> {
   ) {
     const listeners = this._listeners[eventName];
     if (!listeners) return;
-    listeners.delete(handler);
-    if (listeners.size === 0) {
+    listeners.splice(listeners.indexOf(handler), 1);
+    if (listeners.length === 0) {
       delete this._listeners[eventName];
     }
   }

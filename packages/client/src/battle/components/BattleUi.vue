@@ -43,7 +43,7 @@ const simulation = useLatestSimulationResult();
         </div>
       </div>
 
-      <div class="flex gap-2">
+      <div class="flex gap-2 items-end">
         <div class="portrait" :style="`--bg: url(${activeUnit.portrait})`" />
 
         <div>
