@@ -128,6 +128,9 @@ const clientPlayerId = useClientPlayerId();
 header {
   padding: var(--size-2);
   font-size: var(--font-size-0);
+  /* @media (width <= 900px) {
+    display: none;
+  } */
 }
 
 button {

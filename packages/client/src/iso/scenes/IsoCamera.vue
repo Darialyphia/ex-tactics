@@ -2,7 +2,7 @@
 import { useApplication } from 'vue3-pixi';
 import { type Viewport } from 'pixi-viewport';
 import { Container } from 'pixi.js';
-import { until, useEventListener } from '@vueuse/core';
+import { until, useEventListener, useMediaQuery } from '@vueuse/core';
 import { useIsoCamera } from '../composables/useIsoCamera';
 import { config } from '@/utils/config';
 import { useIsoWorld } from '../composables/useIsoWorld';
@@ -20,6 +20,8 @@ const worldSize = computed(() => ({
     config.CAMERA.PADDING * 2
 }));
 
+const isMobile = useMediaQuery(`(width <= ${config.MOBILE_MAX_WIDTH}px)`);
+console.log('isMobile', isMobile.value);
 until(camera.viewport)
   .toBeTruthy()
   .then(viewport => {
@@ -33,7 +35,10 @@ until(camera.viewport)
         direction: 'all'
       })
       .clampZoom({ minScale: config.CAMERA.MIN_ZOOM, maxScale: config.CAMERA.MAX_ZOOM })
-      .setZoom(config.CAMERA.INITIAL_ZOOM, false)
+      .setZoom(
+        isMobile.value ? config.CAMERA.INITIAL_MOBILE_ZOOM : config.CAMERA.INITIAL_ZOOM,
+        false
+      )
       // .mouseEdges({
       //   distance: 10,
       //   speed: 15,

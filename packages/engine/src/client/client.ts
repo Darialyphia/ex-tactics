@@ -321,4 +321,22 @@ export class GameClient {
       }
     });
   }
+
+  endTurn() {
+    const moveIntent = this.stateManager.activeUnit.moveIntent;
+    if (moveIntent) {
+      this.stateManager.activeUnit.cancelMoveIntent();
+    }
+    const attackIntent = this.stateManager.activeUnit.attackIntent;
+    if (attackIntent) {
+      this.stateManager.activeUnit.cancelAttackIntent();
+    }
+    this.ui.clearUnitAction();
+    this.networkAdapter.dispatch({
+      type: 'endTurn',
+      payload: {
+        playerId: this.playerId
+      }
+    });
+  }
 }

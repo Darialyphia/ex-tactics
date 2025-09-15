@@ -31,6 +31,7 @@ export const ROUND_PHASES = {
   DEPLOY: 'deploy',
   BATTLE: 'battle'
 } as const;
+
 export type RoundPhase = Values<typeof ROUND_PHASES>;
 
 export type SerializedTurnOrder = string[];
@@ -59,11 +60,18 @@ export class TurnSystem implements Serializable<SerializedTurnOrder> {
       PLAYER_EVENTS.PLAYER_DEPLOYED_FOR_TURN,
       this.onPlayerDeployedForTurn.bind(this)
     );
-    this.buildQueue();
+    this.queue = this.buildQueue();
   }
 
   serialize() {
-    return this.queue.map(unit => unit.id);
+    const predictedQueueForNextTurn = this.buildQueue().map(unit => unit.id);
+    const currentQueue = this.queue.map(unit => unit.id);
+
+    // ensure all units are present in the queue sent to the client
+    const missingIds = predictedQueueForNextTurn.filter(id => !currentQueue.includes(id));
+    const updatedQueue = [...currentQueue, ...missingIds];
+
+    return updatedQueue;
   }
 
   get turnCount() {
@@ -79,9 +87,7 @@ export class TurnSystem implements Serializable<SerializedTurnOrder> {
   }
 
   private buildQueue() {
-    this.game.unitManager.units
-      .sort((a, b) => b.initiative - a.initiative)
-      .forEach(unit => this.queue.push(unit));
+    return this.game.unitManager.units.toSorted((a, b) => b.initiative - a.initiative);
   }
 
   private onPlayerDeployedForTurn() {
@@ -97,7 +103,7 @@ export class TurnSystem implements Serializable<SerializedTurnOrder> {
     this.queue = [];
     this._processedUnits.clear();
 
-    this.buildQueue();
+    this.queue = this.buildQueue();
     this.game.emit(
       TURN_EVENTS.ROUND_START,
       new RoundEvent({ turnCount: this.turnCount })

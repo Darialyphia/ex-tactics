@@ -51,6 +51,20 @@
         },
         {
           "alias": [
+            "icon-end-turn"
+          ],
+          "src": [
+            "/assets/icons/end-turn.png"
+          ],
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
             "icon-move"
           ],
           "src": [

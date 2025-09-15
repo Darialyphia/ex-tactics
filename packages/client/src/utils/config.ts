@@ -3,6 +3,8 @@ export const PIXEL_ART_ASSETS_SCALING = 2;
 export const config = {
   DEBUG: false,
 
+  MOBILE_MAX_WIDTH: 900,
+
   PIXEL_ART_ASSETS_SCALING,
 
   TILE_SIZE: {
@@ -39,6 +41,7 @@ export const config = {
     MIN_ZOOM: 2,
     MAX_ZOOM: 4,
     INITIAL_ZOOM: 3,
+    INITIAL_MOBILE_ZOOM: 2,
     PADDING: 48
   },
 

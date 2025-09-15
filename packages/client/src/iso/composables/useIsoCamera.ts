@@ -4,6 +4,7 @@ import { Vec2, type Point, type Point3D } from '@game/shared';
 import type { Viewport } from 'pixi-viewport';
 import type { InjectionKey, Ref } from 'vue';
 import type { IsoWorldContext } from './useIsoWorld';
+import { useMediaQuery } from '@vueuse/core';
 
 export type RotationAngle = 0 | 90 | 180 | 270;
 
@@ -22,6 +23,11 @@ export type IsoCameraContext = {
 const ISOCAMERA_INJECTION_KEY = Symbol('iso-camera') as InjectionKey<IsoCameraContext>;
 
 export const useIsoCameraProvider = (isoWorld: IsoWorldContext) => {
+  const isMobile = useMediaQuery(`(width <= ${config.MOBILE_MAX_WIDTH}px)`);
+  const defaultZoom = isMobile.value
+    ? config.CAMERA.INITIAL_MOBILE_ZOOM
+    : config.CAMERA.INITIAL_ZOOM;
+
   const api: IsoCameraContext = {
     angle: isoWorld.angle as Ref<RotationAngle>,
     offset: ref({ x: 0, y: 0 }),
@@ -34,13 +40,13 @@ export const useIsoCameraProvider = (isoWorld: IsoWorldContext) => {
       api.angle.value = ((api.angle.value + 360 - 90) % 360) as RotationAngle;
     },
     getZoom() {
-      return api.viewport.value?.scale.x ?? config.CAMERA.INITIAL_ZOOM;
+      return api.viewport.value?.scale.x ?? defaultZoom;
     },
     moveTo(point, duration) {
       if (!api.viewport.value) return;
       api.viewport.value?.animate({
         position: Vec2.fromPoint(point).add(api.offset.value),
-        scale: config.CAMERA.INITIAL_ZOOM,
+        scale: defaultZoom,
         time: duration,
         ease: 'easeOutQuad'
       });

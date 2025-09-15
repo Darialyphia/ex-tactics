@@ -11,7 +11,7 @@ const activeUnit = useActiveUnit();
 
 <template>
   <pixi-text
-    v-if="activeUnit && !activeUnit.equals(unit)"
+    v-if="activeUnit && !activeUnit.equals(unit) && unit.indexInTurnOrder >= 0"
     :style="{
       fill: 'white',
       fontSize: '42px',

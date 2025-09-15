@@ -279,7 +279,6 @@ export class UnitViewModel {
   }
 
   onClick() {
-    console.log('Unit clicked', this.id);
     const client = this.getClient();
     const rules = [
       new DeclareAttackUnitClickAction(client),

@@ -4,11 +4,7 @@ import { assert } from '@game/shared';
 import { ROUND_PHASES } from '../../game/systems/turn.system';
 import { NotActivePlayerError } from '../input-errors';
 
-const schema = defaultInputSchema.extend({
-  x: z.number(),
-  y: z.number(),
-  z: z.number()
-});
+const schema = defaultInputSchema;
 
 export class EndTurnInput extends Input<typeof schema> {
   readonly name = 'endTurn';

@@ -375,9 +375,7 @@ export class Unit
   }
 
   attack(target: Vec3) {
-    console.log(this.currentAp);
     this.currentAp -= this.apCostPerAttack;
-    console.log(this.currentAp);
     this.actionsTakenThisTurn += 1;
     this.orientation = getDirectionFromDiff(this.position, target)!;
     this.combat.attack(target);
@@ -466,9 +464,12 @@ export class Unit
     const path = this.movement.move(to);
     if (path) {
       this.movementsMadeThisTurn += path.distance;
-      let [last, previous] = path.path.slice(-2);
-      if (!previous) previous = prevPos;
-      this.orientation = getDirectionFromDiff(last, previous)!;
+      let [secondToLast, last] = path.path.slice(-2);
+      if (!last) {
+        last = secondToLast;
+        secondToLast = prevPos;
+      }
+      this.orientation = getDirectionFromDiff(secondToLast, last)!;
     }
   }
 

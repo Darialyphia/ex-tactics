@@ -20,7 +20,12 @@ const client = useGameClient();
 
     <template v-else-if="activeUnit">
       <div class="flex gap2">
-        <div class="ml-auto mr-10 flex flex-col gap-4">
+        <div class="actions flex-col">
+          <button
+            class="action"
+            :style="`--bg: url('/assets/icons/end-turn.png')`"
+            @click="client.endTurn()"
+          />
           <button
             v-if="activeUnit.moveIntent"
             class="action"
@@ -46,7 +51,7 @@ const client = useGameClient();
           <p>AP: {{ activeUnit.ap }} / {{ activeUnit.maxAp }}</p>
         </div>
 
-        <div class="ml-auto mr-10 flex gap-2">
+        <div class="actions">
           <template v-if="!ui.selectedUnitAction">
             <button
               v-for="action in activeUnit.actions"
@@ -60,7 +65,7 @@ const client = useGameClient();
             v-else
             class="action"
             :style="{ '--bg': 'url(/assets/icons/back.png)' }"
-            @click="ui.clearUnitaction()"
+            @click="ui.clearUnitAction()"
           />
         </div>
       </div>
@@ -84,6 +89,19 @@ const client = useGameClient();
   aspect-ratio: 1;
   background: var(--bg) no-repeat center/cover;
   cursor: pointer;
+}
+
+.actions {
+  margin-left: auto;
+  margin-right: var(--size-10);
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-4);
+
+  @media (width <= 900px) {
+    margin-right: var(--size-5);
+    gap: var(--size-2);
+  }
 }
 
 .action {

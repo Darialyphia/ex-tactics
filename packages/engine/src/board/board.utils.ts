@@ -1,4 +1,11 @@
-import { assert, isDefined, type Point, type Point3D, type Values } from '@game/shared';
+import {
+  assert,
+  isDefined,
+  Vec2,
+  type Point,
+  type Point3D,
+  type Values
+} from '@game/shared';
 import type { SerializedCoords } from './board-cell.entity';
 
 export const DIRECTION = {
@@ -16,19 +23,17 @@ export const DIRECTIONS_TO_DIFF = {
 } as const satisfies Record<Direction, Point>;
 
 export const getDirectionFromDiff = (a: Point, b: Point) => {
-  const diffX = b.x - a.x;
-  const diffY = b.y - a.y;
-  console.log(a, b);
-  if (diffX === 0 && diffY === -1) {
+  const diff = Vec2.fromPoint(b).sub(a).normalize();
+  if (diff.x === 0 && diff.y === -1) {
     return DIRECTION.NORTH;
   }
-  if (diffX === 0 && diffY === 1) {
+  if (diff.x === 0 && diff.y === 1) {
     return DIRECTION.SOUTH;
   }
-  if (diffX === -1 && diffY === 0) {
+  if (diff.x === -1 && diff.y === 0) {
     return DIRECTION.WEST;
   }
-  if (diffX === 1 && diffY === 0) {
+  if (diff.x === 1 && diff.y === 0) {
     return DIRECTION.EAST;
   }
 

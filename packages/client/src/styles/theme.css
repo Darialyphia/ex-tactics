@@ -115,6 +115,9 @@
   --fancy-border: solid var(--border-size-2) hsl(var(--color-primary-hsl) / 0.5);
 
   --pixel-art-scale: 3;
+  @media (width <= 900px) {
+    --pixel-art-scale: 2;
+  }
 }
 
 html.dark {

@@ -75,7 +75,7 @@ useFxEvent(FX_EVENTS.UNIT_AFTER_RECEIVE_DAMAGE, async e => {
         event-mode="static"
         @pointerenter="ui.hoverAt(unit.cell)"
         @pointerleave="ui.unhover()"
-        @click="unit.onClick()"
+        @pointerup="unit.onClick()"
       >
         <UnitShadow :unit="unit" />
         <UnitSprite :unit="unit" />

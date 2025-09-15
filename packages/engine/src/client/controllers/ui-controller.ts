@@ -82,7 +82,7 @@ export class UiController {
     this._selectedUnitAction = action;
   }
 
-  clearUnitaction() {
+  clearUnitAction() {
     this._selectedUnitAction = null;
     const activeUnit = this.client.state.entities[
       this.client.state.activeUnitId!
@@ -149,6 +149,6 @@ export class UiController {
   }
 
   update() {
-    this.clearUnitaction();
+    this.clearUnitAction();
   }
 }
