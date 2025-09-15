@@ -10,6 +10,7 @@ import { config } from '@/utils/config';
 import type { Container } from 'pixi.js';
 import { useShaker } from '@/shared/composables/useShaker';
 import { waitFor } from '@game/shared';
+import { getDirectionFromDiff } from '@game/engine/src/board/board.utils';
 
 export const useUnitAnimations = (
   unit: Ref<UnitViewModel>,
@@ -24,6 +25,8 @@ export const useUnitAnimations = (
     for (const [index, step] of e.path.entries()) {
       const start = e.path[index - 1] ?? e.previousPosition;
       const end = step;
+      const orientation = getDirectionFromDiff(start, end)!;
+      unit.value.update({ orientation });
       const midPoint = {
         x: (start.x + end.x) / 2,
         y: (start.y + end.y) / 2,

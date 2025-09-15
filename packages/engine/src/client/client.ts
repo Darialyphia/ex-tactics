@@ -2,10 +2,11 @@ import {
   isDefined,
   type EmptyObject,
   type MaybePromise,
+  type Nullable,
   type Point3D,
   type Values
 } from '@game/shared';
-import type { InputDispatcher } from '../input/input-system';
+import type { InputDispatcher, SerializedInput } from '../input/input-system';
 import type {
   GameStateSnapshot,
   SerializedOmniscientState,
@@ -26,8 +27,6 @@ import type { PassiveViewModel } from './view-models/passive.model';
 import type { PlayerViewModel } from './view-models/player.model';
 import type { UnitViewModel } from './view-models/unit.model';
 import type { BoardCellViewModel } from './view-models/board-cell.model';
-import type { Direction } from '../board/board.utils';
-import { de } from 'zod/v4/locales';
 
 export const GAME_TYPES = {
   LOCAL: 'local',
@@ -40,9 +39,16 @@ export type OnSnapshotUpdateCallback = (
   snapshot: GameStateSnapshot<SnapshotDiff>
 ) => MaybePromise<void>;
 
+export type OnSimulationCallback = (
+  snapshot: GameStateSnapshot<SerializedOmniscientState>
+) => MaybePromise<void>;
+
 export type NetworkAdapter = {
   dispatch: InputDispatcher;
   subscribe(cb: OnSnapshotUpdateCallback): void;
+  simulateDispatch: (
+    inputs: SerializedInput[]
+  ) => Promise<GameStateSnapshot<SerializedOmniscientState>>;
   sync: (lastSnapshotId: number) => Promise<Array<GameStateSnapshot<SnapshotDiff>>>;
 };
 
@@ -96,6 +102,8 @@ export class GameClient {
     updateCompleted: GameStateSnapshot<SnapshotDiff>;
     uiSync: EmptyObject;
   }>('sequential');
+
+  latestSimulationResult: Nullable<GameStateSnapshot<SerializedOmniscientState>> = null;
 
   readonly forceSync: () => void;
 
@@ -265,6 +273,12 @@ export class GameClient {
   private async sync() {
     const snapshots = await this.networkAdapter.sync(this.lastSnapshotId);
     this.queue.push(...snapshots);
+  }
+
+  async simulateDispatch(inputs: SerializedInput[]) {
+    this.latestSimulationResult = null;
+    this.latestSimulationResult = await this.networkAdapter.simulateDispatch(inputs);
+    this.emitter.emit('uiSync', {});
   }
 
   deploy() {

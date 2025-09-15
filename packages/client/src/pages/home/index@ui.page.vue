@@ -67,6 +67,9 @@ clientStore.init(
       sync(lastSnapshotId) {
         console.log('TODO: sync ', lastSnapshotId);
         return Promise.resolve([]);
+      },
+      simulateDispatch: inputs => {
+        return Promise.resolve(game.simulateDispatch('p1', inputs));
       }
     }
   },

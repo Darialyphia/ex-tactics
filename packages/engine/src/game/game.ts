@@ -25,6 +25,7 @@ export type GameOptions = {
   players: PlayerOptions[];
   config: Config;
   enableSnapshots?: boolean;
+  isSimulation?: boolean;
   mapId: string;
 };
 
@@ -35,6 +36,8 @@ export type SerializedGame = {
 
 export class Game implements Serializable<SerializedGame> {
   readonly id: string;
+
+  private nextSimulationId = 0;
 
   private readonly emitter = new TypedSerializableEventEmitter<GameEventMap>();
 
@@ -58,9 +61,12 @@ export class Game implements Serializable<SerializedGame> {
 
   readonly modifierIdFactory = modifierIdFactory();
 
+  readonly isSimulation: boolean;
+
   constructor(readonly options: GameOptions) {
     this.id = options.id;
     this.config = options.config;
+    this.isSimulation = options.isSimulation ?? false;
   }
 
   initialize() {
@@ -132,22 +138,26 @@ export class Game implements Serializable<SerializedGame> {
     this.emitter.removeAllListeners();
   }
 
-  // clone(id: number) {
-  //   const game = new Game({
-  //     ...this.options,
-  //     id: `simulation_${id}`,
-  //     history: this.inputSystem.serialize()
-  //   });
-  //   game.initialize();
+  clone(id: number) {
+    const game = new Game({
+      ...this.options,
+      isSimulation: true,
+      id: `simulation_${id}`,
+      history: this.inputSystem.serialize()
+    });
+    game.initialize();
 
-  //   return game;
-  // }
+    return game;
+  }
 
-  // simulateDispatch(playerId: string, input: SerializedInput) {
-  //   const game = this.clone(++this.nextSimulationId);
-  //   game.dispatch(input);
-  //   game.snapshotSystem.takeSnapshot();
+  simulateDispatch(playerId: string, inputs: SerializedInput[]) {
+    const game = this.clone(++this.nextSimulationId);
+    game.snapshotSystem.clearEvents();
+    for (const input of inputs) {
+      game.dispatch(input);
+    }
+    game.shutdown();
 
-  //   return game.snapshotSystem.getLatestSnapshotForPlayer(playerId);
-  // }
+    return game.snapshotSystem.getLatestSnapshotForPlayer(playerId);
+  }
 }

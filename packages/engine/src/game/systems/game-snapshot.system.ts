@@ -197,11 +197,11 @@ export class GameSnapshotSystem {
   }
 
   getLatestSnapshotForPlayer(playerId: string): GameStateSnapshot<SerializedPlayerState> {
-    return this.geSnapshotForPlayerAt(playerId, this.nextId - 1);
+    return this.geSnapshotForPlayerAt(`player-${playerId}`, this.nextId - 1);
   }
 
   getLatestDiffSnapshotForPlayer(playerId: string): GameStateSnapshot<SnapshotDiff> {
-    const latestSnapshot = this.getLatestSnapshotForPlayer(playerId);
+    const latestSnapshot = this.getLatestSnapshotForPlayer(`player-${playerId}`);
     if (this.nextId < 2) {
       return {
         ...latestSnapshot,
@@ -302,7 +302,17 @@ export class GameSnapshotSystem {
       state: this.serializeOmniscientState()
     });
 
-    this.eventsSinceLastSnapshot = [];
+    if (!this.game.isSimulation) {
+      this.eventsSinceLastSnapshot = [];
+    }
     this.game.emit(GAME_EVENTS.NEW_SNAPSHOT, new GameNewSnapshotEvent({}));
+  }
+
+  clearEvents() {
+    if (!this.game.isSimulation) {
+      console.warn('Clearing snapshot events is only allowed in simulation mode');
+      return;
+    }
+    this.eventsSinceLastSnapshot = [];
   }
 }

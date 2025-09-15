@@ -5,6 +5,7 @@ import {
   useGameClient,
   useGameState,
   useGameUi,
+  useLatestSimulationResult,
   useMyPlayer
 } from '../composables/useGameClient';
 
@@ -13,6 +14,7 @@ const activeUnit = useActiveUnit();
 const myPlayer = useMyPlayer();
 const ui = useGameUi();
 const client = useGameClient();
+const simulation = useLatestSimulationResult();
 </script>
 <template>
   <section v-if="state.phase === ROUND_PHASES.BATTLE" class="battle-ui">
@@ -49,6 +51,16 @@ const client = useGameClient();
           <p>HP: {{ activeUnit.hp }} / {{ activeUnit.maxHp }}</p>
           <p>MP: {{ activeUnit.mp }} / {{ activeUnit.maxMp }}</p>
           <p>AP: {{ activeUnit.ap }} / {{ activeUnit.maxAp }}</p>
+        </div>
+
+        <div v-if="activeUnit.attackIntent">
+          Attack intent: {{ activeUnit.attackIntent }}
+          <div v-if="simulation">
+            Simulation result :
+            <div v-for="(event, index) in simulation.events" :key="`${event.eventName}-${index}`">
+              {{ event.eventName }}: {{ event.event }}
+            </div>
+          </div>
         </div>
 
         <div class="actions">
@@ -89,6 +101,7 @@ const client = useGameClient();
   aspect-ratio: 1;
   background: var(--bg) no-repeat center/cover;
   cursor: pointer;
+  align-self: flex-end;
 }
 
 .actions {

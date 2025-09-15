@@ -21,7 +21,7 @@ const worldSize = computed(() => ({
 }));
 
 const isMobile = useMediaQuery(`(width <= ${config.MOBILE_MAX_WIDTH}px)`);
-console.log('isMobile', isMobile.value);
+
 until(camera.viewport)
   .toBeTruthy()
   .then(viewport => {

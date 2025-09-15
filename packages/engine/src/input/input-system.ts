@@ -56,7 +56,7 @@ export type SerializedInput = Prettify<
     };
   }>
 >;
-export type InputDispatcher = (input: SerializedInput) => void;
+export type InputDispatcher<T = void> = (input: SerializedInput) => T;
 
 export type InputSystemOptions = { game: Game };
 

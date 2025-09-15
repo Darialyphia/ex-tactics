@@ -153,3 +153,8 @@ export const useClientPlayerId = () => {
   const client = useGameClient();
   return gameStateRef(() => client.playerId);
 };
+
+export const useLatestSimulationResult = () => {
+  const client = useGameClient();
+  return gameStateRef(() => client.latestSimulationResult);
+};

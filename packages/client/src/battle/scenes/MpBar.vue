@@ -15,7 +15,7 @@ const HEIGHT = 2.15; // Slight overlap to prevent gaps
 
 <template>
   <graphics
-    @render="
+    @effect="
       g => {
         g.clear()
           .rect(0, 0, WIDTH, HEIGHT)

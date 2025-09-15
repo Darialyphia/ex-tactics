@@ -13,7 +13,7 @@ export const UNITS_DICTIONARY: Record<string, UnitBlueprint> = {
     },
     baseStats: {
       maxHp: 100,
-      pAtk: 10,
+      pAtk: 20,
       pDef: 5,
       mAtk: 10,
       mDef: 5,
@@ -43,7 +43,7 @@ export const UNITS_DICTIONARY: Record<string, UnitBlueprint> = {
     },
     baseStats: {
       maxHp: 100,
-      pAtk: 10,
+      pAtk: 20,
       pDef: 5,
       mAtk: 10,
       mDef: 5,
