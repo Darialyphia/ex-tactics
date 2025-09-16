@@ -6,8 +6,8 @@ import type { ObstacleViewModel } from './obstacle.model';
 import { UnitViewModel } from './unit.model';
 import { DeployCellClickAction } from '../actions/deploy.cell-click-action';
 import { DeclareMoveIntentCellClickAction } from '../actions/declare-move-intent.cell-click-action';
-import { GAME_PHASES } from '../../game/game.enums';
 import type { PlayerViewModel } from './player.model';
+import { ROUND_PHASES } from '../../game/systems/turn.system';
 
 export const CELL_HIGHLIGHTS = {
   EMPTY: 'empty',
@@ -103,7 +103,7 @@ export class BoardCellViewModel {
   get canDeploy() {
     const client = this.getClient();
     const player = client.state.entities[client.playerId] as PlayerViewModel;
-    if (client.state.phase !== GAME_PHASES.DEPLOY) return false;
+    if (client.state.phase !== ROUND_PHASES.DEPLOY) return false;
     return player.deployZone.some(p => p.equals(this));
   }
 }

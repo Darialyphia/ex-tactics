@@ -1,5 +1,5 @@
 import type { Board } from '../../board/board';
-import { GAME_PHASES } from '../../game/game.enums';
+import { ROUND_PHASES } from '../../game/systems/turn.system';
 import type { GameClient } from '../client';
 import type { BoardCellViewModel } from '../view-models/board-cell.model';
 import type { PlayerViewModel } from '../view-models/player.model';
@@ -11,7 +11,7 @@ export class DeployCellClickAction implements CellClickAction {
   predicate(cell: BoardCellViewModel) {
     const ui = this.client.ui;
     const state = this.client.state;
-    if (state.phase !== GAME_PHASES.DEPLOY) return false;
+    if (state.phase !== ROUND_PHASES.DEPLOY) return false;
     const player = state.entities[this.client.playerId] as PlayerViewModel;
     return !!ui.selectedHeroToDeploy && player.deployZone.some(p => p.equals(cell));
   }

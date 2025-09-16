@@ -1,4 +1,4 @@
-import { GAME_PHASES } from '../../game/game.enums';
+import { ROUND_PHASES } from '../../game/systems/turn.system';
 import type { GameClient } from '../client';
 import type { BoardCellViewModel } from '../view-models/board-cell.model';
 import type { UnitViewModel } from '../view-models/unit.model';
@@ -9,7 +9,7 @@ export class DeclareMoveIntentCellClickAction implements CellClickAction {
 
   predicate(cell: BoardCellViewModel) {
     const state = this.client.state;
-    if (state.phase !== GAME_PHASES.BATTLE) return false;
+    if (state.phase !== ROUND_PHASES.BATTLE) return false;
     if (!state.activeUnitId) return false;
     const activeUnit = state.entities[state.activeUnitId] as UnitViewModel;
     if (activeUnit.player.id !== this.client.playerId) return false;

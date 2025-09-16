@@ -1,9 +1,13 @@
 <script setup lang="ts">
+import { useActiveUnit } from '@/battle/composables/useGameClient';
 import { useMultiLayerTexture } from '@/shared/composables/useMultiLayerTexture';
 import { useSpritesheet } from '@/shared/composables/useSpritesheet';
 import { config } from '@/utils/config';
 import { unitHitArea } from '@/utils/sprite';
 import type { ObstacleViewModel } from '@game/engine/src/client/view-models/obstacle.model';
+import { Vec3 } from '@game/shared';
+import { ColorOverlayFilter, OutlineFilter } from 'pixi-filters';
+import type { Filter } from 'pixi.js';
 
 const { obstacle } = defineProps<{
   obstacle: ObstacleViewModel;
@@ -16,11 +20,41 @@ const textures = useMultiLayerTexture({
   parts: () => obstacle.spriteParts,
   tag: 'idle'
 });
+
+const attackIntentFilter = new OutlineFilter({
+  color: 0xff0000,
+  thickness: 2,
+  quality: 0.5
+});
+const takeDamageFilter = new ColorOverlayFilter({
+  color: 0xff0000,
+  alpha: 0
+});
+
+const activeUnit = useActiveUnit();
+
+const filters = computed(() => {
+  const result: Filter[] = [takeDamageFilter];
+
+  if (
+    activeUnit.value &&
+    activeUnit.value.attackIntent &&
+    Vec3.fromPoint3D(activeUnit.value.attackIntent).equals(obstacle.position)
+  ) {
+    result.push(attackIntentFilter);
+  }
+  return result;
+});
 </script>
 
 <template>
   <container>
-    <animated-sprite :anchor="config.UNIT_ANCHOR" :textures="textures" :hit-area="unitHitArea" />
+    <animated-sprite
+      :anchor="config.UNIT_ANCHOR"
+      :textures="textures"
+      :hit-area="unitHitArea"
+      :filters="filters"
+    />
     <graphics
       v-if="config.DEBUG"
       :alpha="0.5"

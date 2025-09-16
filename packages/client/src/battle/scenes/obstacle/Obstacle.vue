@@ -30,9 +30,11 @@ const state = useGameState();
 const simulation = useLatestSimulationResult();
 const simulatedHp = computed(() => {
   if (!simulation.value) return obstacle.hp;
-  const simUnit = simulation.value.state.entities[obstacle.id] as SerializedObstacle | undefined;
-  if (!simUnit) return 0;
-  return simUnit.currentHp;
+  const simObstacle = simulation.value.state.entities[obstacle.id] as
+    | SerializedObstacle
+    | undefined;
+  if (!simObstacle) return 0;
+  return simObstacle.currentHp;
 });
 </script>
 
