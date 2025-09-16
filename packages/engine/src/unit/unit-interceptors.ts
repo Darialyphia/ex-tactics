@@ -1,5 +1,6 @@
 import type { GenericAOEShape } from '../aoe/aoe-shape';
 import type { Modifier } from '../modifier/modifier.entity';
+import type { Obstacle } from '../obstacle/obstacle.entity';
 import { Interceptable } from '../utils/interceptable';
 import type { Ability } from './ability/ability.entity';
 import type { Unit } from './unit.entity';
@@ -8,7 +9,7 @@ export type UnitInterceptors = {
   canMove: Interceptable<boolean>;
   canMoveThrough: Interceptable<boolean, { unit: Unit }>;
   canMoveAfterAttacking: Interceptable<boolean>;
-  canAttack: Interceptable<boolean, { unit: Unit }>;
+  canAttack: Interceptable<boolean, { target: Unit | Obstacle }>;
   canBeAttackTarget: Interceptable<boolean, { attacker: Unit }>;
   canBeAbilityTarget: Interceptable<boolean, { ability: Ability }>;
   canReceiveModifier: Interceptable<boolean, { modifier: Modifier<Unit> }>;

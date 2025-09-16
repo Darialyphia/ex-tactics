@@ -2,6 +2,8 @@ import type { Point } from '@game/shared';
 import type { SerializedObstacle } from '../../obstacle/obstacle.entity';
 import type { GameClient, GameStateEntities } from '../client';
 import type { PlayerViewModel } from './player.model';
+import { DeclareAttackObstacleClickAction } from '../actions/declare-attack.obstacle-click.action';
+import type { BoardCellViewModel } from './board-cell.model';
 
 export class ObstacleViewModel {
   private getEntities: () => GameStateEntities;
@@ -61,5 +63,29 @@ export class ObstacleViewModel {
 
   get hp() {
     return this.data.currentHp;
+  }
+
+  get isAttackable() {
+    return this.data.isAttackable;
+  }
+
+  get cell() {
+    const entities = this.getEntities();
+    return (entities[`${this.position.x}:${this.position.y}:${this.position.z}`] as
+      | BoardCellViewModel
+      | undefined)!;
+  }
+
+  onClick() {
+    const client = this.getClient();
+    const rules = [new DeclareAttackObstacleClickAction(client)];
+
+    for (const rule of rules) {
+      if (rule.predicate(this)) {
+        rule.action(this);
+        break;
+      }
+    }
+    client.forceSync();
   }
 }

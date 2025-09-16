@@ -21,6 +21,7 @@ import {
 } from './unit.events';
 import { getDirectionFromDiff, type Direction } from '../board/board.utils';
 import type { SerializedAOE } from '../aoe/aoe-shape';
+import { Obstacle } from '../obstacle/obstacle.entity';
 
 export type SerializedUnit = {
   entityType: 'unit';
@@ -327,9 +328,9 @@ export class Unit
     );
   }
 
-  canAttack(unit: Unit): boolean {
+  canAttack(target: Unit | Obstacle): boolean {
     return this.interceptors.canAttack.getValue(this.currentAp >= this.apCostPerAttack, {
-      unit
+      target
     });
   }
 
@@ -353,13 +354,23 @@ export class Unit
       console.warn('cannot attack self');
       return false;
     }
-    const target = this.game.unitManager.getUnitAt(point);
+
+    const target =
+      this.game.unitManager.getUnitAt(point) ??
+      this.game.obstacleManager.getObstacleAt(point);
+
     if (!target) {
       console.warn('no target at point', point);
       return false;
     }
 
     if (!this.canAttack(target) || !target.canBeAttackedBy(this)) {
+      console.warn('cannot attack target');
+      return false;
+    }
+
+    if (!target.canBeAttackedBy(this)) {
+      console.warn('target cannot be attacked by this unit');
       return false;
     }
 

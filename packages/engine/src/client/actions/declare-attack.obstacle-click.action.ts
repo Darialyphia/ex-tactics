@@ -2,13 +2,14 @@ import { Vec3, type Point3D } from '@game/shared';
 import { ROUND_PHASES } from '../../game/systems/turn.system';
 import type { GameClient } from '../client';
 import type { UnitViewModel } from '../view-models/unit.model';
-import type { UnitClickAction } from './action';
+import type { ObstacleClickAction, UnitClickAction } from './action';
 import type { SerializedInput } from '../../input/input-system';
+import type { ObstacleViewModel } from '../view-models/obstacle.model';
 
-export class DeclareAttackUnitClickAction implements UnitClickAction {
+export class DeclareAttackObstacleClickAction implements ObstacleClickAction {
   constructor(private client: GameClient) {}
 
-  private simulateAttack(activeUnit: UnitViewModel, unit: UnitViewModel) {
+  private simulateAttack(activeUnit: UnitViewModel, obstacle: ObstacleViewModel) {
     const eventsToDispatch: SerializedInput[] = [];
     if (activeUnit.moveIntent) {
       eventsToDispatch.push({
@@ -23,10 +24,9 @@ export class DeclareAttackUnitClickAction implements UnitClickAction {
       type: 'attack',
       payload: {
         playerId: this.client.playerId,
-        ...unit.position
+        ...obstacle.position
       }
     });
-
     this.client.simulateDispatch(eventsToDispatch);
   }
 
@@ -39,20 +39,20 @@ export class DeclareAttackUnitClickAction implements UnitClickAction {
         activeUnit.moveIntent?.point ?? activeUnit.position
       )
     );
-    if (!needsToMove) return;
-
-    const closestOrigin = activeUnit.potentialMoves
-      .filter(move =>
-        attackable.origins.some(origin =>
-          Vec3.fromPoint3D(origin.point).equals(move.point)
+    if (needsToMove) {
+      const closestOrigin = activeUnit.potentialMoves
+        .filter(move =>
+          attackable.origins.some(origin =>
+            Vec3.fromPoint3D(origin.point).equals(move.point)
+          )
         )
-      )
-      .sort((a, b) => a.path.length - b.path.length)[0];
-
-    activeUnit.moveTowards(closestOrigin.point);
+        .sort((a, b) => a.path.length - b.path.length)[0];
+      activeUnit.moveTowards(closestOrigin.point);
+    }
   }
 
-  predicate(unit: UnitViewModel) {
+  predicate(obstacle: ObstacleViewModel) {
+    if (!obstacle.isAttackable) return false;
     const state = this.client.state;
     if (state.phase !== ROUND_PHASES.BATTLE) return false;
     const ui = this.client.ui;
@@ -61,22 +61,22 @@ export class DeclareAttackUnitClickAction implements UnitClickAction {
 
     const activeUnit = state.entities[state.activeUnitId!] as UnitViewModel;
     return activeUnit.attackablePoints.some(p =>
-      Vec3.fromPoint3D(p.point).equals(unit.position)
+      Vec3.fromPoint3D(p.point).equals(obstacle.position)
     );
   }
 
-  action(unit: UnitViewModel) {
+  action(obstacle: ObstacleViewModel) {
     const state = this.client.state;
     const activeUnit = state.entities[state.activeUnitId!] as UnitViewModel;
 
     const attackable = activeUnit.attackablePoints.find(p =>
-      Vec3.fromPoint3D(p.point).equals(unit.position)
+      Vec3.fromPoint3D(p.point).equals(obstacle.position)
     )!;
 
     this.moveWithinRangeIfNeeded(attackable, activeUnit);
 
-    activeUnit.attackAt(unit.position);
+    activeUnit.attackAt(obstacle.position);
 
-    this.simulateAttack(activeUnit, unit);
+    this.simulateAttack(activeUnit, obstacle);
   }
 }

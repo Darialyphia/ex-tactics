@@ -106,4 +106,12 @@ export class Obstacle
 
     this.blueprint.onAttacked?.(this.game, this, source);
   }
+
+  canBeAttackedBy(attacker: Unit) {
+    if (!this.isAttackable) {
+      return false;
+    }
+
+    return this.player === null || !this.player.equals(attacker.player);
+  }
 }

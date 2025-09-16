@@ -7,7 +7,11 @@ import { Container } from 'pixi.js';
 import { useIsoCamera } from '@/iso/composables/useIsoCamera';
 import { getScaleXForOrientation } from '@/utils/sprite';
 import LightSource from '@/shared/scenes/LightSource.vue';
-import { useGameState, useLatestSimulationResult } from '@/battle/composables/useGameClient';
+import {
+  useGameState,
+  useGameUi,
+  useLatestSimulationResult
+} from '@/battle/composables/useGameClient';
 import { ROUND_PHASES } from '@game/engine/src/game/systems/turn.system';
 import Layer from '@/shared/scenes/Layer.vue';
 import UiAnimatedSprite from '@/ui/scenes/UiAnimatedSprite.vue';
@@ -18,6 +22,7 @@ const { obstacle } = defineProps<{
   obstacle: ObstacleViewModel;
 }>();
 
+const ui = useGameUi();
 const camera = useIsoCamera();
 const scaleX = computed(() => getScaleXForOrientation(obstacle.orientation, camera.angle.value));
 const state = useGameState();
@@ -37,6 +42,9 @@ const simulatedHp = computed(() => {
       <container
         :scale-x="scaleX"
         :event-mode="state.phase === ROUND_PHASES.DEPLOY ? 'none' : 'static'"
+        @pointerenter="ui.hoverAt(obstacle.cell)"
+        @pointerleave="ui.unhover()"
+        @pointerup="obstacle.onClick()"
       >
         <ObstacleShadow :obstacle="obstacle" />
         <ObstacleSprite :obstacle="obstacle" />
