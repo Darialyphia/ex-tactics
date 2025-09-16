@@ -53,7 +53,7 @@ useFxEvent(FX_EVENTS.UNIT_BEFORE_ATTACK, async e => {
   isPositionAnimated.value = true;
 });
 
-useFxEvent(FX_EVENTS.UNIT_AFTER_RECEIVE_DAMAGE, async e => {
+useFxEvent(FX_EVENTS.UNIT_AFTER_TAKE_DAMAGE, async e => {
   await animations.takeDamage(e);
 });
 </script>

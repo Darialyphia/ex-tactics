@@ -15,6 +15,9 @@ import type { UnitEventMap } from '../unit/unit.events';
 import { TURN_EVENTS, type TurnEventMap } from './systems/turn.system';
 import type { PlayerEventMap } from '../player/player.events';
 import { PLAYER_EVENTS } from '../player/player.constants';
+import type { Obstacle } from '../obstacle/obstacle.entity';
+import type { ObstacleEventMap } from '../obstacle/obstacle.events';
+import { OBSTACLE_EVENTS } from '../obstacle/obstacle.constants';
 
 export class GameInputEvent extends TypedSerializableEvent<
   { input: Input<any> },
@@ -107,7 +110,12 @@ type GameEventsBase = {
 };
 
 export type GameEventMap = Prettify<
-  GameEventsBase & TurnEventMap & ModifierEventMap & UnitEventMap & PlayerEventMap
+  GameEventsBase &
+    TurnEventMap &
+    ModifierEventMap &
+    UnitEventMap &
+    PlayerEventMap &
+    ObstacleEventMap
 >;
 export type GameEventName = keyof GameEventMap;
 
@@ -116,11 +124,12 @@ export const GAME_EVENTS = {
   ERROR: 'game.error',
   READY: 'game.ready',
   FLUSHED: 'game.input-queue-flushed',
-  INPUT_START: 'game.input-start',
+  INPUT_S0TART: 'game.input-start',
   INPUT_END: 'game.input-end',
   NEW_SNAPSHOT: 'game.new-snapshot',
   ...MODIFIER_EVENTS,
   ...UNIT_EVENTS,
   ...TURN_EVENTS,
-  ...PLAYER_EVENTS
+  ...PLAYER_EVENTS,
+  ...OBSTACLE_EVENTS
 } as const satisfies Record<string, GameEventName>;

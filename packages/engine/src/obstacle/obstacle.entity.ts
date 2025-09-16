@@ -7,6 +7,13 @@ import type { Direction } from '../board/board.utils';
 import type { Player } from '../player/player.entity';
 import type { Unit } from '../unit/unit.entity';
 import type { Damage } from '../unit/damage';
+import { OBSTACLE_EVENTS } from './obstacle.constants';
+import {
+  ObstacleAfterDestroyEvent,
+  ObstacleAttackedEvent,
+  ObstacleBeforeDestroyEvent,
+  ObstacleTakeDamageEvent
+} from './obstacle.events';
 
 export type ObstacleOptions = {
   id: number;
@@ -99,12 +106,46 @@ export class Obstacle
   }
 
   onAttacked(source: Unit, damage: Damage<any>) {
+    this.game.emit(
+      OBSTACLE_EVENTS.OBSTACLE_BEFORE_ATTACKED,
+      new ObstacleAttackedEvent({
+        obstacle: this,
+        attacker: source
+      })
+    );
+
     if (this.isDestroyable && this.currentHp !== null) {
-      this.currentHp -= damage.getFinalAmount(this);
-      // @TODO handle obstacle destruction (emit event, remove from board, etc.)
+      this.game.emit(
+        OBSTACLE_EVENTS.OBSTACLE_BEFORE_TAKE_DAMAGE,
+        new ObstacleTakeDamageEvent({
+          obstacle: this,
+          from: source,
+          damage
+        })
+      );
+      this.currentHp = Math.max(this.currentHp - damage.getFinalAmount(this), 0);
+
+      this.game.emit(
+        OBSTACLE_EVENTS.OBSTACLE_AFTER_TAKE_DAMAGE,
+        new ObstacleTakeDamageEvent({
+          obstacle: this,
+          from: source,
+          damage
+        })
+      );
+      if (this.currentHp === 0) {
+        this.destroy(source);
+      }
     }
 
     this.blueprint.onAttacked?.(this.game, this, source);
+    this.game.emit(
+      OBSTACLE_EVENTS.OBSTACLE_AFTER_ATTACKED,
+      new ObstacleAttackedEvent({
+        obstacle: this,
+        attacker: source
+      })
+    );
   }
 
   canBeAttackedBy(attacker: Unit) {
@@ -113,5 +154,28 @@ export class Obstacle
     }
 
     return this.player === null || !this.player.equals(attacker.player);
+  }
+
+  destroy(source: Unit) {
+    if (!this.isDestroyable) return;
+    this.game.emit(
+      OBSTACLE_EVENTS.OBSTACLE_BEFORE_DESTROY,
+      new ObstacleBeforeDestroyEvent({
+        obstacle: this,
+        source
+      })
+    );
+
+    const position = this.position.clone();
+    this.game.obstacleManager.removeObstacle(this);
+
+    this.game.emit(
+      OBSTACLE_EVENTS.OBSTACLE_AFTER_DESTROY,
+      new ObstacleAfterDestroyEvent({
+        obstacle: this,
+        source,
+        destroyedAt: position
+      })
+    );
   }
 }

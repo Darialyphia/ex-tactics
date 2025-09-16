@@ -98,7 +98,7 @@ export class CombatComponent {
 
   takeDamage(from: Unit, damage: Damage<any>) {
     this.game.emit(
-      UNIT_EVENTS.UNIT_BEFORE_RECEIVE_DAMAGE,
+      UNIT_EVENTS.UNIT_BEFORE_TAKE_DAMAGE,
       new UnitTakeDamageEvent({
         unit: this.unit,
         from,
@@ -111,8 +111,12 @@ export class CombatComponent {
       0
     );
 
+    if (this.unit.currentHp === 0) {
+      this.unit.destroy(from);
+    }
+
     this.game.emit(
-      UNIT_EVENTS.UNIT_AFTER_RECEIVE_DAMAGE,
+      UNIT_EVENTS.UNIT_AFTER_TAKE_DAMAGE,
       new UnitTakeDamageEvent({
         unit: this.unit,
         from,

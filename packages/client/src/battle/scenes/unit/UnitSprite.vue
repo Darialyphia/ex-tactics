@@ -59,7 +59,7 @@ const filters = computed(() => {
   return result;
 });
 
-useFxEvent(FX_EVENTS.UNIT_AFTER_RECEIVE_DAMAGE, async e => {
+useFxEvent(FX_EVENTS.UNIT_AFTER_TAKE_DAMAGE, async e => {
   const damagedUnit = state.value.entities[e.unit] as UnitViewModel;
   if (!damagedUnit.equals(unit)) return;
 

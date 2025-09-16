@@ -26,7 +26,7 @@ const simulatedHp = computed(() => {
       :key="index"
       asset-id="ap"
       :x="10 + (index - 1) * 6"
-      :y="0"
+      :y="-1"
     />
     <container :y="3">
       <UiAnimatedSprite asset-id="unit-stat-bars" :anchor="0" />
