@@ -1,6 +1,6 @@
 import { isDefined, Vec3, type Point3D } from '@game/shared';
 import type { Game } from '../../game/game';
-import type { Unit } from '../unit.entity';
+import { Unit } from '../unit.entity';
 import { UNIT_EVENTS } from '../unit.constants';
 import {
   UnitAttackEvent,
@@ -8,6 +8,7 @@ import {
   UnitTakeDamageEvent
 } from '../unit.events';
 import { Damage, PhysicalDamage } from '../damage';
+import { Obstacle } from '../../obstacle/obstacle.entity';
 
 export class CombatComponent {
   private _attacksCount = 0;
@@ -39,10 +40,17 @@ export class CombatComponent {
         unit: this.unit
       })
     );
-    const targets = this.unit.attackAOEShape
+    const unitTargets = this.unit.attackAOEShape
       .getArea(target)
-      .map(point => this.game.unitManager.getUnitAt(point)!)
+      .map(point => this.game.unitManager.getUnitAt(point))
+
       .filter(isDefined);
+
+    const obstacleTargets = this.unit.attackAOEShape
+      .getArea(target)
+      .map(point => this.game.obstacleManager.getObstacleAt(point))
+      .filter(isDefined)
+      .filter(obstacle => obstacle.isAttackable);
 
     const damage = new PhysicalDamage(this.game, {
       baseAmount: 0,
@@ -50,11 +58,12 @@ export class CombatComponent {
       source: this.unit
     });
 
-    this.dealDamage(targets, damage);
-    this._attacksCount++;
+    this.dealDamage(unitTargets, damage);
+    obstacleTargets.forEach(obstacle => {
+      obstacle.onAttacked(this.unit, damage);
+    });
 
-    const unit = this.game.unitManager.getUnitAt(target)!;
-    if (!unit) return; // means unit died from attack
+    this._attacksCount++;
 
     this.game.emit(
       UNIT_EVENTS.UNIT_AFTER_ATTACK,
@@ -79,7 +88,11 @@ export class CombatComponent {
     });
     this.game.emit(
       UNIT_EVENTS.UNIT_AFTER_DEAL_DAMAGE,
-      new UnitDealDamageEvent({ unit: this.unit, targets, damage })
+      new UnitDealDamageEvent({
+        unit: this.unit,
+        targets,
+        damage
+      })
     );
   }
 

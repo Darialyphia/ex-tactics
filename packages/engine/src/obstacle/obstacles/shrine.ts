@@ -12,5 +12,9 @@ export const shrine: ObstacleBlueprint = {
   isDestroyable: true,
   isWalkable: false,
   maxHp: 50,
-  onInit() {}
+  onInit() {},
+  onAttacked(game, obstacle, source) {},
+  onDestroyed(game, obstacle, source) {
+    // @TODO handle victory points and win condition
+  }
 };

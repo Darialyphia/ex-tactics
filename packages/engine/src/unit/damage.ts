@@ -1,6 +1,7 @@
 import { clamp, type BetterOmit, type Values } from '@game/shared';
 import type { Unit } from './unit.entity';
 import type { Game } from '../game/game';
+import { Obstacle } from '../obstacle/obstacle.entity';
 
 export const DAMAGE_TYPES = {
   PHYSICAL: 'PHYSICAL',
@@ -41,7 +42,7 @@ export abstract class Damage<T> {
     return this._source;
   }
 
-  abstract getFinalAmount(target: Unit): number;
+  abstract getFinalAmount(target: Unit | Obstacle): number;
 }
 
 export class PhysicalDamage extends Damage<Unit> {
@@ -85,7 +86,11 @@ export class PhysicalDamage extends Damage<Unit> {
     return this.scaleMitigation(pDefMitigation);
   }
 
-  getFinalAmount(target: Unit) {
+  getFinalAmount(target: Unit | Obstacle) {
+    if (target instanceof Obstacle) {
+      return this.getScaledAmount();
+    }
+
     const percentMitigation = clamp(1 - target.percentPhysicalDamageMitigation, 0, 1);
     const flatMitigation = Math.min(0, target.flatPhysicalDamageMitigation);
     const finalAmount =
@@ -137,7 +142,11 @@ export class MagicalDamage extends Damage<Unit> {
     return this.scaleMitigation(pDefMitigation);
   }
 
-  getFinalAmount(target: Unit) {
+  getFinalAmount(target: Unit | Obstacle) {
+    if (target instanceof Obstacle) {
+      return this.getScaledAmount();
+    }
+
     const percentMitigation = clamp(1 - target.percentMagicalDamageMitigation, 0, 1);
     const flatMitigation = Math.min(0, target.flatMagicalDamageMitigation);
 

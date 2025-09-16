@@ -5,6 +5,8 @@ import type { ObstacleBlueprint } from './obstacle-blueprint';
 import { Position } from '../utils/position';
 import type { Direction } from '../board/board.utils';
 import type { Player } from '../player/player.entity';
+import type { Unit } from '../unit/unit.entity';
+import type { Damage } from '../unit/damage';
 
 export type ObstacleOptions = {
   id: number;
@@ -86,5 +88,22 @@ export class Obstacle
 
   get isWalkable() {
     return this.blueprint.isWalkable;
+  }
+
+  get isAttackable() {
+    return this.blueprint.isAttackable;
+  }
+
+  get isDestroyable() {
+    return this.blueprint.isDestroyable;
+  }
+
+  onAttacked(source: Unit, damage: Damage<any>) {
+    if (this.isDestroyable && this.currentHp !== null) {
+      this.currentHp -= damage.getFinalAmount(this);
+      // @TODO handle obstacle destruction (emit event, remove from board, etc.)
+    }
+
+    this.blueprint.onAttacked?.(this.game, this, source);
   }
 }
