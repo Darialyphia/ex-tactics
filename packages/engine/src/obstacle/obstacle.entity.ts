@@ -166,6 +166,7 @@ export class Obstacle
       })
     );
 
+    this.blueprint.onDestroyed?.(this.game, this, source);
     const position = this.position.clone();
     this.game.obstacleManager.removeObstacle(this);
 

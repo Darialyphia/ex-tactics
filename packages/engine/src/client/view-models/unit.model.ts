@@ -7,12 +7,11 @@ import { makeAoeShape } from '../../aoe/aoe-shape.factory';
 import { TARGETING_TYPES, type TargetingType } from '../../aoe/aoe.constants';
 import { match } from 'ts-pattern';
 import type { UnitAction } from '../controllers/ui-controller';
-import type { Ability } from '../../unit/ability/ability.entity';
 import type { AbilityViewModel } from './ability.model';
 import { DeclareAttackUnitClickAction } from '../actions/declare-attack.unit-click-action';
 import { CancelMoveIntentkUnitClickAction } from '../actions/cancel-move-intent.unit-click-action';
 import { ROUND_PHASES } from '../../game/systems/turn.system';
-import { th } from 'zod/v4/locales';
+import { SelectTargetUnitClickAction } from '../actions/select-target.unit-click-action';
 
 type AttackablePoint = {
   point: Point3D;
@@ -172,7 +171,7 @@ export class UnitViewModel {
   }
 
   get attackZone() {
-    if (!this._cachedAttackablePoints) {
+    if (!this._cachedAttackZone) {
       const targetingShape = this.attackTargetingShape;
       const points = [{ point: this.position, path: [] }, ...this.potentialMoves]
         .map(p => ({
@@ -307,6 +306,7 @@ export class UnitViewModel {
     const client = this.getClient();
     const rules = [
       new DeclareAttackUnitClickAction(client),
+      new SelectTargetUnitClickAction(client),
       new CancelMoveIntentkUnitClickAction(client)
     ];
 

@@ -83,12 +83,15 @@ export class UiController {
   }
 
   clearUnitAction() {
+    const action = this._selectedUnitAction;
+    if (!action) return;
+
+    if (action.type === 'ability') {
+      action.ability.clearTargets;
+    }
+
     this._selectedUnitAction = null;
-    const activeUnit = this.client.state.entities[
-      this.client.state.activeUnitId!
-    ] as UnitViewModel;
-    if (!activeUnit) return;
-    activeUnit.cancelAttackIntent();
+    this.client.stateManager.activeUnit?.cancelAttackIntent();
   }
 
   private swapDeployment(a: DeployedHero, b: DeployedHero) {

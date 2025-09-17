@@ -347,6 +347,27 @@ export class GameClient {
     });
   }
 
+  useAbility() {
+    const action = this.ui.selectedUnitAction;
+    if (!action || action.type !== 'ability') return;
+
+    const moveIntent = this.stateManager.activeUnit.moveIntent;
+    if (moveIntent) {
+      this.move();
+    }
+
+    const targets = action.ability.selectedTargets;
+    action.ability.clearTargets();
+    this.networkAdapter.dispatch({
+      type: 'useAbility',
+      payload: {
+        playerId: this.playerId,
+        abilityId: action.ability.id,
+        targets: targets
+      }
+    });
+  }
+
   endTurn() {
     const moveIntent = this.stateManager.activeUnit.moveIntent;
     if (moveIntent) {

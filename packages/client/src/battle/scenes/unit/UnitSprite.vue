@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useActiveUnit, useFxEvent, useGameState } from '@/battle/composables/useGameClient';
+import { useActiveUnit, useFxEvent } from '@/battle/composables/useGameClient';
 import { useMultiLayerTexture } from '@/shared/composables/useMultiLayerTexture';
 import { useSpritesheet } from '@/shared/composables/useSpritesheet';
 import { config } from '@/utils/config';
@@ -37,12 +37,11 @@ const takeDamageFilter = new ColorOverlayFilter({
   alpha: 0
 });
 
-const state = useGameState();
+const activeUnit = useActiveUnit();
 const isActiveUnit = computed(() => {
-  return state.value.activeUnitId === unit.id;
+  return activeUnit.value?.equals(unit);
 });
 
-const activeUnit = useActiveUnit();
 const filters = computed(() => {
   const result: Filter[] = [takeDamageFilter];
 
@@ -60,8 +59,7 @@ const filters = computed(() => {
 });
 
 useFxEvent(FX_EVENTS.UNIT_AFTER_TAKE_DAMAGE, async e => {
-  const damagedUnit = state.value.entities[e.unit] as UnitViewModel;
-  if (!damagedUnit.equals(unit)) return;
+  if (e.unit !== unit.id) return;
 
   gsap.to(takeDamageFilter, {
     alpha: 0.5,

@@ -2,6 +2,8 @@ import type { UnitBlueprint } from '../unit-blueprint';
 import { PointAOEShape } from '../../aoe/point.aoe-shape';
 import { TARGETING_TYPES } from '../../aoe/aoe.constants';
 import { CrossAOEShape } from '../../aoe/cross.aoe-shape';
+import { ABILITY_TARGET_KINDS } from '../ability/ability-blueprint';
+import { MagicalDamage } from '../damage';
 
 export const UNITS_DICTIONARY: Record<string, UnitBlueprint> = {
   testHero: {
@@ -47,9 +49,9 @@ export const UNITS_DICTIONARY: Record<string, UnitBlueprint> = {
     },
     baseStats: {
       maxHp: 100,
-      pAtk: 20,
+      pAtk: 10,
       pDef: 5,
-      mAtk: 10,
+      mAtk: 15,
       mDef: 5,
       initiative: 8,
       movementRange: 4
@@ -58,7 +60,49 @@ export const UNITS_DICTIONARY: Record<string, UnitBlueprint> = {
       id: 'placeholder2',
       defaultParts: {}
     },
-    defaultAbilities: [],
+    defaultAbilities: [
+      {
+        id: 'magic-bolt',
+        name: 'Magic Bolt',
+        description: 'Deals 10 + 80% MATK magic damage to a single target.',
+        dynamicDescription(game, ability) {
+          return `Deals ${10 + 0.8 * ability.unit.mAtk}% MATK magic damage to a single target.`;
+        },
+        iconId: 'magic-bolt',
+        cooldown: 1,
+        manaCost: 1,
+        shouldAlterOrientation: true,
+        getAttackAOEShape(game, ability) {
+          return {
+            shape: new PointAOEShape(TARGETING_TYPES.NON_ALLY),
+            origin: 0
+          };
+        },
+        getTargetingShapes(game, ability) {
+          return [
+            {
+              shape: new CrossAOEShape(TARGETING_TYPES.NON_ALLY, {
+                horizontalSize: 3,
+                verticalSize: 1,
+                includeCenter: false
+              }),
+              origin: null
+            }
+          ];
+        },
+        onUse(game, ability, targets) {
+          const [unit] = ability.getUnitsInAoe(targets);
+          ability.unit.combat.dealDamage(
+            [unit],
+            new MagicalDamage(game, {
+              baseAmount: 10,
+              mAtkRatio: 0.8,
+              source: ability.unit
+            })
+          );
+        }
+      }
+    ],
     defaultPassives: [],
     talentTree: [],
     getAttackAOEShape(game, unit) {
@@ -66,7 +110,7 @@ export const UNITS_DICTIONARY: Record<string, UnitBlueprint> = {
     },
     getAttackTargetingShape(game, unit) {
       return new CrossAOEShape(TARGETING_TYPES.NON_ALLY, {
-        horizontalSize: 2,
+        horizontalSize: 1,
         verticalSize: 1,
         includeCenter: false
       });

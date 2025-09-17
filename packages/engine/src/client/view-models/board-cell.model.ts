@@ -8,6 +8,7 @@ import { DeployCellClickAction } from '../actions/deploy.cell-click-action';
 import { DeclareMoveIntentCellClickAction } from '../actions/declare-move-intent.cell-click-action';
 import type { PlayerViewModel } from './player.model';
 import { ROUND_PHASES } from '../../game/systems/turn.system';
+import { SelectTargetCellClickAction } from '../actions/select-target.cell-click-action';
 
 export const CELL_HIGHLIGHTS = {
   EMPTY: 'empty',
@@ -88,6 +89,7 @@ export class BoardCellViewModel {
     const client = this.getClient();
     const rules = [
       new DeployCellClickAction(client),
+      new SelectTargetCellClickAction(client),
       new DeclareMoveIntentCellClickAction(client)
     ];
 

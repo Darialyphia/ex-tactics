@@ -15,6 +15,31 @@ const myPlayer = useMyPlayer();
 const ui = useGameUi();
 const client = useGameClient();
 const simulation = useLatestSimulationResult();
+
+const canConfirmAction = computed(() => {
+  if (!activeUnit.value) return false;
+  if (!ui.value.selectedUnitAction) return false;
+
+  if (ui.value.selectedUnitAction.type === 'attack') {
+    return !!activeUnit.value.attackIntent;
+  } else if (ui.value.selectedUnitAction.type === 'ability') {
+    return (
+      ui.value.selectedUnitAction.ability.selectedTargets.length ===
+      ui.value.selectedUnitAction.ability.maxTargets
+    );
+  }
+  return false;
+});
+
+const onConfirmAction = () => {
+  if (!activeUnit.value || !ui.value.selectedUnitAction) return;
+
+  if (ui.value.selectedUnitAction.type === 'attack') {
+    client.attack();
+  } else if (ui.value.selectedUnitAction.type === 'ability') {
+    client.useAbility();
+  }
+};
 </script>
 <template>
   <section v-if="state.phase === ROUND_PHASES.BATTLE" class="battle-ui">
@@ -35,10 +60,11 @@ const simulation = useLatestSimulationResult();
             @click="client.move()"
           />
           <button
-            v-if="activeUnit.attackIntent"
+            v-if="ui.selectedUnitAction"
+            :disabled="!canConfirmAction"
             class="action"
             :style="`--bg: url('/assets/icons/confirm.png')`"
-            @click="client.attack()"
+            @click="onConfirmAction"
           />
         </div>
       </div>
@@ -51,6 +77,21 @@ const simulation = useLatestSimulationResult();
           <p>HP: {{ activeUnit.hp }} / {{ activeUnit.maxHp }}</p>
           <p>MP: {{ activeUnit.mp }} / {{ activeUnit.maxMp }}</p>
           <p>AP: {{ activeUnit.ap }} / {{ activeUnit.maxAp }}</p>
+        </div>
+
+        <div v-if="ui.selectedUnitAction">
+          <div v-if="ui.selectedUnitAction.type === 'ability'">
+            <div class="text-3">{{ ui.selectedUnitAction.ability.name }}</div>
+            <div>
+              {{ ui.selectedUnitAction.ability.manaCost }} MP |
+              {{ ui.selectedUnitAction.ability.cooldown }} cooldown
+            </div>
+            <p>{{ ui.selectedUnitAction.ability.description }}</p>
+          </div>
+          <div v-else-if="ui.selectedUnitAction.type === 'attack'">
+            <p>Basic Attack</p>
+            <p>Deal 100% PATK to a target.</p>
+          </div>
         </div>
 
         <div v-if="activeUnit.attackIntent">
@@ -70,6 +111,7 @@ const simulation = useLatestSimulationResult();
               :key="action.id"
               class="action"
               :style="`--bg: url(${action.type === 'attack' ? '/assets/icons/attack.png' : action.ability.icon})`"
+              :disabled="action.type === 'attack' ? !activeUnit.canAttack : !action.ability.canUse"
               @click="ui.selectedUnitAction = action"
             />
           </template>
@@ -108,9 +150,12 @@ const simulation = useLatestSimulationResult();
   margin-left: auto;
   margin-right: var(--size-10);
   display: flex;
-  flex-direction: column;
   gap: var(--size-4);
 
+  :disabled {
+    filter: grayscale(1) opacity(0.8);
+    cursor: not-allowed;
+  }
   @media (width <= 900px) {
     margin-right: var(--size-5);
     gap: var(--size-2);

@@ -87,7 +87,9 @@ export class TurnSystem implements Serializable<SerializedTurnOrder> {
   }
 
   private buildQueue() {
-    return this.game.unitManager.units.toSorted((a, b) => b.initiative - a.initiative);
+    return this.game.unitManager.units.toSorted(
+      (a, b) => b.initiative + b.initiativeSeed - (a.initiative + a.initiativeSeed)
+    );
   }
 
   private onPlayerDeployedForTurn() {

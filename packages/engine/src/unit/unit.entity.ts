@@ -90,12 +90,15 @@ export class Unit
   currentMp: number;
   currentAp: number;
 
+  initiativeSeed: number;
+
   constructor(
     private game: Game,
     private options: UnitOptions
   ) {
     super(`unit-${options.id}`, makeUnitInterceptors());
     this.blueprint = options.blueprint;
+    this.initiativeSeed = game.rngSystem.next() / 100;
     this.movement = new MovementComponent(this.game, this, {
       position: options.position,
       pathfinding: new PathfinderComponent(
@@ -336,7 +339,7 @@ export class Unit
 
   canUseAbility(ability: Ability): boolean {
     return this.interceptors.canUseAbility.getValue(
-      ability.canUse && this.currentAp > this.apCostPerAbility,
+      ability.canUse && this.currentAp >= this.apCostPerAbility,
       { ability }
     );
   }

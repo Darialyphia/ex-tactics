@@ -28,7 +28,6 @@ const isPositionAnimated = ref(true);
 const isActiveUnit = computed(() => {
   return activeUnit.value?.equals(unit);
 });
-
 watch(isActiveUnit, active => {
   if (!active) return;
   const iso = grid.toIso(unit.position);

@@ -65,6 +65,20 @@
         },
         {
           "alias": [
+            "icon-magic-bolt"
+          ],
+          "src": [
+            "/assets/icons/magic-bolt.png"
+          ],
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
             "icon-move"
           ],
           "src": [

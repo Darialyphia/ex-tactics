@@ -91,6 +91,12 @@ export class IllegalAttackTargetError extends InputError {
   }
 }
 
+export class IllegalAbilityTargetError extends InputError {
+  constructor() {
+    super(`Cannot use ability at position`);
+  }
+}
+
 export class IllegalMovementError extends InputError {
   constructor(point: Point) {
     super(`Cannot move at position ${point.x}:${point.y}`);

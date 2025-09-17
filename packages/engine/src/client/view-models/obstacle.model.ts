@@ -4,6 +4,7 @@ import type { GameClient, GameStateEntities } from '../client';
 import type { PlayerViewModel } from './player.model';
 import { DeclareAttackObstacleClickAction } from '../actions/declare-attack.obstacle-click.action';
 import type { BoardCellViewModel } from './board-cell.model';
+import { SelectTargetObstacleClickAction } from '../actions/select-target.obstacle-click-action';
 
 export class ObstacleViewModel {
   private getEntities: () => GameStateEntities;
@@ -78,7 +79,10 @@ export class ObstacleViewModel {
 
   onClick() {
     const client = this.getClient();
-    const rules = [new DeclareAttackObstacleClickAction(client)];
+    const rules = [
+      new DeclareAttackObstacleClickAction(client),
+      new SelectTargetObstacleClickAction(client)
+    ];
 
     for (const rule of rules) {
       if (rule.predicate(this)) {

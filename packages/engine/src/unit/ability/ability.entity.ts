@@ -16,6 +16,7 @@ export type AbilityInterceptors = {
 export type SerializedAbility = {
   entityType: 'ability';
   id: string;
+  unit: string;
   name: string;
   description: string;
   dynamicDescription: string;
@@ -23,6 +24,7 @@ export type SerializedAbility = {
   remainingCooldown: number;
   manaCost: number;
   iconId: string;
+  canUse: boolean;
   targetingShapes: Array<{ shape: SerializedAOE; origin: number | null }>;
   aoeShape: {
     shape: SerializedAOE | null;
@@ -38,7 +40,7 @@ export class Ability
 
   constructor(
     private game: Game,
-    private unit: Unit,
+    readonly unit: Unit,
     readonly blueprint: AbilityBlueprint
   ) {
     super(`ability-${unit.id}-${blueprint.id}`, {
@@ -53,18 +55,20 @@ export class Ability
   }
 
   serialize() {
-    const targetingShapes = this.blueprint.getAttackTargetingShapes(this.game, this);
+    const targetingShapes = this.blueprint.getTargetingShapes(this.game, this);
     const aoe = this.blueprint.getAttackAOEShape(this.game, this);
     return {
       entityType: 'ability' as const,
       id: this.id,
       name: this.blueprint.name,
+      unit: this.unit.id,
       description: this.blueprint.description,
       dynamicDescription: this.blueprint.dynamicDescription(this.game, this),
       iconId: this.blueprint.iconId,
       cooldown: this.cooldown,
       remainingCooldown: this.remainingCooldown,
       manaCost: this.manaCost,
+      canUse: this.canUse,
       targetingShapes: targetingShapes.map(t => ({
         shape: t.shape.serialize(),
         origin: t.origin
@@ -88,9 +92,9 @@ export class Ability
     return this.blueprint.shouldAlterOrientation;
   }
 
-  getPotentialTargets(targets: Point3D[]) {
-    const targetingShapes = this.blueprint.getAttackTargetingShapes(this.game, this);
-    const target = targetingShapes[targets.length];
+  getPotentialTargets(shapeIndex: number, targets: Point3D[]) {
+    const targetingShapes = this.blueprint.getTargetingShapes(this.game, this);
+    const target = targetingShapes[shapeIndex];
 
     if (!target) return [];
     return target.shape.getArea(
@@ -123,8 +127,8 @@ export class Ability
 
   canUseAt(targets: Vec3[]) {
     if (!this.canUse) return false;
-    return targets.every((t, index) =>
-      this.getPotentialTargets(targets.slice(0, index + 1)).some(p => t.equals(p))
+    return targets.every((target, index) =>
+      this.getPotentialTargets(index, targets).some(p => target.equals(p))
     );
   }
 

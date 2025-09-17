@@ -23,15 +23,22 @@ const tag = computed(() => {
   clientPlayerId.value; //reference the variable for reactivity reasons
 
   if (isPlayingFX.value) return CELL_HIGHLIGHTS.EMPTY;
-
-  const isAttacking = ui.value.selectedUnitAction?.type === 'attack';
+  const selectedAction = ui.value.selectedUnitAction;
+  const isAttacking = selectedAction?.type === 'attack';
+  const isCastingAbility = selectedAction?.type === 'ability';
 
   if (cell.canDeploy) return CELL_HIGHLIGHTS.CYAN;
   if (activeUnit.value?.canAttack(cell) && isAttacking) {
     return CELL_HIGHLIGHTS.RED;
   }
+  if (isCastingAbility && selectedAction.ability.canTarget(cell.position)) {
+    return CELL_HIGHLIGHTS.RED;
+  }
   if (isAttacking && activeUnit.value?.canAttackFromCurrentPosition(cell)) {
-    return CELL_HIGHLIGHTS.ORANGE;
+    return CELL_HIGHLIGHTS.YELLOW;
+  }
+  if (isCastingAbility && selectedAction.ability.canTargetFromCurrentPosition(cell)) {
+    return CELL_HIGHLIGHTS.YELLOW;
   }
   if (activeUnit.value?.canMoveTo(cell)) {
     return cell.enemiesInAttackRange.length ? CELL_HIGHLIGHTS.PURPLE : CELL_HIGHLIGHTS.BLUE;

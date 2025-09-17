@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { useActiveUnit } from '@/battle/composables/useGameClient';
+import { useActiveUnit, useFxEvent } from '@/battle/composables/useGameClient';
 import { useMultiLayerTexture } from '@/shared/composables/useMultiLayerTexture';
 import { useSpritesheet } from '@/shared/composables/useSpritesheet';
 import { config } from '@/utils/config';
 import { unitHitArea } from '@/utils/sprite';
+import { FX_EVENTS } from '@game/engine/src/client/controllers/fx-controller';
 import type { ObstacleViewModel } from '@game/engine/src/client/view-models/obstacle.model';
 import { Vec3 } from '@game/shared';
 import { ColorOverlayFilter, OutlineFilter } from 'pixi-filters';
@@ -44,6 +45,17 @@ const filters = computed(() => {
     result.push(attackIntentFilter);
   }
   return result;
+});
+
+useFxEvent(FX_EVENTS.OBSTACLE_AFTER_TAKE_DAMAGE, async e => {
+  if (e.obstacle !== obstacle.id) return;
+  gsap.to(takeDamageFilter, {
+    alpha: 0.5,
+    duration: 0.1,
+    yoyo: true,
+    repeat: 1,
+    ease: Power1.easeInOut
+  });
 });
 </script>
 
