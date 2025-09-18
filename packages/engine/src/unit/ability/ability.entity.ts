@@ -8,12 +8,13 @@ import {
 } from '@game/shared';
 import { Entity } from '../../entity';
 import type { Unit } from '../unit.entity';
-import type { AbilityBlueprint } from './ability-blueprint';
+import type { AbilityBlueprint, AbilityAOEPoint } from './ability-blueprint';
 import { Interceptable } from '../../utils/interceptable';
 import type { Game } from '../../game/game';
 import { UNIT_EVENTS } from '../unit.constants';
 import { UnitUseAbilityEvent } from '../unit.events';
-import type { SerializedAOE } from '../../aoe/aoe-shape';
+import { parseAOEPoint, type SerializedAOE } from '../../aoe/aoe-shape';
+import { match } from 'ts-pattern';
 
 export type AbilityInterceptors<TMeta> = {
   manaCost: Interceptable<number>;
@@ -33,10 +34,10 @@ export type SerializedAbility = {
   manaCost: number;
   iconId: string;
   canUse: boolean;
-  targetingShapes: Array<{ shape: SerializedAOE; origin: number | null }>;
+  targetingShapes: Array<{ shape: SerializedAOE; points: AbilityAOEPoint[] }>;
   impactAOEShape: {
     shape: SerializedAOE;
-    origin: number | null;
+    points: AbilityAOEPoint[];
   };
 };
 
@@ -80,11 +81,11 @@ export class Ability<TMeta extends AnyObject>
       canUse: this.canUse,
       targetingShapes: targetingShapes.map(t => ({
         shape: t.shape.serialize(),
-        origin: t.origin
+        points: t.points
       })),
       impactAOEShape: {
         shape: aoe.shape.serialize(),
-        origin: aoe.origin
+        points: aoe.points
       }
     };
   }
@@ -111,7 +112,7 @@ export class Ability<TMeta extends AnyObject>
 
     if (!target) return [];
     return target.shape.getArea(
-      isDefined(target.origin) ? targets[target.origin] : this.unit.position
+      target.points.map(p => parseAOEPoint(p, targets, { unit: this.unit }))
     );
   }
 
@@ -119,7 +120,7 @@ export class Ability<TMeta extends AnyObject>
     const aoe = this.blueprint.getImpactAOEShape(this.game, this);
     return (
       aoe?.shape
-        .getArea(isDefined(aoe.origin) ? targets[aoe.origin!] : this.unit.position)
+        .getArea(aoe.points.map(p => parseAOEPoint(p, targets, { unit: this.unit })))
         .map(p => this.game.board.getCellAt(p))
         .filter(isDefined) ?? []
     );

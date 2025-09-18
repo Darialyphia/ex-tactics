@@ -382,7 +382,7 @@ export class Unit
       return false;
     }
 
-    const area = this.attackTargetingShape.getArea(this.position);
+    const area = this.attackTargetingShape.getArea([this.position, point]);
 
     const isInArea = area.some(p => Vec3.fromPoint3D(p).equals(point));
     if (!isInArea) {

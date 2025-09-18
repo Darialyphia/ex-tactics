@@ -9,6 +9,8 @@ export const ABILITY_TARGET_KINDS = {
 } as const;
 export type AbilityTargetKind = Values<typeof ABILITY_TARGET_KINDS>;
 
+export type AbilityAOEPoint = { type: 'self' } | { type: 'target'; index: number };
+
 export type AbilityBlueprint<TMeta extends AnyObject = AnyObject> = {
   id: string;
   name: string;
@@ -22,10 +24,10 @@ export type AbilityBlueprint<TMeta extends AnyObject = AnyObject> = {
   getTargetingShapes(
     game: Game,
     ability: Ability<TMeta>
-  ): Array<{ shape: GenericAOEShape; origin: number | null }>; // null = origin means unit position, number = index of the ability target shapes
+  ): Array<{ shape: GenericAOEShape; points: AbilityAOEPoint[] }>;
   getImpactAOEShape(
     game: Game,
     ability: Ability<TMeta>
-  ): { shape: GenericAOEShape; origin: number | null };
+  ): { shape: GenericAOEShape; points: AbilityAOEPoint[] };
   onUse(game: Game, ability: Ability<TMeta>, targets: Vec3[]): void;
 };

@@ -7,18 +7,13 @@ type SerializedLine = {
   type: 'line';
   targetingType: TargetingType;
   params: {
-    direction: Point3D;
     length: number;
   };
 };
 
 export class LineAOEShape implements AOEShape<SerializedLine> {
   static fromJSON(json: SerializedLine): LineAOEShape {
-    return new LineAOEShape(
-      json.targetingType,
-      json.params.direction,
-      json.params.length
-    );
+    return new LineAOEShape(json.targetingType, json.params.length);
   }
 
   readonly type = 'line' as const;
@@ -26,7 +21,6 @@ export class LineAOEShape implements AOEShape<SerializedLine> {
   constructor(
     readonly targetingType: TargetingType,
 
-    private direction: Point3D,
     private length: number
   ) {}
 
@@ -35,31 +29,19 @@ export class LineAOEShape implements AOEShape<SerializedLine> {
       type: this.type,
       targetingType: this.targetingType,
       params: {
-        direction: this.direction,
         length: this.length
       }
     };
   }
 
-  getArea(origin: Point3D): Point3D[] {
-    const vec = Vec3.fromPoint3D(origin);
+  getArea([start, end]: [Point3D, Point3D]): Point3D[] {
+    const vec = Vec3.fromPoint3D(start);
+    const normalizedEnd = Vec3.fromPoint3D(end)
+      .sub(vec)
+      .normalize()
+      .scale({ x: this.length, y: this.length, z: this.length });
 
-    if (vec.magnitude === 0) {
-      if (origin.x >= 0 && origin.y >= 0 && origin.z >= 0) {
-        return [origin];
-      }
-      return [];
-    }
-
-    const normalizedDirection = vec.normalize();
-
-    const end: Point3D = {
-      x: origin.x + normalizedDirection.x * this.length,
-      y: origin.y + normalizedDirection.y * this.length,
-      z: origin.z + normalizedDirection.z * this.length
-    };
-
-    return bresenham3D(origin, end).filter(
+    return bresenham3D(start, normalizedEnd).filter(
       point => point.x >= 0 && point.y >= 0 && point.z >= 0
     );
   }

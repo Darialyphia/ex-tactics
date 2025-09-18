@@ -43,7 +43,7 @@ const tag = computed(() => {
     return CELL_HIGHLIGHTS.ORANGE;
   }
 
-  if (isCastingAbility && selectedAction.ability.canTargetFromCurrentPosition(cell)) {
+  if (isCastingAbility && selectedAction.ability.canTarget(cell.position)) {
     return CELL_HIGHLIGHTS.YELLOW;
   }
   if (activeUnit.value?.canMoveTo(cell)) {

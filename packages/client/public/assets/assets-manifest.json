@@ -37,6 +37,20 @@
         },
         {
           "alias": [
+            "icon-cone-of-flames"
+          ],
+          "src": [
+            "/assets/icons/cone-of-flames.png"
+          ],
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
             "icon-confirm"
           ],
           "src": [
@@ -226,6 +240,20 @@
     {
       "name": "ui",
       "assets": [
+        {
+          "alias": [
+            "ability-frame.png"
+          ],
+          "src": [
+            "/assets/ui/ability-frame.png"
+          ],
+          "data": {
+            "scaleMode": "nearest",
+            "tags": {
+              "m": true
+            }
+          }
+        },
         {
           "alias": [
             "ap"

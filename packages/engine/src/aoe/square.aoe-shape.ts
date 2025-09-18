@@ -41,7 +41,7 @@ export class SquareAOEShape implements AOEShape<SerializedSquare> {
     };
   }
 
-  getArea(topLeft: Point3D): Point3D[] {
+  getArea([topLeft]: [Point3D]): Point3D[] {
     const affectedPoints: Point3D[] = [];
     for (let x = 0; x < this.horizontalSize; x++) {
       for (let y = 0; y < this.horizontalSize; y++) {

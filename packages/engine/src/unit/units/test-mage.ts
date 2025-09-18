@@ -30,7 +30,7 @@ const magicBolt: AbilityBlueprint<{
   getImpactAOEShape(game, ability) {
     return {
       shape: new PointAOEShape(TARGETING_TYPES.NON_ALLY),
-      origin: 0
+      points: [{ type: 'target', index: 0 }]
     };
   },
   getTargetingShapes(game, ability) {
@@ -41,7 +41,7 @@ const magicBolt: AbilityBlueprint<{
           verticalSize: 1,
           includeCenter: false
         }),
-        origin: null
+        points: [{ type: 'self' }]
       }
     ];
   },
@@ -80,13 +80,8 @@ const coneOfFlames: AbilityBlueprint<{
   shouldAlterOrientation: true,
   getImpactAOEShape(game, ability) {
     return {
-      shape: new ConeAOEShape(
-        TARGETING_TYPES.ANY,
-        ability.unit.position,
-        ability.meta.range,
-        1
-      ),
-      origin: 0
+      shape: new ConeAOEShape(TARGETING_TYPES.ANY, ability.meta.range, 1),
+      points: [{ type: 'self' }, { type: 'target', index: 0 }]
     };
   },
   getTargetingShapes(game, ability) {
@@ -97,7 +92,7 @@ const coneOfFlames: AbilityBlueprint<{
           verticalSize: 1,
           includeCenter: false
         }),
-        origin: null
+        points: [{ type: 'self' }]
       }
     ];
   },

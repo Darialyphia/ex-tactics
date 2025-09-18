@@ -40,14 +40,15 @@ export class CombatComponent {
         unit: this.unit
       })
     );
-    const unitTargets = this.unit.attackAOEShape
-      .getArea(target)
+    const aoe = this.unit.attackAOEShape;
+    const unitTargets = aoe
+      .getArea([target])
       .map(point => this.game.unitManager.getUnitAt(point))
 
       .filter(isDefined);
 
-    const obstacleTargets = this.unit.attackAOEShape
-      .getArea(target)
+    const obstacleTargets = aoe
+      .getArea([target])
       .map(point => this.game.obstacleManager.getObstacleAt(point))
       .filter(isDefined)
       .filter(obstacle => obstacle.isAttackable);

@@ -25,7 +25,7 @@ export class PointAOEShape implements AOEShape<SerializedPoint> {
     };
   }
 
-  getArea(point: Point3D): Point3D[] {
+  getArea([point]: [Point3D]): Point3D[] {
     return [point];
   }
 }

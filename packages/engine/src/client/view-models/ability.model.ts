@@ -8,6 +8,7 @@ import { match } from 'ts-pattern';
 import { TARGETING_TYPES, type TargetingType } from '../../aoe/aoe.constants';
 import { makeAoeShape } from '../../aoe/aoe-shape.factory';
 import { ROUND_PHASES } from '../../game/systems/turn.system';
+import { parseAOEPoint } from '../../aoe/aoe-shape';
 
 type TargetablePoint = {
   point: Point3D;
@@ -19,6 +20,7 @@ export class AbilityViewModel {
   private getClient: () => GameClient;
 
   _selectedTargets: Point3D[] = [];
+  _cachedImpactZone: Nullable<Point3D[]> = null;
 
   constructor(
     private data: SerializedAbility,
@@ -107,40 +109,31 @@ export class AbilityViewModel {
         shape.shape.targetingType,
         shape.shape.params
       ),
-      origin: shape.origin
+      points: shape.points
     };
   }
 
   get targetZone() {
     const targetingShape = this.targetingShape;
     if (!targetingShape) return [];
-    const origin = isDefined(targetingShape.origin)
-      ? this._selectedTargets![targetingShape.origin!]
-      : (this.unit.moveIntent?.point ?? this.unit.position);
 
-    const pointToTest = [{ point: origin, path: [] as Point3D[] }];
-
-    const points = pointToTest
-      .map(p => ({
-        area: targetingShape.shape.getArea(p.point),
-        origin: p
-      }))
-      .flat();
-
-    const mapByArea: Record<string, TargetablePoint> = {};
-    points.forEach(({ area, origin }) => {
-      area.forEach(point => {
-        const key = `${point.x}:${point.y}:${point.z}`;
-        if (!mapByArea[key]) {
-          mapByArea[key] = { point, origins: [origin] };
-        } else {
-          mapByArea[key].origins.push(origin);
-        }
-      });
-    });
-    const result = Object.values(mapByArea);
-
-    return result;
+    return targetingShape.shape
+      .getArea(
+        targetingShape.points.map(pt =>
+          parseAOEPoint(pt, this.selectedTargets, {
+            unit: { position: this.unit.moveIntent?.point ?? this.unit.position }
+          })
+        )
+      )
+      .map(point => ({
+        point,
+        origins: [
+          {
+            point: this.unit.moveIntent?.point ?? this.unit.position,
+            path: [] as Point3D[]
+          }
+        ]
+      }));
   }
 
   get targetablePoints() {
@@ -159,18 +152,24 @@ export class AbilityViewModel {
   }
 
   get impactZone() {
-    const shapeData = this.data.impactAOEShape;
-    const shape = makeAoeShape(
-      shapeData.shape.type,
-      shapeData.shape.targetingType,
-      shapeData.shape.params
-    );
-    const origin = isDefined(shapeData.origin)
-      ? this._selectedTargets![shapeData.origin!]
-      : (this.unit.moveIntent?.point ?? this.unit.position);
-    if (!origin) return [];
+    if (this.selectedTargets.length < this.neededTargets) return [];
+    if (!this._cachedImpactZone) {
+      const shapeData = this.data.impactAOEShape;
+      const shape = makeAoeShape(
+        shapeData.shape.type,
+        shapeData.shape.targetingType,
+        shapeData.shape.params
+      );
+      const origin = this.unit.moveIntent?.point ?? this.unit.position;
+      if (!origin) return [];
 
-    return shape.getArea(origin);
+      this._cachedImpactZone = shape.getArea(
+        shapeData.points.map(pt =>
+          parseAOEPoint(pt, this.selectedTargets, { unit: { position: origin } })
+        )
+      );
+    }
+    return this._cachedImpactZone;
   }
 
   get impactedePoints() {
@@ -217,15 +216,6 @@ export class AbilityViewModel {
       .exhaustive();
   }
 
-  canTargetFromCurrentPosition(cell: BoardCellViewModel) {
-    if (this.selectedTargets.length >= this.neededTargets) return false;
-
-    const pos = this.unit.moveIntent?.point ?? this.unit.position;
-    const targetingShape = this.targetingShape;
-    const area = targetingShape?.shape.getArea(pos);
-    return area?.some(p => Vec3.fromPoint3D(p).equals(cell.position));
-  }
-
   canTarget(point: Point3D) {
     if (this.selectedTargets.length >= this.neededTargets) return false;
 
@@ -237,6 +227,7 @@ export class AbilityViewModel {
 
   clearTargets() {
     this._selectedTargets = [];
+    this._cachedImpactZone = null;
   }
 
   targetAt(point: Point3D) {

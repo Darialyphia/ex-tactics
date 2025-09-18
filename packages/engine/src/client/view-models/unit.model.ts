@@ -175,7 +175,7 @@ export class UnitViewModel {
       const targetingShape = this.attackTargetingShape;
       const points = [{ point: this.position, path: [] }, ...this.potentialMoves]
         .map(p => ({
-          attackable: targetingShape.getArea(p.point),
+          attackable: targetingShape.getArea([p.point]),
           origin: p
         }))
         .flat();
@@ -257,7 +257,7 @@ export class UnitViewModel {
   canAttackFromCurrentPosition(cell: BoardCellViewModel) {
     const pos = this.moveIntent?.point ?? this.position;
     const targetingShape = this.attackTargetingShape;
-    const area = targetingShape.getArea(pos);
+    const area = targetingShape.getArea([pos]);
     return area.some(p => Vec3.fromPoint3D(p).equals(cell.position));
   }
 
