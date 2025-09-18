@@ -7,6 +7,7 @@ import { DiagonalCrossAOEShape } from './diagonal-cross.aoe-shape';
 import { LineAOEShape } from './line.aoe-shape';
 import { PointAOEShape } from './point.aoe-shape';
 import { SquareAOEShape } from './square.aoe-shape';
+import { ConeAOEShape } from './cone.aoe-shape';
 
 const dict = {
   circle: CircleAOEShape,
@@ -14,7 +15,8 @@ const dict = {
   square: SquareAOEShape,
   line: LineAOEShape,
   cross: CrossAOEShape,
-  diagonalCross: DiagonalCrossAOEShape
+  diagonalCross: DiagonalCrossAOEShape,
+  cone: ConeAOEShape
 } as const;
 
 export type AOEType = keyof typeof dict;

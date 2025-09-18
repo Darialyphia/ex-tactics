@@ -1,4 +1,4 @@
-import { Vec3, type Point3D, type Serializable } from '@game/shared';
+import { Vec3, type AnyObject, type Point3D, type Serializable } from '@game/shared';
 import { EntityWithModifiers } from '../entity';
 import type { Game } from '../game/game';
 import type { Player } from '../player/player.entity';
@@ -62,6 +62,7 @@ export type UnitOptions = {
   player: Player;
   blueprint: UnitBlueprint;
   selectedTalents: string[];
+  cosmetics: Record<string, string>;
 };
 
 export class Unit
@@ -74,7 +75,7 @@ export class Unit
 
   readonly player: Player;
 
-  readonly abilities: Ability[];
+  readonly abilities: Ability<any>[];
 
   readonly passives: Passive[];
 
@@ -157,7 +158,7 @@ export class Unit
       potentialMoves: this.getPotentialMoves(),
       sprite: {
         id: this.blueprint.sprite.id,
-        parts: { ...this.blueprint.sprite.defaultParts }
+        parts: { ...this.blueprint.sprite.defaultParts, ...this.options.cosmetics }
       },
       icons: {
         portrait: this.blueprint.icons.portrait
@@ -173,6 +174,10 @@ export class Unit
 
   get selectedTalents() {
     return this.options.selectedTalents;
+  }
+
+  get cosmetics() {
+    return this.options.cosmetics;
   }
 
   get position() {
@@ -337,7 +342,7 @@ export class Unit
     });
   }
 
-  canUseAbility(ability: Ability): boolean {
+  canUseAbility(ability: Ability<any>): boolean {
     return this.interceptors.canUseAbility.getValue(
       ability.canUse && this.currentAp >= this.apCostPerAbility,
       { ability }

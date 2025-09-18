@@ -1,4 +1,4 @@
-import type { EmptyObject, Point3D, Vec3 } from '@game/shared';
+import type { AnyObject, EmptyObject, Point3D, Vec3 } from '@game/shared';
 import { TypedSerializableEvent } from '../utils/typed-emitter';
 import type { UNIT_EVENTS } from './unit.constants';
 import type { Unit } from './unit.entity';
@@ -119,7 +119,7 @@ export class UnitTakeDamageEvent extends TypedSerializableEvent<
 }
 
 export class UnitUseAbilityEvent extends TypedSerializableEvent<
-  { unit: Unit; ability: Ability; targets: Vec3[] },
+  { unit: Unit; ability: Ability<any>; targets: Vec3[] },
   { unit: string; ability: string; targets: Point3D[] }
 > {
   serialize() {

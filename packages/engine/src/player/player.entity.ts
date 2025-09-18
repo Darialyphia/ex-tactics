@@ -35,6 +35,7 @@ export type PlayerOptions = {
   heroes: Array<{
     blueprintId: string;
     selectedTalents: string[];
+    cosmetics: Record<string, string>;
   }>;
 };
 
@@ -47,6 +48,7 @@ type PlayerHero =
       status: 'reserve';
       blueprintId: string;
       selectedTalents: string[];
+      cosmetics: Record<string, string>;
       cooldown: number;
     };
 
@@ -65,6 +67,7 @@ export class Player
       status: 'reserve',
       blueprintId: h.blueprintId,
       selectedTalents: h.selectedTalents,
+      cosmetics: h.cosmetics,
       cooldown: 0
     }));
     this.game.on(UNIT_EVENTS.UNIT_AFTER_DESTROY, this.onUnitDestroyed.bind(this));
@@ -140,6 +143,7 @@ export class Player
       status: 'reserve',
       blueprintId: hero.unit.blueprintId,
       selectedTalents: hero.unit.selectedTalents,
+      cosmetics: hero.unit.cosmetics,
       cooldown: this.game.config.RESPAWN_COOLDOWN
     });
   }
@@ -164,7 +168,8 @@ export class Player
       player: this,
       position,
       orientation,
-      selectedTalents: hero.selectedTalents
+      selectedTalents: hero.selectedTalents,
+      cosmetics: hero.cosmetics
     });
 
     this.heroes.splice(this.heroes.indexOf(hero), 1);
@@ -202,6 +207,7 @@ export class Player
       status: 'reserve',
       blueprintId: hero.unit.blueprintId,
       selectedTalents: hero.unit.selectedTalents,
+      cosmetics: hero.unit.cosmetics,
       cooldown: this.game.config.RESPAWN_COOLDOWN
     });
   }

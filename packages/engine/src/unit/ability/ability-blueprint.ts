@@ -1,4 +1,4 @@
-import type { Values, Vec3 } from '@game/shared';
+import type { AnyObject, EmptyObject, Values, Vec3 } from '@game/shared';
 import type { GenericAOEShape } from '../../aoe/aoe-shape';
 import type { Game } from '../../game/game';
 import type { Ability } from './ability.entity';
@@ -9,22 +9,23 @@ export const ABILITY_TARGET_KINDS = {
 } as const;
 export type AbilityTargetKind = Values<typeof ABILITY_TARGET_KINDS>;
 
-export type AbilityBlueprint = {
+export type AbilityBlueprint<TMeta extends AnyObject = AnyObject> = {
   id: string;
-  iconId: string;
   name: string;
   description: string;
-  dynamicDescription: (game: Game, ability: Ability) => string;
+  dynamicDescription: (game: Game, ability: Ability<TMeta>) => string;
+  iconId: string;
+  meta: TMeta;
   manaCost: number;
   cooldown: number;
   shouldAlterOrientation: boolean; // if true, unit will face first target when using ability
   getTargetingShapes(
     game: Game,
-    ability: Ability
+    ability: Ability<TMeta>
   ): Array<{ shape: GenericAOEShape; origin: number | null }>; // null = origin means unit position, number = index of the ability target shapes
   getImpactAOEShape(
     game: Game,
-    ability: Ability
+    ability: Ability<TMeta>
   ): { shape: GenericAOEShape; origin: number | null };
-  onUse(game: Game, ability: Ability, targets: Vec3[]): void;
+  onUse(game: Game, ability: Ability<TMeta>, targets: Vec3[]): void;
 };

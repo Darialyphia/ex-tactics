@@ -40,6 +40,7 @@ export class UnitManager {
     blueprintId: string;
     selectedTalents: string[];
     orientation: Direction;
+    cosmetics: Record<string, string>;
   }) {
     const blueprint = UNITS_DICTIONARY[options.blueprintId];
     if (!blueprint) {
@@ -52,7 +53,8 @@ export class UnitManager {
       player: options.player,
       position: options.position,
       selectedTalents: options.selectedTalents,
-      orientation: options.orientation
+      orientation: options.orientation,
+      cosmetics: options.cosmetics
     });
     this.unitMap.set(unit.id, unit);
 

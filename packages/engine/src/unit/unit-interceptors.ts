@@ -1,3 +1,4 @@
+import type { AnyObject } from '@game/shared';
 import type { GenericAOEShape } from '../aoe/aoe-shape';
 import type { Modifier } from '../modifier/modifier.entity';
 import type { Obstacle } from '../obstacle/obstacle.entity';
@@ -11,9 +12,9 @@ export type UnitInterceptors = {
   canMoveAfterAttacking: Interceptable<boolean>;
   canAttack: Interceptable<boolean, { target: Unit | Obstacle }>;
   canBeAttackTarget: Interceptable<boolean, { attacker: Unit }>;
-  canBeAbilityTarget: Interceptable<boolean, { ability: Ability }>;
+  canBeAbilityTarget: Interceptable<boolean, { ability: Ability<AnyObject> }>;
   canReceiveModifier: Interceptable<boolean, { modifier: Modifier<Unit> }>;
-  canUseAbility: Interceptable<boolean, { ability: Ability }>;
+  canUseAbility: Interceptable<boolean, { ability: Ability<AnyObject> }>;
 
   maxHp: Interceptable<number>;
   maxMp: Interceptable<number>;

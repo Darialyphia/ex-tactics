@@ -6,7 +6,8 @@ import {
   Spritesheet,
   Texture,
   // type LoaderParserAdvanced,
-  type SpritesheetData
+  type SpritesheetData,
+  type SpritesheetFrameData
 } from 'pixi.js';
 import { z } from 'zod';
 
@@ -69,7 +70,7 @@ const asepriteJsonSchema = z.object({
       frame: asepriteRectSchema,
       spriteSourceSize: asepriteRectSchema,
       sourceSize: asepriteSizeSchema,
-      duration: z.number().optional()
+      duration: z.number()
     })
   ),
   meta: asepriteJsonMetaSchema
@@ -115,6 +116,12 @@ const parseFrameKey = (key: FrameKey) => {
 type LayerData = Override<
   SpritesheetData,
   {
+    frames: Record<
+      string,
+      SpritesheetFrameData & {
+        duration: number;
+      }
+    >;
     meta: Override<
       SpritesheetData['meta'],
       {
@@ -137,6 +144,17 @@ type LoadedAsepriteSheet = {
   meta: AsepriteMeta;
 };
 
+export type AsepriteSheetData = Override<
+  SpritesheetData,
+  {
+    frames: Record<
+      string,
+      SpritesheetFrameData & {
+        duration: number;
+      }
+    >;
+  }
+>;
 export type ParsedAsepriteSheet<
   TGroups extends string = string,
   TBaseLayers extends string = string,
@@ -145,8 +163,8 @@ export type ParsedAsepriteSheet<
   groups: TGroups[];
   sheets: {
     [key in TGroups | typeof BASE_LAYER_GROUP]: key extends typeof BASE_LAYER_GROUP
-      ? Record<TBaseLayers, Spritesheet>
-      : Record<TGroupLayers, Spritesheet>;
+      ? Record<TBaseLayers, Spritesheet<AsepriteSheetData>>
+      : Record<TGroupLayers, Spritesheet<AsepriteSheetData>>;
   };
   meta: AsepriteMeta;
 };
@@ -223,7 +241,7 @@ const parseAsepriteSheet = async (
         .filter(([, v]) => !isEmptyObject(v.frames))
         .map(async ([k, v]) => [k, await loadAndParse(v)] as const)
     );
-    result.sheets[groupName] = Object.fromEntries(resources);
+    result.sheets[groupName] = Object.fromEntries(resources) as any;
   }
 
   return result;

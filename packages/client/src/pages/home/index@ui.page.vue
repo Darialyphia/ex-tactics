@@ -22,11 +22,15 @@ const game = new Game({
       heroes: [
         {
           blueprintId: 'testHero',
-          selectedTalents: []
+          selectedTalents: [],
+          cosmetics: {}
         },
         {
           blueprintId: 'testHero2',
-          selectedTalents: []
+          selectedTalents: [],
+          cosmetics: {
+            hat: 'default'
+          }
         }
       ]
     },
@@ -36,11 +40,13 @@ const game = new Game({
       heroes: [
         {
           blueprintId: 'testHero',
-          selectedTalents: []
+          selectedTalents: [],
+          cosmetics: {}
         },
         {
           blueprintId: 'testHero2',
-          selectedTalents: []
+          selectedTalents: [],
+          cosmetics: {}
         }
       ]
     }

@@ -1,4 +1,11 @@
-import { isDefined, type Point3D, type Serializable, type Vec3 } from '@game/shared';
+import {
+  isDefined,
+  type AnyObject,
+  type EmptyObject,
+  type Point3D,
+  type Serializable,
+  type Vec3
+} from '@game/shared';
 import { Entity } from '../../entity';
 import type { Unit } from '../unit.entity';
 import type { AbilityBlueprint } from './ability-blueprint';
@@ -8,9 +15,10 @@ import { UNIT_EVENTS } from '../unit.constants';
 import { UnitUseAbilityEvent } from '../unit.events';
 import type { SerializedAOE } from '../../aoe/aoe-shape';
 
-export type AbilityInterceptors = {
+export type AbilityInterceptors<TMeta> = {
   manaCost: Interceptable<number>;
   cooldown: Interceptable<number>;
+  meta: Interceptable<TMeta>;
 };
 
 export type SerializedAbility = {
@@ -32,8 +40,8 @@ export type SerializedAbility = {
   };
 };
 
-export class Ability
-  extends Entity<AbilityInterceptors>
+export class Ability<TMeta extends AnyObject>
+  extends Entity<AbilityInterceptors<TMeta>>
   implements Serializable<SerializedAbility>
 {
   private remainingCooldown = 0;
@@ -41,11 +49,12 @@ export class Ability
   constructor(
     private game: Game,
     readonly unit: Unit,
-    readonly blueprint: AbilityBlueprint
+    readonly blueprint: AbilityBlueprint<TMeta>
   ) {
     super(`ability-${unit.id}-${blueprint.id}`, {
       manaCost: new Interceptable(),
-      cooldown: new Interceptable()
+      cooldown: new Interceptable(),
+      meta: new Interceptable()
     });
     this.game.on(UNIT_EVENTS.UNIT_TURN_START, event => {
       if (event.data.unit.equals(this.unit) && this.remainingCooldown > 0) {
@@ -90,6 +99,10 @@ export class Ability
 
   get shouldAlterOrientation() {
     return this.blueprint.shouldAlterOrientation;
+  }
+
+  get meta() {
+    return this.interceptors.meta.getValue(this.blueprint.meta, {});
   }
 
   getPotentialTargets(shapeIndex: number, targets: Point3D[]) {

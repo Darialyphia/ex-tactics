@@ -27,7 +27,7 @@ export type UnitBlueprint = {
   icons: {
     portrait: string;
   };
-  defaultAbilities: AbilityBlueprint[];
+  defaultAbilities: AbilityBlueprint<any>[];
   defaultPassives: PassiveBlueprint[];
   talentTree: TalentBlueprint[][];
 };

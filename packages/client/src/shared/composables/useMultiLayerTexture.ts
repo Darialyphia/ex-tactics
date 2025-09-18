@@ -1,6 +1,14 @@
-import type { ParsedAsepriteSheet } from '@/utils/aseprite-parser';
+import type { AsepriteSheetData, ParsedAsepriteSheet } from '@/utils/aseprite-parser';
 import { objectEntries, type Nullable } from '@game/shared';
-import { Container, Sprite, Texture, TextureSource, type BLEND_MODES } from 'pixi.js';
+import {
+  Container,
+  Sprite,
+  Spritesheet,
+  Texture,
+  TextureSource,
+  type BLEND_MODES,
+  type FrameObject
+} from 'pixi.js';
 import { useApplication } from 'vue3-pixi';
 
 export const useMultiLayerTexture = <
@@ -41,13 +49,23 @@ export const useMultiLayerTexture = <
     });
   });
 
+  const frameDurations = computed(() => {
+    const _sheet = toValue(sheet);
+    const _tag = toValue(tag);
+
+    if (!_sheet) return [];
+    const s = Object.values(_sheet.sheets.base)[0] as Spritesheet<AsepriteSheetData>;
+    const frameNames = s.data.animations![_tag]!;
+    const frames = frameNames.map(name => s.data.frames[name]);
+
+    return frames.map(f => f.duration);
+  });
   const app = useApplication();
 
   const textures = shallowRef<Texture<TextureSource<any>>[]>([]);
   watchEffect(() => {
     const _sheet = toValue(sheet);
     if (!_sheet) return;
-
     const containers: Container[] = [];
 
     textures.value = [];
@@ -83,5 +101,14 @@ export const useMultiLayerTexture = <
     // });
   });
 
-  return computed(() => (textures.value.length ? textures.value : [Texture.EMPTY]));
+  return computed<Array<Texture | FrameObject>>(() => {
+    const res = textures.value.length
+      ? textures.value.map((texture, index) => ({
+          texture,
+          time: frameDurations.value[index]
+        }))
+      : [Texture.EMPTY];
+
+    return res;
+  });
 };
