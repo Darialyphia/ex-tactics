@@ -17,6 +17,13 @@ const simulatedHp = computed(() => {
   if (!simUnit) return 0;
   return simUnit.currentHp;
 });
+
+const simulatedMp = computed(() => {
+  if (!simulation.value) return unit.mp;
+  const simUnit = simulation.value.state.entities[unit.id] as SerializedUnit | undefined;
+  if (!simUnit) return 0;
+  return simUnit.currentMp;
+});
 </script>
 
 <template>
@@ -31,7 +38,7 @@ const simulatedHp = computed(() => {
     <container :y="3">
       <UiAnimatedSprite asset-id="unit-stat-bars" :anchor="0" />
       <HpBar :value="unit.hp" :simulated-value="simulatedHp" :max="unit.maxHp" :x="2" :y="2" />
-      <MpBar :value="unit.mp" :max="unit.maxMp" :x="2" :y="5" />
+      <MpBar :value="unit.mp" :max="unit.maxMp" :x="2" :y="5" :simulated-value="simulatedMp" />
     </container>
   </container>
 </template>

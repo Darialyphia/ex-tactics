@@ -118,7 +118,7 @@ const onConfirmAction = () => {
             <button
               v-for="action in activeUnit.actions"
               :key="action.id"
-              class="action"
+              class="action ability"
               :style="`--bg: url(${action.type === 'attack' ? '/assets/icons/attack.png' : action.ability.icon})`"
               :disabled="action.type === 'attack' ? !activeUnit.canAttack : !action.ability.canUse"
               @click="ui.selectedUnitAction = action"
@@ -126,7 +126,7 @@ const onConfirmAction = () => {
           </template>
           <button
             v-else
-            class="action"
+            class="action abiliy"
             :style="{ '--bg': 'url(/assets/icons/back.png)' }"
             @click="ui.clearUnitAction()"
           />
@@ -181,6 +181,13 @@ const onConfirmAction = () => {
   box-shadow: 0 0 0 2px var(--color-bg);
   cursor: pointer;
   border-radius: var(--radius-round);
+
+  &.ability {
+    background: url('/assets/ui/ability-frame.png'), var(--bg);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
 
   &:hover {
     filter: brightness(1.2);
