@@ -399,6 +399,7 @@ export class Unit
     const ability = this.abilities.find(a => a.id === abilityId);
     if (!ability) throw new Error(`Ability ${abilityId} not found on unit ${this.id}`);
     this.currentAp -= this.apCostPerAbility;
+    this.currentMp -= ability.manaCost;
     this.actionsTakenThisTurn += 1;
     if (ability.shouldAlterOrientation && targets.length) {
       this.orientation = getDirectionFromDiff(this.position, targets[0])!;

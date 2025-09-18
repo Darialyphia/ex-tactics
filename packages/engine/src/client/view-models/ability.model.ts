@@ -154,6 +154,37 @@ export class AbilityViewModel {
     return result;
   }
 
+  get impactZone() {
+    const shapeData = this.data.impactAOEShape;
+    const shape = makeAoeShape(
+      shapeData.shape.type,
+      shapeData.shape.targetingType,
+      shapeData.shape.params
+    );
+    const origin = isDefined(shapeData.origin)
+      ? this._selectedTargets![shapeData.origin!]
+      : (this.unit.moveIntent?.point ?? this.unit.position);
+    if (!origin) return [];
+
+    return shape.getArea(origin);
+  }
+
+  get impactedePoints() {
+    const entities = this.getEntities();
+
+    const result: Point3D[] = this.impactZone.filter(point => {
+      const key = `${point.x}:${point.y}:${point.z}`;
+      const cell = entities[key] as BoardCellViewModel | undefined;
+      if (!cell) return false;
+      return this.isValidTargetType(cell, this.data.impactAOEShape.shape.targetingType);
+    });
+    return result;
+  }
+
+  isInImpactZone(point: Point3D) {
+    return this.impactZone.some(p => Vec3.fromPoint3D(p).equals(point));
+  }
+
   private isValidTargetType(cell: BoardCellViewModel, type: TargetingType) {
     const player = this.unit.player;
     return match(type)

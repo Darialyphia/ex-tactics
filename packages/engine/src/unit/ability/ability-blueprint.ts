@@ -22,9 +22,9 @@ export type AbilityBlueprint = {
     game: Game,
     ability: Ability
   ): Array<{ shape: GenericAOEShape; origin: number | null }>; // null = origin means unit position, number = index of the ability target shapes
-  getAttackAOEShape(
+  getImpactAOEShape(
     game: Game,
     ability: Ability
-  ): { shape: GenericAOEShape; origin: number };
+  ): { shape: GenericAOEShape; origin: number | null };
   onUse(game: Game, ability: Ability, targets: Vec3[]): void;
 };

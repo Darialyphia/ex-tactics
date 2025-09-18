@@ -72,7 +72,7 @@ export const UNITS_DICTIONARY: Record<string, UnitBlueprint> = {
         cooldown: 1,
         manaCost: 1,
         shouldAlterOrientation: true,
-        getAttackAOEShape(game, ability) {
+        getImpactAOEShape(game, ability) {
           return {
             shape: new PointAOEShape(TARGETING_TYPES.NON_ALLY),
             origin: 0

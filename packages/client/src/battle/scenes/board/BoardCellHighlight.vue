@@ -34,9 +34,15 @@ const tag = computed(() => {
   if (isCastingAbility && selectedAction.ability.canTarget(cell.position)) {
     return CELL_HIGHLIGHTS.RED;
   }
+
   if (isAttacking && activeUnit.value?.canAttackFromCurrentPosition(cell)) {
     return CELL_HIGHLIGHTS.YELLOW;
   }
+
+  if (isCastingAbility && selectedAction.ability.isInImpactZone(cell.position)) {
+    return CELL_HIGHLIGHTS.ORANGE;
+  }
+
   if (isCastingAbility && selectedAction.ability.canTargetFromCurrentPosition(cell)) {
     return CELL_HIGHLIGHTS.YELLOW;
   }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useActiveUnit, useFxEvent } from '@/battle/composables/useGameClient';
+import { useActiveUnit, useFxEvent, useGameUi } from '@/battle/composables/useGameClient';
 import { useMultiLayerTexture } from '@/shared/composables/useMultiLayerTexture';
 import { useSpritesheet } from '@/shared/composables/useSpritesheet';
 import { config } from '@/utils/config';
@@ -14,6 +14,7 @@ const { unit } = defineProps<{
   unit: UnitViewModel;
 }>();
 
+const ui = useGameUi();
 const sheet = useSpritesheet<'', 'base'>(() => unit.spriteId);
 
 const textures = useMultiLayerTexture({
@@ -27,14 +28,25 @@ const outlineFilter = new OutlineFilter({
   thickness: 2,
   quality: 0.5
 });
+
 const attackIntentFilter = new OutlineFilter({
   color: 0xff0000,
   thickness: 2,
   quality: 0.5
 });
+
 const takeDamageFilter = new ColorOverlayFilter({
   color: 0xff0000,
   alpha: 0
+});
+
+const positivelyImpactedByAbilityFilter = new ColorOverlayFilter({
+  color: 0x00ff00,
+  alpha: 0.3
+});
+const negativelyImpactedByAbilityFilter = new ColorOverlayFilter({
+  color: 0xff0000,
+  alpha: 0.3
 });
 
 const activeUnit = useActiveUnit();
@@ -54,6 +66,16 @@ const filters = computed(() => {
     Vec3.fromPoint3D(activeUnit.value.attackIntent).equals(unit.position)
   ) {
     result.push(attackIntentFilter);
+  }
+  if (ui.value.selectedUnitAction?.type === 'ability') {
+    const ability = ui.value.selectedUnitAction.ability;
+    if (ability.isInImpactZone(unit.position)) {
+      if (ability.unit.player.equals(unit.player)) {
+        result.push(positivelyImpactedByAbilityFilter);
+      } else {
+        result.push(negativelyImpactedByAbilityFilter);
+      }
+    }
   }
   return result;
 });

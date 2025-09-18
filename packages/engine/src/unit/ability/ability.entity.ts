@@ -26,8 +26,8 @@ export type SerializedAbility = {
   iconId: string;
   canUse: boolean;
   targetingShapes: Array<{ shape: SerializedAOE; origin: number | null }>;
-  aoeShape: {
-    shape: SerializedAOE | null;
+  impactAOEShape: {
+    shape: SerializedAOE;
     origin: number | null;
   };
 };
@@ -56,7 +56,7 @@ export class Ability
 
   serialize() {
     const targetingShapes = this.blueprint.getTargetingShapes(this.game, this);
-    const aoe = this.blueprint.getAttackAOEShape(this.game, this);
+    const aoe = this.blueprint.getImpactAOEShape(this.game, this);
     return {
       entityType: 'ability' as const,
       id: this.id,
@@ -73,19 +73,19 @@ export class Ability
         shape: t.shape.serialize(),
         origin: t.origin
       })),
-      aoeShape: {
-        shape: aoe?.shape.serialize() ?? null,
-        origin: aoe?.origin ?? null
+      impactAOEShape: {
+        shape: aoe.shape.serialize(),
+        origin: aoe.origin
       }
     };
   }
 
   get cooldown() {
-    return this.interceptors.cooldown.getValue(0, {});
+    return this.interceptors.cooldown.getValue(this.blueprint.cooldown, {});
   }
 
   get manaCost() {
-    return this.interceptors.manaCost.getValue(0, {});
+    return this.interceptors.manaCost.getValue(this.blueprint.manaCost, {});
   }
 
   get shouldAlterOrientation() {
@@ -103,10 +103,10 @@ export class Ability
   }
 
   getCellsInAoe(targets: Vec3[]) {
-    const aoe = this.blueprint.getAttackAOEShape(this.game, this);
+    const aoe = this.blueprint.getImpactAOEShape(this.game, this);
     return (
       aoe?.shape
-        .getArea(targets[aoe.origin])
+        .getArea(isDefined(aoe.origin) ? targets[aoe.origin!] : this.unit.position)
         .map(p => this.game.board.getCellAt(p))
         .filter(isDefined) ?? []
     );
