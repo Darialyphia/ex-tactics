@@ -25,7 +25,7 @@ const canConfirmAction = computed(() => {
   } else if (ui.value.selectedUnitAction.type === 'ability') {
     return (
       ui.value.selectedUnitAction.ability.selectedTargets.length ===
-      ui.value.selectedUnitAction.ability.maxTargets
+      ui.value.selectedUnitAction.ability.neededTargets
     );
   }
   return false;
@@ -96,6 +96,15 @@ const onConfirmAction = () => {
 
         <div v-if="activeUnit.attackIntent">
           Attack intent: {{ activeUnit.attackIntent }}
+          <div v-if="simulation">
+            Simulation result :
+            <div v-for="(event, index) in simulation.events" :key="`${event.eventName}-${index}`">
+              {{ event.eventName }}: {{ event.event }}
+            </div>
+          </div>
+        </div>
+        <div v-if="activeUnit.abilityIntent">
+          Ability intent: {{ activeUnit.abilityIntent.name }}
           <div v-if="simulation">
             Simulation result :
             <div v-for="(event, index) in simulation.events" :key="`${event.eventName}-${index}`">

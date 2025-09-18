@@ -91,9 +91,9 @@ export const UNITS_DICTIONARY: Record<string, UnitBlueprint> = {
           ];
         },
         onUse(game, ability, targets) {
-          const [unit] = ability.getUnitsInAoe(targets);
+          const [target] = ability.getUnitOrObstacleInAoe(targets);
           ability.unit.combat.dealDamage(
-            [unit],
+            [target],
             new MagicalDamage(game, {
               baseAmount: 10,
               mAtkRatio: 0.8,

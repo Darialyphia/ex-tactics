@@ -187,7 +187,6 @@ export class InputSystem {
     const input = new ctor(this.game, this.nextInputId++, payload);
     const prevAction = this._currentAction;
     this._currentAction = input;
-    this.game.emit(GAME_EVENTS.INPUT_START, new GameInputEvent({ input }));
 
     input.execute();
     this.game.emit(GAME_EVENTS.INPUT_END, new GameInputEvent({ input }));

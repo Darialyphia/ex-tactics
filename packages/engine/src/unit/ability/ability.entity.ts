@@ -118,6 +118,18 @@ export class Ability
       .filter(isDefined);
   }
 
+  getObstaclesInAoe(targets: Vec3[]) {
+    return this.getCellsInAoe(targets)
+      .map(cell => cell.obstacle)
+      .filter(isDefined);
+  }
+
+  getUnitOrObstacleInAoe(targets: Vec3[]) {
+    return this.getCellsInAoe(targets)
+      .map(cell => cell.unit ?? cell.obstacle)
+      .filter(isDefined);
+  }
+
   get canUse() {
     if (this.remainingCooldown > 0) return false;
     if (this.manaCost > this.unit.currentMp) return false;

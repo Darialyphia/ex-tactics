@@ -229,6 +229,27 @@ export class UnitViewModel {
     ];
   }
 
+  get isActive() {
+    return this.indexInTurnOrder === 0;
+  }
+
+  get abilityIntent() {
+    if (!this.isActive) return null;
+    const client = this.getClient();
+    const unitAction = client.ui.selectedUnitAction;
+    if (unitAction?.type !== 'ability') {
+      return null;
+    }
+    if (!unitAction.ability.unit.equals(this)) {
+      return null;
+    }
+    if (!unitAction.ability.hasFulfilledTargeting) {
+      return null;
+    }
+
+    return unitAction.ability;
+  }
+
   isInAttackZone(cell: BoardCellViewModel) {
     return this.attackZone.some(p => Vec3.fromPoint3D(p.point).equals(cell.position));
   }

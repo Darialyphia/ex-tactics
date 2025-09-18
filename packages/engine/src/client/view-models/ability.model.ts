@@ -86,12 +86,16 @@ export class AbilityViewModel {
     return this._selectedTargets.length;
   }
 
-  get maxTargets() {
+  get neededTargets() {
     return this.data.targetingShapes.length;
   }
 
   get selectedTargets() {
     return this._selectedTargets;
+  }
+
+  get hasFulfilledTargeting() {
+    return this.selectedTargets.length === this.neededTargets;
   }
 
   get targetingShape() {
@@ -214,7 +218,7 @@ export class AbilityViewModel {
   }
 
   canTargetFromCurrentPosition(cell: BoardCellViewModel) {
-    if (this.selectedTargets.length >= this.maxTargets) return false;
+    if (this.selectedTargets.length >= this.neededTargets) return false;
 
     const pos = this.unit.moveIntent?.point ?? this.unit.position;
     const targetingShape = this.targetingShape;
@@ -223,7 +227,7 @@ export class AbilityViewModel {
   }
 
   canTarget(point: Point3D) {
-    if (this.selectedTargets.length >= this.maxTargets) return false;
+    if (this.selectedTargets.length >= this.neededTargets) return false;
 
     const client = this.getClient();
     if (client.state.phase !== ROUND_PHASES.BATTLE) return false;

@@ -74,7 +74,18 @@ export class CombatComponent {
     );
   }
 
-  dealDamage(targets: Unit[], damage: Damage<any>) {
+  dealDamage(targets: Array<Unit | Obstacle>, damage: Damage<any>) {
+    const unitTargets = targets.filter(t => t instanceof Unit) as Unit[];
+    const obstacleTargets = targets.filter(t => t instanceof Obstacle) as Obstacle[];
+    if (unitTargets.length) {
+      this.dealDamageToUnits(unitTargets, damage);
+    }
+    if (obstacleTargets.length) {
+      this.dealDamageToObstacles(obstacleTargets, damage);
+    }
+  }
+
+  private dealDamageToUnits(targets: Unit[], damage: Damage<any>) {
     this.game.emit(
       UNIT_EVENTS.UNIT_BEFORE_DEAL_DAMAGE,
       new UnitDealDamageEvent({
@@ -94,6 +105,12 @@ export class CombatComponent {
         damage
       })
     );
+  }
+
+  private dealDamageToObstacles(targets: Obstacle[], damage: Damage<any>) {
+    targets.forEach(obstacle => {
+      obstacle.onAttacked(this.unit, damage);
+    });
   }
 
   takeDamage(from: Unit, damage: Damage<any>) {

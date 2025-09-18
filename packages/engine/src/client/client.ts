@@ -218,7 +218,7 @@ export class GameClient {
     }
 
     this.lastSnapshotId = snapshot.id;
-
+    this.latestSimulationResult = null;
     try {
       this.startPlayingFX();
       this.stateManager.preupdate(snapshot.state);

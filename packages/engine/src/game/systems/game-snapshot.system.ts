@@ -135,7 +135,6 @@ export class GameSnapshotSystem {
     const ignoredEvents: GameEventName[] = [
       GAME_EVENTS.NEW_SNAPSHOT,
       GAME_EVENTS.FLUSHED,
-      GAME_EVENTS.INPUT_START,
       GAME_EVENTS.INPUT_END
     ];
     this.game.playerManager.players.forEach(player => {

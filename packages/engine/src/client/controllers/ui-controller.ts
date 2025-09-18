@@ -80,6 +80,7 @@ export class UiController {
 
   set selectedUnitAction(action: UnitAction) {
     this._selectedUnitAction = action;
+    this.client.forceSync();
   }
 
   clearUnitAction() {
@@ -87,7 +88,7 @@ export class UiController {
     if (!action) return;
 
     if (action.type === 'ability') {
-      action.ability.clearTargets;
+      action.ability.clearTargets();
     }
 
     this._selectedUnitAction = null;
