@@ -217,7 +217,7 @@ export class AbilityViewModel {
   }
 
   canTarget(point: Point3D) {
-    if (this.selectedTargets.length >= this.neededTargets) return false;
+    if (this.hasFulfilledTargeting) return false;
 
     const client = this.getClient();
     if (client.state.phase !== ROUND_PHASES.BATTLE) return false;

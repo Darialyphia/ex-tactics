@@ -40,9 +40,10 @@ const animations = useUnitAnimations(
   spriteContainer
 );
 
+const rootContainer = shallowRef<Container>();
 useFxEvent(FX_EVENTS.UNIT_AFTER_MOVE, async e => {
   isPositionAnimated.value = false;
-  await animations.move(e);
+  await animations.move(e, rootContainer);
   isPositionAnimated.value = true;
 });
 
@@ -62,6 +63,11 @@ useFxEvent(FX_EVENTS.UNIT_AFTER_TAKE_DAMAGE, async e => {
     :position="unit.position"
     :z-index-offset="50"
     :is-animated="isPositionAnimated"
+    :ref="
+      (el: any) => {
+        rootContainer = el?.container as Container;
+      }
+    "
   >
     <LightSource :id="unit.id">
       <OrientationArrow :orientation="unit.orientation" />
